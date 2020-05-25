@@ -1,0 +1,3 @@
+CPU에서 처리 - Frustum Culling
+
+occulusion Culling -> OM으로 아예 보내질않음.
