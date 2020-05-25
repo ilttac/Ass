@@ -41,7 +41,7 @@ private:
 
 		Vector4 Angle[MAX_SPOT_LIGHT];
 		Matrix Projection[MAX_SPOT_LIGHT];
-		PointLight SpotLight[MAX_SPOT_LIGHT];
+		SpotLight SpotLight[MAX_SPOT_LIGHT];
 	}spotLightDesc;
 
 private:
