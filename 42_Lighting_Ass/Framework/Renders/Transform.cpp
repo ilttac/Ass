@@ -60,6 +60,11 @@ Vector3 Transform::GetPositon()
 	return position ;
 }
 
+Vector3 Transform::GetRotation()
+{
+	return rotation;
+}
+
 void Transform::Scale(float x, float y, float z)
 {
 	Scale(Vector3(x, y, z));

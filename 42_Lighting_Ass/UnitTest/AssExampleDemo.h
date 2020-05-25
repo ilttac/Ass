@@ -28,13 +28,19 @@ private:
 	void PlayerMove();
 	void PlayerWeaponChange();
 private:
+	const static UINT arrowCount = 100;
 	Shader * shader;
 	
 	class SkyCube* sky;
 
 	Material* floor;
 	MeshRender* grid;
+	
 	Model* weapon;
+	ModelRender* archerWeapon[arrowCount];
+	Transform* archerWeaponTransform;
+	Vector3 arrowNorMal[arrowCount];
+
 	ModelAnimator* michelle = NULL;
 	ModelAnimator* hallin = NULL;
 	ModelAnimator* archer = NULL;
@@ -139,6 +145,12 @@ private:
 		Transform* Transform;
 		SquareCollider* Collider;
 	}archerSerachCollider[4];
+	struct ArcherArrowCollider
+	{
+		Transform* Init;
+		Transform* Transform;
+		Collider* Collider;
+	}archerArrowCollider[4];
 	///////////
 
 	vector<MeshRender*> meshes;

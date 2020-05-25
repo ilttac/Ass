@@ -8,6 +8,7 @@ public:
 	~Transform();
 
 	Vector3 GetPositon();
+	Vector3 GetRotation();
 	void Set(Transform* transform);
 
 	void SetShader(Shader* shader);
