@@ -323,3 +323,176 @@ float4 PS_PointLights(DomainOutput_PointLights input) : SV_Target
 	
 	return float4(MaterialToColor(result), 1.0f);
 }
+/////////////////////////////////////////////////////////
+//SpotLights
+/////////////////////////////////////////////////////////
+
+cbuffer CB_Deffered_SpotLight
+{
+	float SpotLight_TessFator;
+	float3 CB_Deffered_SpotLight_Padding;
+	
+	float4 SpotLight_Angle[MAX_SPOT_LIGHT];
+	matrix SpotLight_Projection[MAX_SPOT_LIGHT];
+	SpotLightDesc SpotLight_Deffered[MAX_SPOT_LIGHT];
+};
+
+float4 VS_SpotLights() : Position
+{
+	return float4(0, 0, 0, 1);
+}
+
+struct ConstantHullOutput_SpotLights
+{
+	float Edge[4] : SV_TessFactor; //몇개로 자를 것인지
+	float Inside[2] : SV_InsideTessFactor; // 무게 중심
+};
+
+ConstantHullOutput_SpotLights ConstHS_SpotLights()
+{
+	ConstantHullOutput_SpotLights output;
+
+
+	output.Edge[0] = output.Edge[1] = output.Edge[2] = output.Edge[3] = SpotLight_TessFator;
+	output.Inside[0] = output.Inside[1] = SpotLight_TessFator;
+
+	return output;
+}
+
+struct HullOutput_SpotLights
+{
+	float4 Position : Positoin;
+};
+
+
+[domain("quad")]
+[partitioning("integer")]
+[outputtopology("triangle_ccw")]
+[outputcontrolpoints(4)]
+[patchconstantfunc("ConstHS_SpotLights")]
+HullOutput_SpotLights HS_SpotLights(uint id : SV_PrimitiveID)//2개의 정점
+{
+	HullOutput_SpotLights output;
+	output.Position = float4(0, 0, 0, 1);
+	
+	return output;
+} //y가 1인 평면을 넘겨준다.
+
+struct DomainOutput_SpotLights
+{
+	float4 Position : SV_Position;
+	float2 Screen : Uv;
+	uint PrimitiveID : Id;
+};
+
+[domain("quad")]
+DomainOutput_SpotLights DS_SpotLights
+(
+    ConstantHullOutput_SpotLights input,
+    float2 uv : SV_DomainLocation,
+    const OutputPatch<HullOutput_SpotLights, 4> quad,
+	uint id : SV_PrimitiveID
+)	
+{
+	float s = SpotLight_Angle[id].y;
+	float c = SpotLight_Angle[id].x;
+	
+	float2 clipSpace = uv.xy * float2(2, -2) + float2(-1,1);
+	float2 clipSpaceAbs = abs(clipSpace.xy);
+	
+	float maxLength = max(clipSpaceAbs.x, clipSpaceAbs.y);
+	
+	//cylinder
+	float cylinder = 0.2f;
+	float expentAmount = (1.0f + cylinder);
+	
+	float2 clipSpaceCylAbs = saturate(clipSpaceAbs * expentAmount);
+	float maxLengthCapsule = max(clipSpaceCylAbs.x, clipSpaceCylAbs.y);
+	float2 clipSpaceCyl = sign(clipSpace.xy) * clipSpaceCylAbs;
+	
+	//halfSphere
+	float3 halfSpherePosition = normalize(float3(clipSpaceCyl.xy, 1.0f - maxLengthCapsule));
+	halfSpherePosition = normalize(float3(halfSpherePosition.xy * s, c));
+	
+	float cylOffsetZ = saturate((maxLength * expentAmount - 1.0f) / cylinder);
+	
+	float4 position = 0;
+	position.xy = halfSpherePosition.xy * (1.0f - cylOffsetZ);
+	position.z = halfSpherePosition.z - cylOffsetZ * c;
+	
+	DomainOutput_SpotLights output;
+	output.Position = mul(position, SpotLight_Projection[id]);
+	output.Screen = output.Position.xyz / output.Position.w;
+	output.PrimitiveID = id;
+	
+	return output;
+}
+
+
+void ComputeSpotLight_Deffered(inout MaterialDesc output, MaterialDesc material, uint id, float3 normal, float3 wPosition)
+{
+	output = MakeMaterial();
+	normal = normalize(normal);
+
+	SpotLightDesc desc = SpotLight_Deffered[id];
+    
+	float3 light = desc.Position - wPosition;
+	float dist = length(light);
+    
+    [flatten]
+	if (dist > desc.Range)
+		return;
+    
+	light /= dist;
+    
+	output.Ambient = material.Ambient * desc.Ambient;
+    
+	float NdotL = dot(light, normal);
+	float3 E = normalize(ViewPosition() - wPosition);
+    
+    [flatten]
+	if (NdotL > 0.0f)
+	{
+		float3 R = normalize(reflect(-light, normal));
+		float RdotE = saturate(dot(R, E));
+		float specular = pow(RdotE, material.Specular.a);
+    
+		output.Diffuse = NdotL * material.Diffuse * desc.Diffuse;
+		output.Specular = specular * material.Specular * desc.Specular;
+	}
+    
+	float NdotE = dot(E, normal);
+	float emissive = smoothstep(1.0f - material.Emissive.a, 1.0f, 1.0f - saturate(NdotE));
+	output.Emissive = emissive * material.Emissive * desc.Emissive;
+    
+    //-
+	float temp = pow(saturate(dot(-light, desc.Direction)), desc.Angle);
+
+	float att = temp * (1.0f / max(1 - desc.Intesity, 1e-8f));
+
+	output.Ambient = output.Ambient * temp;
+	output.Diffuse = output.Diffuse * att;
+	output.Specular = output.Specular * att;
+	output.Emissive = output.Emissive * att;
+ 
+}
+
+float4 PS_SpotLights_Debug(DomainOutput_SpotLights input) : SV_Target
+{
+	return float4(1, 1, 1, 1);
+
+}
+
+float4 PS_SpotLights(DomainOutput_SpotLights input) : SV_Target
+{
+	float4 position = input.Position;
+		
+	float3 normal = 0, tangent = 0;
+	MaterialDesc material = MakeMaterial();
+	UnpackGBuffer(position, input.Screen, material, normal, tangent);
+	
+	MaterialDesc result = MakeMaterial();
+	ComputeSpotLight_Deffered(result, material, input.PrimitiveID, normal, position.xyz);
+	
+	return float4(MaterialToColor(result), 1.0f);
+}

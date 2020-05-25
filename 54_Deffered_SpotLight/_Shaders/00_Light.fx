@@ -279,7 +279,7 @@ struct SpotLightDesc
     float4 Ambient;
     float4 Diffuse;
     float4 Specular;
-    float4 Emissie;
+    float4 Emissive;
 
     float3 Position;
     float Range;
@@ -337,7 +337,7 @@ void ComputeSpotLight(inout MaterialDesc output, MaterialDesc material, float3 n
 
         float NdotE = dot(E, normal);
         float emissive = smoothstep(1.0f - material.Emissive.a, 1.0f, 1.0f - saturate(NdotE));
-        result.Emissive = emissive * material.Emissive * SpotLights[i].Emissie;
+        result.Emissive = emissive * material.Emissive * SpotLights[i].Emissive;
 
         float temp = pow(saturate(dot(-light, SpotLights[i].Direction)), SpotLights[i].Angle);
 

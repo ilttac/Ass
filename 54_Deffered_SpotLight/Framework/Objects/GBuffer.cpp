@@ -23,6 +23,9 @@ GBuffer::GBuffer(Shader* shader, UINT width, UINT height)
 	pointLightBuffer = new ConstantBuffer(&pointLightDesc, sizeof(PointLightDesc));
 	sPointLightBuffer = shader->AsConstantBuffer("CB_Deffered_PointLight");
 
+	spotLightBuffer = new ConstantBuffer(&spotLightDesc, sizeof(SpotLightDesc));
+	sSpotLightBuffer = shader->AsConstantBuffer("CB_Deffered_SpotLight");
+
 	sDSS = shader->AsDepthStencil("Deffered_DepthStencil_State");
 	sRSS = shader->AsRasterizer("Deffered_Rasterizer_State");
 
@@ -54,6 +57,9 @@ GBuffer::~GBuffer()
 	SafeDelete(tangentRTV);
 	SafeDelete(depthStencil);
 	SafeDelete(viewport);
+
+	SafeDelete(pointLightBuffer);
+	SafeDelete(spotLightBuffer);
 
 	SafeRelease(depthStencilReadOnly);
 	SafeRelease(packDss);
@@ -237,4 +243,20 @@ void GBuffer::CreateRasterizerState()
 	desc.FillMode = D3D11_FILL_SOLID;
 	desc.CullMode = D3D11_CULL_FRONT;
 	Check(D3D::GetDevice()->CreateRasterizerState(&desc, &lightRSS));
+}
+
+void GBuffer::CalcPointLight(UINT count)
+{
+}
+
+void GBuffer::RenderPointLights()
+{
+}
+
+void GBuffer::CalcSpotLight(UINT count)
+{
+}
+
+void GBuffer::RenderSpotLights()
+{
 }

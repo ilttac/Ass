@@ -11,10 +11,19 @@ public:
 	void DebugRender();
 	void SetDebug(bool val) { bDebug = val; }
 	
+
 private:
 	void CreateDepthStencilView();
 	void CreateDepthStencilState();
 	void CreateRasterizerState();
+
+private:
+	void CalcPointLight(UINT count);
+	void RenderPointLights();
+	
+	void CalcSpotLight(UINT count);
+	void RenderSpotLights();
+
 private:
 	struct PointLightDesc
 	{
@@ -24,6 +33,16 @@ private:
 		Matrix Projection[MAX_POINT_LIGHT];
 		PointLight PointLight[MAX_POINT_LIGHT];
 	}pointLightDesc;
+
+	struct SpotLightDesc
+	{
+		float TessFator = 16.0f;
+		float Padding[3];
+
+		Vector4 Angle[MAX_SPOT_LIGHT];
+		Matrix Projection[MAX_SPOT_LIGHT];
+		PointLight SpotLight[MAX_SPOT_LIGHT];
+	}spotLightDesc;
 
 private:
 	bool bDebug = false;
@@ -55,6 +74,8 @@ private:
 	ConstantBuffer* pointLightBuffer;
 	ID3DX11EffectConstantBuffer* sPointLightBuffer;
 
+	ConstantBuffer* spotLightBuffer;
+	ID3DX11EffectConstantBuffer* sSpotLightBuffer;
 
 	Render2D* debug2D[6];
 };
