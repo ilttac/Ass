@@ -25,12 +25,14 @@ GBuffer::GBuffer(Shader* shader, UINT width, UINT height)
 	spotLightBuffer = new ConstantBuffer(&spotLightDesc, sizeof(SpotLightDesc));
 	sSpotLightBuffer = shader->AsConstantBuffer("CB_Deffered_SpotLight");
 
+
+
 	sDSS = shader->AsDepthStencil("Deffered_DepthStencil_State");
 	sRSS = shader->AsRasterizer("Deffered_Rasterizer_State");
 
 	CreateDepthStencilView();
 	CreateDepthStencilState();
-	CreateRasterizerState();
+	CreateRasterierState();
 
 	for (UINT i = 0; i < 6; i++)
 	{
@@ -45,8 +47,8 @@ GBuffer::GBuffer(Shader* shader, UINT width, UINT height)
 	debug2D[4]->SRV(tangentRTV->SRV());
 	debug2D[5]->SRV(depthStencil->SRV());
 
-	RenderPointLights();
-	RenderSpotLights();
+
+
 }
 
 GBuffer::~GBuffer()
@@ -59,17 +61,16 @@ GBuffer::~GBuffer()
 	SafeDelete(depthStencil);
 	SafeDelete(viewport);
 
-	SafeDelete(pointLightBuffer);
-	SafeDelete(spotLightBuffer);
-
 	SafeRelease(depthStencilReadOnly);
 	SafeRelease(packDss);
 	SafeRelease(noDepthWriteLessDSS);
 	SafeRelease(noDepthWriteGreaterDSS);
 
+	SafeDelete(pointLightBuffer);
+	SafeDelete(spotLightBuffer);
+
 	SafeRelease(debugRSS);
 	SafeRelease(lightRSS);
-
 
 	for (UINT i = 0; i < 6; i++)
 		SafeDelete(debug2D[i]);
@@ -116,8 +117,9 @@ void GBuffer::Lighting()
 	}
 
 	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_1_CONTROL_POINT_PATCHLIST);
-	RenderPointLights();
-	
+
+	//RenderPointLights();
+	RenderSpotLights();
 }
 
 void GBuffer::DebugRender()
@@ -184,7 +186,7 @@ void GBuffer::CreateDepthStencilState()
 	Check(D3D::GetDevice()->CreateDepthStencilState(&desc, &noDepthWriteGreaterDSS))
 }
 
-void GBuffer::CreateRasterizerState()
+void GBuffer::CreateRasterierState()
 {
 	D3D11_RASTERIZER_DESC desc;
 	ZeroMemory(&desc, sizeof(D3D11_RASTERIZER_DESC));
@@ -198,7 +200,7 @@ void GBuffer::CreateRasterizerState()
 	Check(D3D::GetDevice()->CreateRasterizerState(&desc, &lightRSS));
 }
 
-void GBuffer::CalcPointLight(UINT count)
+void GBuffer::CalcPointLights(UINT count)
 {
 	for (UINT i = 0; i < count; i++)
 	{
@@ -210,8 +212,8 @@ void GBuffer::CalcPointLight(UINT count)
 		D3DXMatrixTranslation(&T, t.x, t.y, t.z);
 
 		pointLightDesc.Projection[i] = S * T * Context::Get()->View() * Context::Get()->Projection();
+
 	}
-	
 }
 
 void GBuffer::RenderPointLights()
@@ -226,9 +228,10 @@ void GBuffer::RenderPointLights()
 			sRSS->SetRasterizerState(0, debugRSS);
 
 			UINT count = Context::Get()->PointLights(pointLightDesc.PointLight);
-			CalcPointLight(count);
+			CalcPointLights(count);
+
 			pointLightBuffer->Apply();
-			shader->Draw(0, 4, 2 * count);
+			shader->Draw(0, 4, count * 2);
 		}
 
 	}
@@ -239,13 +242,14 @@ void GBuffer::RenderPointLights()
 		sDSS->SetDepthStencilState(0, noDepthWriteGreaterDSS);
 
 		UINT count = Context::Get()->PointLights(pointLightDesc.PointLight);
-		CalcPointLight(count);
+		CalcPointLights(count);
+
 		pointLightBuffer->Apply();
 		shader->Draw(0, 5, count * 2);
 	}
 }
 
-void GBuffer::CalcSpotLight(UINT count)
+void GBuffer::CalcSpotLights(UINT count)
 {
 	for (UINT i = 0; i < count; i++)
 	{
@@ -254,34 +258,38 @@ void GBuffer::CalcSpotLight(UINT count)
 		spotLightDesc.Angle[i].x = cosf(angle);
 		spotLightDesc.Angle[i].y = sinf(angle);
 
-		Matrix S,R,T;
+		Matrix S, R, T;
 		float s = spotLightDesc.SpotLight[i].Range;
 		Vector3 t = spotLightDesc.SpotLight[i].Position;
 
 		D3DXMatrixScaling(&S, s, s, s);
 		D3DXMatrixTranslation(&T, t.x, t.y, t.z);
 
-		Vector3 direction = spotLightDesc.SpotLight[i].Direction;//forward
+		Vector3 direction = spotLightDesc.SpotLight[i].Direction;
 		bool bUp = (direction.y > 1 - 1e-6f || direction.y < -1 + 1e-6f);
 		Vector3 up = bUp ? Vector3(0, 0, direction.y) : Vector3(0, 1, 0);
 
 		Vector3 right;
 		D3DXVec3Cross(&right, &up, &direction);
 		D3DXVec3Normalize(&right, &right);
-		D3DXVec3Cross(&up,&direction,&right);
+		D3DXVec3Cross(&up, &direction, &right);
 		D3DXVec3Normalize(&up, &up);
 
-		D3DXMatrixIsIdentity(&R);
-		for (int k = 0; k >3 ; k++)
+		Matrix;
+		D3DXMatrixIdentity(&R);
+		for (int k = 0; k < 3; k++)
 		{
 			R.m[0][k] = right[k];
 			R.m[1][k] = up[k];
 			R.m[2][k] = direction[k];
 		}
 
-		spotLightDesc.Projection[i] = S*R*T * Context::Get()->View() * Context::Get()->Projection();
+		spotLightDesc.Projection[i] = S * R * T * Context::Get()->View() * Context::Get()->Projection();
+
 	}
+
 	spotLightBuffer->Apply();
+
 }
 
 void GBuffer::RenderSpotLights()
@@ -289,28 +297,25 @@ void GBuffer::RenderSpotLights()
 	ImGui::InputFloat("SpotLight Factor", &spotLightDesc.TessFator, 1.0f);
 	sSpotLightBuffer->SetConstantBuffer(spotLightBuffer->Buffer());
 
-	//PointLight - Debug
+	if (bDebug == true)
 	{
-		if (bDebug == true)
-		{
-			sRSS->SetRasterizerState(0, debugRSS);
+		sRSS->SetRasterizerState(0, debugRSS);
 
-			UINT count = Context::Get()->SpotLights(spotLightDesc.SpotLight);
-			CalcSpotLight(count);
+		UINT count = Context::Get()->SpotLights(spotLightDesc.SpotLight);
+		CalcSpotLights(count);
 
-			shader->Draw(0, 6, count);
-		}
-
+		shader->Draw(0, 6, count);
 	}
 
-	//PointLight
+	//SpotLight
 	{
 		sRSS->SetRasterizerState(0, lightRSS);
 		sDSS->SetDepthStencilState(0, noDepthWriteGreaterDSS);
 
 		UINT count = Context::Get()->SpotLights(spotLightDesc.SpotLight);
-		CalcPointLight(count);
+		CalcSpotLights(count);
 
+		pointLightBuffer->Apply();
 		shader->Draw(0, 7, count);
 	}
 }
