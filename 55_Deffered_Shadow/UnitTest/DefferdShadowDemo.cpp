@@ -304,7 +304,7 @@ void DefferdShadowDemo::AddSpotLights()
 		Color(0.7f, 1.0f, 0.0f, 1.0f),//D
 		Color(0.3f, 1.0f, 0.0f, 1.0f),//S
 		Color(0.3f, 1.0f, 0.0f, 1.0f),//E
-		Vector3(10, 20, -30),//Position
+		Vector3(-10, 20, -30),//Position
 		25.0f,// Range
 		Vector3(0, -1, 0), //Direction
 		30.0f, //Angle

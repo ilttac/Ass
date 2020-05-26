@@ -83,6 +83,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "41-", "41-", "{B2E9AA27-69F
 		_Shaders\49_PointLights.fx = _Shaders\49_PointLights.fx
 		_Shaders\50_PointLightArray.fx = _Shaders\50_PointLightArray.fx
 		_Shaders\51_SpotLights.fx = _Shaders\51_SpotLights.fx
+		_Shaders\52_DefferedShadow.fx = _Shaders\52_DefferedShadow.fx
 	EndProjectSection
 EndProject
 Global
