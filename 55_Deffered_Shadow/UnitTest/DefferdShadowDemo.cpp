@@ -13,7 +13,7 @@ void DefferdShadowDemo::Initialize()
 	shadow = new Shadow(shader, Vector3(0, 0, 0), 65);
 
 	sky = new SkyCube(L"Environment/GrassCube1024.dds", shader);
-
+	sky->Pass(11);
 
 	Mesh();
 	Airplane();
@@ -110,10 +110,8 @@ void DefferdShadowDemo::PreRender()
 
 void DefferdShadowDemo::Render()
 {
-	sky->Pass(11);
-	sky->Render();
-
 	gBuffer->Lighting();
+	sky->Render();
 }
 
 void DefferdShadowDemo::PostRender()
