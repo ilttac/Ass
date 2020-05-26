@@ -38,8 +38,9 @@ private:
 	
 	Model* weapon;
 	ModelRender* archerWeapon[arrowCount];
-	Transform* archerWeaponTransform;
+	Transform* archerWeaponTransform[arrowCount] = { NULL ,};
 	Vector3 arrowNorMal[arrowCount];
+	float arrowdelayTime = 0.0f;
 
 	ModelAnimator* michelle = NULL;
 	ModelAnimator* hallin = NULL;
@@ -150,7 +151,7 @@ private:
 		Transform* Init;
 		Transform* Transform;
 		Collider* Collider;
-	}archerArrowCollider[4];
+	}archerArrowCollider[100];
 	///////////
 
 	vector<MeshRender*> meshes;
