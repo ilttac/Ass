@@ -130,6 +130,7 @@
     <ClCompile Include="CpuBillboardDemo.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="DefferdShadowDemo.cpp" />
     <ClCompile Include="DefferedDemo.cpp" />
     <ClCompile Include="DefferedPointLightArrayDemo.cpp" />
     <ClCompile Include="DefferedPointLightsDemo.cpp" />
@@ -183,6 +184,7 @@
     <ClInclude Include="CpuBillboardDemo.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="DefferdShadowDemo.h" />
     <ClInclude Include="DefferedDemo.h" />
     <ClInclude Include="DefferedPointLightArrayDemo.h" />
     <ClInclude Include="DefferedPointLightsDemo.h" />

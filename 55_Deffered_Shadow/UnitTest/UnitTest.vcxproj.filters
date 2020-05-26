@@ -132,6 +132,9 @@
     <ClCompile Include="DefferedSpotLightsDemo.cpp">
       <Filter>Deffered</Filter>
     </ClCompile>
+    <ClCompile Include="DefferdShadowDemo.cpp">
+      <Filter>Deffered</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Main.h" />
@@ -263,6 +266,9 @@
       <Filter>Deffered</Filter>
     </ClInclude>
     <ClInclude Include="DefferedSpotLightsDemo.h">
+      <Filter>Deffered</Filter>
+    </ClInclude>
+    <ClInclude Include="DefferdShadowDemo.h">
       <Filter>Deffered</Filter>
     </ClInclude>
   </ItemGroup>

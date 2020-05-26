@@ -108,18 +108,20 @@ void GBuffer::Lighting()
 	sSrvs->SetResourceArray(srvs, 0, 6);
 	D3D::GetDC()->IASetVertexBuffers(0, 0, NULL, NULL, NULL);
 
-	//Directional
-	{
-		D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-
-		sDSS->SetDepthStencilState(0, noDepthWriteLessDSS);
-		shader->Draw(0, 3, 4);
-	}
+	RenderDirectional();
 
 	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_1_CONTROL_POINT_PATCHLIST);
 
-	//RenderPointLights();
-	RenderSpotLights();
+	if (bDrawPointLights == true)
+	{
+		RenderPointLights();
+	}
+	if (bDrawSpotLights == true)
+	{
+		RenderSpotLights();
+	}
+	
+	
 }
 
 void GBuffer::DebugRender()
@@ -198,6 +200,17 @@ void GBuffer::CreateRasterierState()
 	desc.FillMode = D3D11_FILL_SOLID;
 	desc.CullMode = D3D11_CULL_FRONT;
 	Check(D3D::GetDevice()->CreateRasterizerState(&desc, &lightRSS));
+}
+
+void GBuffer::RenderDirectional()
+{
+	//Directional
+	{
+		D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
+		sDSS->SetDepthStencilState(0, noDepthWriteLessDSS);
+		shader->Draw(0, 3, 4);
+	}
 }
 
 void GBuffer::CalcPointLights(UINT count)

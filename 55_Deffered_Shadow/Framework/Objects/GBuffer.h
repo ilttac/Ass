@@ -11,12 +11,15 @@ public:
 	void DebugRender();
 
 	void SetDebug(bool val) { bDebug = val; }
-
+	void SetDrawPointLights(bool val) { bDrawPointLights = val; }
+	void SetDrawSpotLights(bool val) { bDrawSpotLights = val; }
 private:
 	void CreateDepthStencilView();
 	void CreateDepthStencilState();
 	void CreateRasterierState();
 
+private:
+	void RenderDirectional();
 private:
 	void CalcPointLights(UINT count);
 	void RenderPointLights();
@@ -48,6 +51,8 @@ private:
 
 private:
 	bool bDebug = false;
+	bool bDrawPointLights = true;
+	bool bDrawSpotLights = true;
 
 private:
 	Shader* shader;

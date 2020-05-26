@@ -48,9 +48,10 @@
 #include "DefferedPointLightsDemo.h"
 #include "DefferedPointLightArrayDemo.h"
 #include "DefferedSpotLightsDemo.h"
+#include "DefferdShadowDemo.h"
 void Main::Initialize()
 {
-	Push(new DefferedSpotLightsDemo());
+	Push(new DefferdShadowDemo());
 }
 
 void Main::Ready()
