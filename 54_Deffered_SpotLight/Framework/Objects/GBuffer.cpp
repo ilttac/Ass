@@ -13,7 +13,6 @@ GBuffer::GBuffer(Shader* shader, UINT width, UINT height)
 	emissiveRTV = new RenderTarget(this->width, this->height, DXGI_FORMAT_R32G32B32A32_FLOAT);
 	normalRTV = new RenderTarget(this->width, this->height, DXGI_FORMAT_R32G32B32A32_FLOAT);
 	tangentRTV = new RenderTarget(this->width, this->height, DXGI_FORMAT_R32G32B32A32_FLOAT);
-
 	depthStencil = new DepthStencil(this->width, this->height, true);
 
 	viewport = new Viewport((float)this->width, (float)this->height);

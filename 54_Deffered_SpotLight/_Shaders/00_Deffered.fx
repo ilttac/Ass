@@ -306,7 +306,7 @@ void ComputePointLight_Deffered(inout MaterialDesc output,MaterialDesc material,
 
 float4 PS_PointLights_Debug(DomainOutput_PointLights input) : SV_Target
 {
-	return float4(1, 1, 1, 1);
+	return float4(1, 1, 0, 1);
 
 }
 
@@ -419,7 +419,7 @@ DomainOutput_SpotLights DS_SpotLights
 	float4 position = 0;
 	position.xy = halfSpherePosition.xy * (1.0f - cylOffsetZ);
 	position.z = halfSpherePosition.z - cylOffsetZ * c;
-	
+	position.w = 1.0f;
 	DomainOutput_SpotLights output;
 	output.Position = mul(position, SpotLight_Projection[id]);
 	output.Screen = output.Position.xyz / output.Position.w;
@@ -479,7 +479,7 @@ void ComputeSpotLight_Deffered(inout MaterialDesc output, MaterialDesc material,
 
 float4 PS_SpotLights_Debug(DomainOutput_SpotLights input) : SV_Target
 {
-	return float4(1, 1, 1, 1);
+	return float4(0, 1, 1, 1);
 
 }
 

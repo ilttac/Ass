@@ -129,6 +129,9 @@
     <ClCompile Include="DefferedPointLightArrayDemo.cpp">
       <Filter>Deffered</Filter>
     </ClCompile>
+    <ClCompile Include="DefferedSpotLightsDemo.cpp">
+      <Filter>Deffered</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Main.h" />
@@ -257,6 +260,9 @@
       <Filter>Deffered</Filter>
     </ClInclude>
     <ClInclude Include="DefferedPointLightArrayDemo.h">
+      <Filter>Deffered</Filter>
+    </ClInclude>
+    <ClInclude Include="DefferedSpotLightsDemo.h">
       <Filter>Deffered</Filter>
     </ClInclude>
   </ItemGroup>

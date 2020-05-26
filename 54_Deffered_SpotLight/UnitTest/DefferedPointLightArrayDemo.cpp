@@ -7,7 +7,8 @@ void DefferedPointLightArrayDemo::Initialize()
 	Context::Get()->GetCamera()->Position(0, 32, -67);
 	((Freedom *)Context::Get()->GetCamera())->Speed(20, 2);
 
-	shader = new Shader(L"50_PointLightArray.fxo");
+	//shader = new Shader(L"50_PointLightArray.fxo");
+	shader = new Shader(L"51_SpotLights.fxo");
 	gBuffer = new GBuffer(shader);
 
 	sky = new SkyCube(L"Environment/GrassCube1024.dds", shader);

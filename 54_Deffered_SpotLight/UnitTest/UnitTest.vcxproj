@@ -133,6 +133,7 @@
     <ClCompile Include="DefferedDemo.cpp" />
     <ClCompile Include="DefferedPointLightArrayDemo.cpp" />
     <ClCompile Include="DefferedPointLightsDemo.cpp" />
+    <ClCompile Include="DefferedSpotLightsDemo.cpp" />
     <ClCompile Include="DynamicCubeMapDemo.cpp" />
     <ClCompile Include="FrameworkDemo.cpp" />
     <ClCompile Include="FrustumDemo.cpp" />
@@ -185,6 +186,7 @@
     <ClInclude Include="DefferedDemo.h" />
     <ClInclude Include="DefferedPointLightArrayDemo.h" />
     <ClInclude Include="DefferedPointLightsDemo.h" />
+    <ClInclude Include="DefferedSpotLightsDemo.h" />
     <ClInclude Include="DynamicCubeMapDemo.h" />
     <ClInclude Include="FrameworkDemo.h" />
     <ClInclude Include="FrustumDemo.h" />

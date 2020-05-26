@@ -47,10 +47,10 @@
 #include "FrustumDemo.h"
 #include "DefferedPointLightsDemo.h"
 #include "DefferedPointLightArrayDemo.h"
-
+#include "DefferedSpotLightsDemo.h"
 void Main::Initialize()
 {
-	Push(new DefferedPointLightArrayDemo());
+	Push(new DefferedSpotLightsDemo());
 }
 
 void Main::Ready()

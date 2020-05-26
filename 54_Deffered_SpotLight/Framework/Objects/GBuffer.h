@@ -6,23 +6,24 @@ public:
 	GBuffer(Shader* shader, UINT width = 0, UINT height = 0);
 	~GBuffer();
 
-	void PackGBuffer();	
-	void Lighting();	
+	void PackGBuffer();
+	void Lighting();
 	void DebugRender();
+
 	void SetDebug(bool val) { bDebug = val; }
-	
 
 private:
 	void CreateDepthStencilView();
 	void CreateDepthStencilState();
-	void CreateRasterizerState();
+	void CreateRasterierState();
 
 private:
-	void CalcPointLight(UINT count);
+	void CalcPointLights(UINT count);
 	void RenderPointLights();
-	
-	void CalcSpotLight(UINT count);
+
+	void CalcSpotLights(UINT count);
 	void RenderSpotLights();
+
 
 private:
 	struct PointLightDesc
@@ -32,7 +33,7 @@ private:
 
 		Matrix Projection[MAX_POINT_LIGHT];
 		PointLight PointLight[MAX_POINT_LIGHT];
-	}pointLightDesc;
+	} pointLightDesc;
 
 	struct SpotLightDesc
 	{
@@ -41,23 +42,24 @@ private:
 
 		Vector4 Angle[MAX_SPOT_LIGHT];
 		Matrix Projection[MAX_SPOT_LIGHT];
+
 		SpotLight SpotLight[MAX_SPOT_LIGHT];
-	}spotLightDesc;
+	} spotLightDesc;
 
 private:
 	bool bDebug = false;
 
 private:
-	Shader * shader;
+	Shader* shader;
 	UINT width, height;
-	
-	RenderTarget* diffuseRTV;  
-	RenderTarget* specularRTV; 
-	RenderTarget* emissiveRTV; 
-	RenderTarget* normalRTV;   
-	RenderTarget* tangentRTV;  
+
+	RenderTarget* diffuseRTV;
+	RenderTarget* specularRTV;
+	RenderTarget* emissiveRTV;
+	RenderTarget* normalRTV;
+	RenderTarget* tangentRTV;
 	DepthStencil* depthStencil;
-	Viewport* viewport;	
+	Viewport* viewport;
 
 	ID3D11DepthStencilView* depthStencilReadOnly;
 
@@ -71,6 +73,7 @@ private:
 	ID3DX11EffectRasterizerVariable* sRSS;
 
 	ID3DX11EffectShaderResourceVariable* sSrvs;
+
 	ConstantBuffer* pointLightBuffer;
 	ID3DX11EffectConstantBuffer* sPointLightBuffer;
 

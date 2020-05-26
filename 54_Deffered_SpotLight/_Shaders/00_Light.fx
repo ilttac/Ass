@@ -109,7 +109,7 @@ void PS_Projection(inout float4 color, float4 wvp)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void ComputeLight(out MaterialDesc output, MaterialDesc material, float3 normal, float3 wPosition)
+void ComputeLight(out MaterialDesc output,float3 normal, float3 wPosition)
 {
     output.Ambient = 0;
     output.Diffuse = 0;
@@ -121,46 +121,42 @@ void ComputeLight(out MaterialDesc output, MaterialDesc material, float3 normal,
     float3 direction = -GlobalLight.Direction;
     float NdotL = dot(direction, normal);
 
-    output.Ambient = GlobalLight.Ambient * material.Ambient;
+    output.Ambient = GlobalLight.Ambient * Material.Ambient;
     float3 E = normalize(ViewPosition() - wPosition);
     
 
     [flatten]
     if (NdotL > 0.0f)
     {
-        output.Diffuse = NdotL * material.Diffuse;
+        output.Diffuse = NdotL * Material.Diffuse;
 
 
         [flatten]
-        if (any(material.Specular.rgb))
+        if (any(Material.Specular.rgb))
         {
             float3 R = normalize(reflect(-direction, normal));
             float RdotE = saturate(dot(R, E));
 
-            float specular = pow(RdotE, material.Specular.a);
-            output.Specular = specular * material.Specular * GlobalLight.Specular;
+            float specular = pow(RdotE, Material.Specular.a);
+            output.Specular = specular * Material.Specular * GlobalLight.Specular;
         }       
 
     }
 
      [flatten]
-    if (any(material.Emissive.rgb))
+    if (any(Material.Emissive.rgb))
     {
         float NdotE = dot(E, normal);
         
-        float emissive = smoothstep(1.0f - material.Emissive.a, 1.0f, 1.0f - saturate(NdotE));
+        float emissive = smoothstep(1.0f - Material.Emissive.a, 1.0f, 1.0f - saturate(NdotE));
             
-        output.Emissive = material.Emissive * emissive;
+        output.Emissive = Material.Emissive * emissive;
     }
 
    
 
 }
 
-void ComputeLight(out MaterialDesc output, float3 normal, float3 wPosition)
-{
-    ComputeLight(output, Material, normal, wPosition);
-}
 
 
 void NormalMapping(float2 uv, float3 normal, float3 tangent, SamplerState samp)
@@ -216,7 +212,7 @@ cbuffer CB_PointLights
     PointLightDesc PointLights[MAX_POINT_LIGHT];
 };
 
-void ComputePointLight(inout MaterialDesc output, MaterialDesc material, float3 normal, float3 wPosition)
+void ComputePointLight(inout MaterialDesc output, float3 normal, float3 wPosition)
 {
     output = MakeMaterial();
     MaterialDesc result = MakeMaterial();
@@ -234,7 +230,7 @@ void ComputePointLight(inout MaterialDesc output, MaterialDesc material, float3 
 
         light /= dist;
 
-        result.Ambient = material.Ambient * PointLights[i].Ambient;
+        result.Ambient = Material.Ambient * PointLights[i].Ambient;
 
         float NdotL = dot(light, normal);
         float3 E = normalize(ViewPosition() - wPosition);
@@ -244,15 +240,15 @@ void ComputePointLight(inout MaterialDesc output, MaterialDesc material, float3 
         {
             float3 R = normalize(reflect(-light, normal));
             float RdotE = saturate(dot(R, E));
-            float specular = pow(RdotE, material.Specular.a);
+            float specular = pow(RdotE, Material.Specular.a);
 
-            result.Diffuse = NdotL * material.Diffuse * PointLights[i].Diffuse;
-            result.Specular = specular * material.Specular * PointLights[i].Specualr;
+            result.Diffuse = NdotL * Material.Diffuse * PointLights[i].Diffuse;
+            result.Specular = specular * Material.Specular * PointLights[i].Specualr;
         }
 
         float NdotE = dot(E, normal);
-        float emissive = smoothstep(1.0f - material.Emissive.a, 1.0f, 1.0f - saturate(NdotE));
-        result.Emissive = emissive * material.Emissive * PointLights[i].Emissive;
+        float emissive = smoothstep(1.0f - Material.Emissive.a, 1.0f, 1.0f - saturate(NdotE));
+        result.Emissive = emissive * Material.Emissive * PointLights[i].Emissive;
 
         //-
         float temp = 1.0f / saturate(dist / PointLights[i].Range);
@@ -265,11 +261,6 @@ void ComputePointLight(inout MaterialDesc output, MaterialDesc material, float3 
         output.Emissive += result.Emissive * att;
     }
 
-}
-
-void ComputePointLight(inout MaterialDesc output, float3 normal, float3 wPosition)
-{
-    ComputePointLight(output, Material, normal, wPosition);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -301,7 +292,7 @@ cbuffer CB_SpotLights
     SpotLightDesc SpotLights[MAX_SPOT_LIGHT];
 };
 
-void ComputeSpotLight(inout MaterialDesc output, MaterialDesc material, float3 normal, float3 wPosition)
+void ComputeSpotLight(inout MaterialDesc output, float3 normal, float3 wPosition)
 {
     output = MakeMaterial();
     MaterialDesc result = MakeMaterial();
@@ -319,7 +310,7 @@ void ComputeSpotLight(inout MaterialDesc output, MaterialDesc material, float3 n
 
         light /= dist;
 
-        result.Ambient = material.Ambient * SpotLights[i].Ambient;
+        result.Ambient = Material.Ambient * SpotLights[i].Ambient;
 
         float NdotL = dot(light, normal);
         float3 E = normalize(ViewPosition() - wPosition);
@@ -329,15 +320,15 @@ void ComputeSpotLight(inout MaterialDesc output, MaterialDesc material, float3 n
         {
             float3 R = normalize(reflect(-light, normal));
             float RdotE = saturate(dot(R, E));
-            float specular = pow(RdotE, material.Specular.a);
+            float specular = pow(RdotE, Material.Specular.a);
 
-            result.Diffuse = NdotL * material.Diffuse * SpotLights[i].Diffuse;
-            result.Specular = specular * material.Specular * SpotLights[i].Specular;
+            result.Diffuse = NdotL * Material.Diffuse * SpotLights[i].Diffuse;
+            result.Specular = specular * Material.Specular * SpotLights[i].Specular;
         }
 
         float NdotE = dot(E, normal);
-        float emissive = smoothstep(1.0f - material.Emissive.a, 1.0f, 1.0f - saturate(NdotE));
-        result.Emissive = emissive * material.Emissive * SpotLights[i].Emissive;
+        float emissive = smoothstep(1.0f - Material.Emissive.a, 1.0f, 1.0f - saturate(NdotE));
+        result.Emissive = emissive * Material.Emissive * SpotLights[i].Emissive;
 
         float temp = pow(saturate(dot(-light, SpotLights[i].Direction)), SpotLights[i].Angle);
 
@@ -350,11 +341,6 @@ void ComputeSpotLight(inout MaterialDesc output, MaterialDesc material, float3 n
         output.Emissive += result.Emissive * att;
     }
 
-}
-
-void ComputeSpotLight(inout MaterialDesc output, float3 normal, float3 wPosition)
-{
-    ComputeSpotLight(output, Material, normal, wPosition);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
