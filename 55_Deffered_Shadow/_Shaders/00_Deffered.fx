@@ -163,10 +163,20 @@ float4 PS_Directional(VertexOutput_Directional input) : SV_Target
 	//material.Diffuse = float4(1, 1, 1, 1);
 	
 	MaterialDesc result = MakeMaterial();
-    
 	ComputeLight_Deffered(result, material, normal, position.xyz);
     
-	return float4(MaterialToColor(result), 1);
+	float4 sPosition = mul(position, ShadowView);
+	sPosition = mul(sPosition, ShadowProjection);
+	
+	float4 color = float4(MaterialToColor(result), 1.0f);
+	//color = PS_Shadow(sPosition, color);
+	
+	if (ShadowQuality ==3)
+		color = PS_Shadow_PCSS(sPosition, color);
+	else
+		color = PS_Shadow(sPosition, color);
+	
+	return color;
 }
 /////////////////////////////////////////////////////////
 //PointLights

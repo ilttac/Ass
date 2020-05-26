@@ -20,4 +20,7 @@ private:
 
 	ID3D11ShaderResourceView* srv;
 	ID3DX11EffectShaderResourceVariable* sSrv;
+
+	ID3D11DepthStencilState* dss;
+	ID3DX11EffectDepthStencilVariable* sDss;
 };

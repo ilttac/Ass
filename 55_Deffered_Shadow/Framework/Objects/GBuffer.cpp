@@ -209,7 +209,7 @@ void GBuffer::RenderDirectional()
 		D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 		sDSS->SetDepthStencilState(0, noDepthWriteLessDSS);
-		shader->Draw(0, 3, 4);
+		shader->Draw(0, 6, 4);
 	}
 }
 
@@ -244,7 +244,7 @@ void GBuffer::RenderPointLights()
 			CalcPointLights(count);
 
 			pointLightBuffer->Apply();
-			shader->Draw(0, 4, count * 2);
+			shader->Draw(0, 7, count * 2);
 		}
 
 	}
@@ -258,7 +258,7 @@ void GBuffer::RenderPointLights()
 		CalcPointLights(count);
 
 		pointLightBuffer->Apply();
-		shader->Draw(0, 5, count * 2);
+		shader->Draw(0, 8, count * 2);
 	}
 }
 
@@ -317,7 +317,7 @@ void GBuffer::RenderSpotLights()
 		UINT count = Context::Get()->SpotLights(spotLightDesc.SpotLight);
 		CalcSpotLights(count);
 
-		shader->Draw(0, 6, count);
+		shader->Draw(0, 9, count);
 	}
 
 	//SpotLight
@@ -329,6 +329,6 @@ void GBuffer::RenderSpotLights()
 		CalcSpotLights(count);
 
 		pointLightBuffer->Apply();
-		shader->Draw(0, 7, count);
+		shader->Draw(0, 10, count);
 	}
 }

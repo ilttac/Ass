@@ -57,7 +57,7 @@ void Shadow::Set()
 	sSamplerState->SetSampler(0, samplerState);
 
 	ImGui::InputInt("Shadow Quality", (int*)&desc.Quality);
-	desc.Quality %= 3;
+	desc.Quality %= 4;
 }
 
 void Shadow::UpdateVolume()

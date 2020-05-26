@@ -27,7 +27,7 @@ private:
 	Shader * shader;
 	GBuffer* gBuffer;
 					 
-	
+	Shadow* shadow;
 
 	SkyCube* sky;
 

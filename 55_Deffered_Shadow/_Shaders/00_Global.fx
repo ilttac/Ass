@@ -1,5 +1,6 @@
 //cbuffer
 //-----------------------------------------------
+
 cbuffer CB_PerFrame
 {
     matrix View;

@@ -455,6 +455,14 @@ float4 PS_Shadow(MeshOutput input, float4 color)
     return float4(color.rgb * factor, 1);
 }
 
+float4 PS_Shadow(float4 position, float4 color)
+{
+	MeshOutput input = (MeshOutput) 0;
+	input.sPosition = position;
+	
+	return PS_Shadow(input, color);
+}
+
 float4 PS_Shadow(MeshGeometryOutput input, float4 color)
 {
     MeshOutput output;
@@ -471,7 +479,79 @@ float4 PS_Shadow(MeshGeometryOutput input, float4 color)
     output.Tangent = input.Tangent;
 
     return PS_Shadow(output, color);
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// Poisson smapling
+static const float2 PoissonDisk[16] =
+{
+	float2(-0.94201624, -0.39906216),
+	float2(0.94558609, -0.76890725),
+	float2(-0.094184101, -0.92938870),
+	float2(0.34495938, 0.29387760),
+	float2(-0.91588581, 0.45771432),
+	float2(-0.81544232, -0.87912464),
+	float2(-0.38277543, 0.27676845),
+	float2(0.97484398, 0.75648379),
+	float2(0.44323325, -0.97511554),
+	float2(0.53742981, -0.47373420),
+	float2(-0.26496911, -0.41893023),
+	float2(0.79197514, 0.19090188),
+	float2(-0.24188840, 0.99706507),
+	float2(-0.81409955, 0.91437590),
+	float2(0.19984126, 0.78641367),
+	float2(0.14383161, -0.14100790)
+};
+
+float4 PS_Shadow_PCSS(float4 position,float4 color)
+{
+	position.xyz /= position.w;
+
+    [flatten]
+	if (position.x < -1.0f || position.x > 1.0f ||
+        position.y < -1.0f || position.y > 1.0f ||
+        position.z < 0.0f || position.z > 1.0f)
+		return color;
+
+	position.x = position.x * 0.5f + 0.5f;
+	position.y = -position.y * 0.5f + 0.5f;
+	position.z -= ShadowBias;
+	
+	float4 avgBlockerDepth = 0;
+	float blockerCount = 0;
+	float4 d = 0; // Depth
+	float4 b = 0; // Factor
+	
+	//[unroll]
+	for (int y = -2; y <= 2; y += 2)
+	{
+		//[unroll]
+		for (int x = -2; x <= 2; x += 2)
+		{
+			d = ShadowMap.GatherRed(LinearSampler, position.xy, int2(x, y));
+			b = (position.z <= d) ? 0.0f : 1.0f;
+
+			blockerCount += dot(b, 1.0f); //그림자를 그리지말아야할 갯수
+			avgBlockerDepth += dot(b, d);
+			
+		}
+	}
+	if (blockerCount <= 0.0f)
+		return color;
+		
+	avgBlockerDepth /= blockerCount;
+	float ratio = ((position.z - avgBlockerDepth) * 65) / avgBlockerDepth;
+	ratio *= ratio;
+	
+	float att = 0;
+	float2 offset = 0;
+	//[unroll]
+	for (int i = 0; i < 16; i++)
+	{
+		offset = ratio * ShadowMapSize.xy * PoissonDisk[i];
+		att += ShadowMap.SampleCmpLevelZero(ShadowSampler, position.xy + offset, position.z);
+	}
+	
+	return float4(color.rgb * (att * 1 / 16), 1);
+	
+}

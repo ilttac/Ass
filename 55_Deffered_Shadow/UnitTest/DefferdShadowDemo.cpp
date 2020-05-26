@@ -7,11 +7,13 @@ void DefferdShadowDemo::Initialize()
 	Context::Get()->GetCamera()->Position(0, 32, -67);
 	((Freedom*)Context::Get()->GetCamera())->Speed(20, 2);
 
-	//shader = new Shader(L"50_PointLightArray.fxo");
-	shader = new Shader(L"51_SpotLights.fxo");
+	shader = new Shader(L"53_DefferedShadow.fxo");
+	
 	gBuffer = new GBuffer(shader);
+	shadow = new Shadow(shader, Vector3(0, 0, 0), 65);
 
 	sky = new SkyCube(L"Environment/GrassCube1024.dds", shader);
+
 
 	Mesh();
 	Airplane();
@@ -25,7 +27,7 @@ void DefferdShadowDemo::Destroy()
 {
 	SafeDelete(shader);
 	SafeDelete(gBuffer);
-
+	SafeDelete(shadow);
 }
 
 void DefferdShadowDemo::Update()
@@ -51,45 +53,67 @@ void DefferdShadowDemo::Update()
 		colliders[i].Collider->GetTransform()->World(attach);
 		colliders[i].Collider->Update();
 	}
-
-
-
 }
 
 void DefferdShadowDemo::PreRender()
-{
-	gBuffer->PackGBuffer();
+{	//Depth
+	{
+		shadow->Set();
 
-	Pass(0, 1, 2);
+		Pass(0,1,2);
 
-	//sky->Pass(0);
-	//sky->Render();
+		//sky->Pass(0);
+		//sky->Render();
 
-	wall->Render();
-	sphere->Render();
+		wall->Render();
+		sphere->Render();
 
-	brick->Render();
-	cylinder->Render();
+		brick->Render();
+		cylinder->Render();
 
-	stone->Render();
-	cube->Render();
+		stone->Render();
+		cube->Render();
 
-	floor->Render();
-	grid->Render();
+		floor->Render();
+		grid->Render();
 
-	airplane->Render();
-	kachujin->Render();
+		airplane->Render();
+		kachujin->Render();
+	}
+	//GBuffer
+	{
+		gBuffer->PackGBuffer();
 
+		Pass(3, 4, 5);
+
+		//sky->Pass(0);
+		//sky->Render();
+
+		wall->Render();
+		sphere->Render();
+
+		brick->Render();
+		cylinder->Render();
+
+		stone->Render();
+		cube->Render();
+
+		floor->Render();
+		grid->Render();
+
+		airplane->Render();
+		kachujin->Render();
+	}
+	
 
 }
 
 void DefferdShadowDemo::Render()
 {
-	/*sky->Pass(0);
-	sky->Render();*/
+	sky->Pass(11);
+	sky->Render();
 
 	gBuffer->Lighting();
-
 }
 
 void DefferdShadowDemo::PostRender()
