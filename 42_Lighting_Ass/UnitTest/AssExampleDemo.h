@@ -27,6 +27,7 @@ private:
 	void MonsterAttack(ModelAnimator* monster, ModelAnimator* player,string monsterName);
 	void PlayerMove();
 	void PlayerWeaponChange();
+	void ArrowUpdate();
 private:
 	const static UINT arrowCount = 100;
 	Shader * shader;
@@ -37,7 +38,7 @@ private:
 	MeshRender* grid;
 	
 	Model* weapon;
-	ModelRender* archerWeapon[arrowCount];
+	ModelRender* archerWeapon;
 	Transform* archerWeaponTransform[arrowCount] = { NULL ,};
 	Vector3 arrowNorMal[arrowCount];
 	float arrowdelayTime = 0.0f;
@@ -72,6 +73,8 @@ private:
 	bool bWeaponcolliderState;
 	bool bWeaponArcherObbState;
 	bool bPlayerAttackState;
+	bool bPlayerHitReaction;
+
 	
 	enum CameraState
 	{

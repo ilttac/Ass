@@ -27,6 +27,7 @@ void AssExampleDemo::Initialize()
 
 	bWeaponcolliderState = false;
 	bPlayerAttackState = false;
+	bPlayerHitReaction = false;
 
 	weaponCount = 0;
 
@@ -42,10 +43,7 @@ void AssExampleDemo::Destroy()
 	SafeDelete(sky);
 
 	SafeDelete(weapon);
-	for (int i = 0; i < arrowCount; i++)
-	{
-		SafeDeleteArray(archerWeapon[i]);
-	}
+	SafeDelete(archerWeapon);
 	for (int i = 0; i < arrowCount; i++)
 	{
 		SafeDeleteArray(archerWeaponTransform[i]);
@@ -88,6 +86,14 @@ void AssExampleDemo::Update()
 	if (michelle != NULL)
 	{
 		PlayerMove();
+		if (bPlayerHitReaction)
+		{
+			michelle->PlayClip(0, 3, 1.0f, 1.0f);
+		}
+		if (Keyboard::Get()->Press('B'))
+		{
+			michelle->PlayClip(0, 5, 2.0f, 5.0f);
+		}
 		if (Keyboard::Get()->Press('K'))
 		{
 			michelle->PlayClip(0, 4, 2.0f, 1.0f);
@@ -97,7 +103,9 @@ void AssExampleDemo::Update()
 			!Keyboard::Get()->Press(VK_RIGHT) &&
 			!Keyboard::Get()->Press(VK_DOWN) &&
 			!Keyboard::Get()->Down(VK_SPACE) &&
-			!Keyboard::Get()->Press('K'))
+			!Keyboard::Get()->Press('K')&&
+			!Keyboard::Get()->Press('B')&&
+			!bPlayerHitReaction)
 		{
 			michelle->PlayClip(0, 0, 2.0f, 1.0f);
 		}
@@ -153,6 +161,7 @@ void AssExampleDemo::Update()
 
 		archer->UpdateTransforms();
 		archer->Update();
+		ArrowUpdate();
 	}
 }
 
@@ -162,16 +171,10 @@ void AssExampleDemo::Render()
 	Pass(0, 1, 2);
 	floor->Render();
 	grid->Render();
-	for (int i = 0; i < 100; i++)
+	if (archerWeapon != NULL)
 	{
-		if (archerWeapon[i] != NULL)
-		{
-			archerWeapon[i]->Render();
-		}
-		else
-		{
-			break;
-		}
+		archerWeapon->Render();
+		archerWeapon->Pass(1);
 	}
 	if (michelle != NULL)michelle->Render();
 	if (hallin != NULL)hallin->Render();
@@ -220,7 +223,17 @@ void AssExampleDemo::Render()
 
 	bWeaponcolliderState = weaponCollider[0].Collider->IsIntersect(hallinObbCollider[0].Collider);
 	bWeaponArcherObbState = weaponCollider[0].Collider->IsIntersect(archerObbColider[0].Collider);
-
+	for (int i = 0; i < 100; i++)
+	{
+		if (archerArrowCollider[i].Collider != NULL)
+		{
+			bPlayerHitReaction = archerArrowCollider[i].Collider->IsIntersect(playerObbCollider[0].Collider);
+			if (bPlayerHitReaction == true)
+			{
+				break;
+			}
+		}
+	}
 	if (ColliderRenderSwitchState)
 	{
 
@@ -255,14 +268,13 @@ void AssExampleDemo::Render()
 		archerObbColider[0].Collider->Render(Color(0, 1, 0, 1));
 		for (int i = 0; i < 100; i++)
 		{
-			if (archerArrowCollider[i].Collider != NULL)archerArrowCollider[i].Collider->Render(Color(0, 1, 0, 0));
+			if (archerArrowCollider[i].Collider != NULL)archerArrowCollider[i].Collider->Render(bPlayerHitReaction ? Color(1, 0, 0, 1) : Color(0, 1, 0, 1));
 		}
 	}
 }
 
 void AssExampleDemo::Mesh()
 {
-
 	//Create Material
 	{
 		floor = new Material(shader);
@@ -297,6 +309,7 @@ void AssExampleDemo::Michelle()
 	weapon = new Model();
 	weapon->ReadMaterial(L"Weapon/Sword");
 	weapon->ReadMesh(L"Weapon/Sword");
+
 	//D3DX11SaveTextureToFile
 	//D3DX11LoadTextureFromTexture
 	Transform attachTransform;
@@ -398,14 +411,11 @@ void AssExampleDemo::Archer()
 	archer->ReadClip(L"Archer/Archer_Attak");//2
 	archer->ReadClip(L"Archer/Archer_Dead");//3
 
-	for (int i = 0; i < 100; i++)
-	{
-		archerWeapon[i] = new ModelRender(shader);
-		archerWeapon[i]->ReadMaterial(L"Weapon/LongArrow");
-		archerWeapon[i]->ReadMesh(L"Weapon/LongArrow");
+	archerWeapon = new ModelRender(shader);
+	archerWeapon->ReadMaterial(L"Weapon/LongArrow");
+	archerWeapon->ReadMesh(L"Weapon/LongArrow");
 
-		archerWeapon[i]->Pass(1);
-	}
+	archerWeapon->Pass(1);
 
 
 	Transform* transform = NULL;
@@ -567,11 +577,13 @@ void AssExampleDemo::MonsterAttack(ModelAnimator * monster, ModelAnimator * play
 				if (archerWeaponTransform[i] == NULL)
 				{
 					archerWeaponTransform[i] = new Transform();
-					archerWeaponTransform[i] = archerWeapon[i]->AddTransform();
+					archerWeaponTransform[i] = archerWeapon->AddTransform();
 					archerWeaponTransform[i]->Scale(0.35f, 0.35f, 0.35f);
 					archerWeaponTransform[i]->Rotation(Math::ToRadian(90), archer->GetTransform(0)->GetRotation().y, 0);
 					archerWeaponTransform[i]->Position(archer->GetTransform(0)->GetPositon().x, 10, archer->GetTransform(0)->GetPositon().z);
-					D3DXVec3Normalize(&arrowNorMal[i], &(pPos - archerWeaponTransform[i]->GetPositon()));
+
+					Vector3 pPosYup = Vector3(pPos.x, pPos.y + archerWeaponTransform[i]->GetPositon().y, pPos.z);
+					D3DXVec3Normalize(&arrowNorMal[i], &(pPosYup - archerWeaponTransform[i]->GetPositon()));
 
 					archerArrowCollider[i].Init = new Transform();
 					archerArrowCollider[i].Init->Position(0, 0, 1);
@@ -580,51 +592,18 @@ void AssExampleDemo::MonsterAttack(ModelAnimator * monster, ModelAnimator * play
 					archerArrowCollider[i].Transform = new Transform();
 					archerArrowCollider[i].Collider = new Collider(archerArrowCollider[i].Transform, archerArrowCollider[i].Init);
 					archerWeaponTransform[i]->Update();
-					archerWeapon[i]->Update();
-					archerWeapon[i]->UpdateTransforms();
+					archerWeapon->Update();
+					archerWeapon->UpdateTransforms();
+					break;
 				}
 				else
 				{
-					break;
+					continue;
 				}
 			}
 		}
-		else
-		{
-			arrowdelayTime += 1.0f * Time::Delta();
-			for (int i = 0; i < 100; i++)
-			{
-				if (archerWeaponTransform[i] != NULL)
-				{
-					Matrix attach = archerWeaponTransform[i]->World();
 
-					Vector3 origin = archerWeaponTransform[i]->GetPositon();
-					float speed = 0.05f;
-					origin.x += arrowNorMal[i].x * speed;
-					origin.z += arrowNorMal[i].z * speed;
-					archerWeaponTransform[i]->Position(origin.x, 10, origin.z);
-
-
-					archerArrowCollider[i].Collider->GetTransform()->World(attach);
-					archerArrowCollider[i].Collider->Update();
-					archerWeaponTransform[i]->Update();
-					archerWeapon[i]->Update();
-					archerWeapon[i]->UpdateTransforms();
-				}
-				else
-				{
-					break;
-				}
-				
-			}
-			
-
-
-		}
-		
-		
 	}
-
 	else if (monsterName == "hallin")
 	{
 
@@ -737,6 +716,44 @@ void AssExampleDemo::PlayerWeaponChange()
 			michelle->CreateTexture();
 			weaponCount++;
 		}
+	}
+}
+
+void AssExampleDemo::ArrowUpdate()
+{
+	arrowdelayTime += 1.0f * Time::Delta();
+	for (int i = 0; i < 100; i++)
+	{
+		if (archerWeaponTransform[i] != NULL)
+		{
+			Matrix attach = archerWeaponTransform[i]->World();
+
+			Vector3 origin = archerWeaponTransform[i]->GetPositon();
+			float speed = 30.0f;
+			origin.x += arrowNorMal[i].x * Time::Delta() * speed;
+			origin.z += arrowNorMal[i].z * Time::Delta() * speed;
+			archerWeaponTransform[i]->Position(origin.x, 10, origin.z);
+
+			archerArrowCollider[i].Collider->GetTransform()->World(attach);
+			archerArrowCollider[i].Collider->Update();
+			archerWeaponTransform[i]->Update();
+			if (archerWeaponTransform[i]->GetPositon().x > 200 ||
+				archerWeaponTransform[i]->GetPositon().x < -200 ||
+				archerWeaponTransform[i]->GetPositon().z >  200 ||
+				archerWeaponTransform[i]->GetPositon().z < -200)
+			{
+				
+			}
+
+			archerWeapon->Update();
+			archerWeapon->UpdateTransforms();
+
+		}
+		else
+		{
+			break;
+		}
+
 	}
 }
 
