@@ -2,7 +2,6 @@
 #include "FrustumDemo.h"
 #include "Viewer/Freedom.h"
 
-
 void FrustumDemo::Initialize()
 {
 	Context::Get()->GetCamera()->RotationDegree(23, 0, 0);
@@ -10,6 +9,7 @@ void FrustumDemo::Initialize()
 	((Freedom*)Context::Get()->GetCamera())->Speed(20, 2);
 
 	gridShader = new Shader(L"31_Mesh.fxo");
+
 	floor = new Material(gridShader);
 	floor->DiffuseMap(L"White.png");
 
@@ -37,18 +37,19 @@ void FrustumDemo::Initialize()
 			{
 				Transform* transform = new Transform(shader);
 				transform->Position(x, y, z);
-				
+
 				transforms.push_back(transform);
 			}
 		}
 	}
 
 	CreateMeshData();
+
 	modelShader = new Shader(L"47_GpuFrustum.fxo");
 	model = new ModelRender(modelShader);
 	model->ReadMaterial(L"B787/Airplane");
 	model->ReadMesh(L"B787/Airplane");
-
+	
 	for (float z = -100; z < 100; z += 30)
 	{
 		for (float y = -100; y < 100; y += 30)
@@ -63,6 +64,7 @@ void FrustumDemo::Initialize()
 		}
 	}
 	model->UpdateTransforms();
+
 }
 
 void FrustumDemo::Destroy()
@@ -70,6 +72,7 @@ void FrustumDemo::Destroy()
 	SafeDelete(gridShader);
 	SafeDelete(shader);
 	SafeDelete(perFrame);
+
 	SafeDelete(red);
 	SafeDelete(floor);
 
@@ -81,12 +84,10 @@ void FrustumDemo::Destroy()
 	SafeDelete(model);
 }
 
-
 void FrustumDemo::Update()
 {
 	ImGui::InputFloat("zFar", &zFar, 1.0f);
 	ImGui::InputFloat("FOV", &fov, 1e-3f);
-
 	perspective->Set(1024, 768, 1, zFar, Math::PI * fov);
 
 	frustum->Update();
@@ -102,6 +103,7 @@ void FrustumDemo::Render()
 	grid->Render();
 
 	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
 	perFrame->Render();
 	vertexBuffer->Render();
 	indexBuffer->Render();
@@ -110,7 +112,6 @@ void FrustumDemo::Render()
 
 	UINT drawCount = 0;
 	Vector3 position;
-
 	for (Transform* transform : transforms)
 	{
 		transform->Position(&position);
@@ -126,20 +127,21 @@ void FrustumDemo::Render()
 		}
 	}
 
-	string str = "Draw : " + to_string(drawCount) + ", Total:" + to_string(transforms.size());
-	Gui::Get()->RenderText(10, 60,0,1,1,str);
+	string str = "Draw : " + to_string(drawCount) + ", Toal : " + to_string(transforms.size());
+	Gui::Get()->RenderText(10, 60, 0, 1, 1, str);
 
 	Plane planes[6];
 	frustum->Planes(planes);
 	modelShader->AsVector("Planes")->SetFloatVectorArray((float*)planes, 0, 6);
-
-	model->Pass(0);
+	
+	model->Pass(1);
 	model->Render();
 }
 
 void FrustumDemo::CreateMeshData()
 {
 	vector<Mesh::MeshVertex> v;
+
 	float w, h, d;
 	w = h = d = 0.5f;
 
@@ -181,7 +183,7 @@ void FrustumDemo::CreateMeshData()
 
 	Mesh::MeshVertex* vertices = new Mesh::MeshVertex[v.size()];
 	UINT vertexCount = v.size();
-	
+
 	copy
 	(
 		v.begin(), v.end(),

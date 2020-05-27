@@ -7,8 +7,7 @@ void DefferedSpotLightsDemo::Initialize()
 	Context::Get()->GetCamera()->Position(0, 32, -67);
 	((Freedom *)Context::Get()->GetCamera())->Speed(20, 2);
 
-	//shader = new Shader(L"50_PointLightArray.fxo");
-	shader = new Shader(L"51_SpotLights.fxo");
+	shader = new Shader(L"51_SpotLights.fxo"); //데모작성할것
 	gBuffer = new GBuffer(shader);
 
 	sky = new SkyCube(L"Environment/GrassCube1024.dds", shader);
@@ -19,6 +18,7 @@ void DefferedSpotLightsDemo::Initialize()
 
 	AddPointLights();
 	AddSpotLights();
+
 }
 
 void DefferedSpotLightsDemo::Destroy()
@@ -33,9 +33,10 @@ void DefferedSpotLightsDemo::Update()
 	static bool bDebug = false;
 	ImGui::Checkbox("Debug", &bDebug);
 	gBuffer->SetDebug(bDebug);
-	sky->Update();
 
 	ImGui::SliderFloat3("Light", Context::Get()->Direction(), -1, 1);
+
+	sky->Update();
 
 	sphere->Update();	
 	cylinder->Update();
@@ -60,7 +61,7 @@ void DefferedSpotLightsDemo::PreRender()
 {
 	gBuffer->PackGBuffer();
 	
-	Pass(0,1,2);
+	Pass(0, 1, 2);
 
 	//sky->Pass(0);
 	//sky->Render();
@@ -354,16 +355,18 @@ void DefferedSpotLightsDemo::AddPointLights()
 		{
 			light =
 			{
-							Color(0.0f, 0.0f, 0.0f, 1.0f), //A
+				Color(0.0f, 0.0f, 0.0f, 1.0f), //A
 				Math::RandomColor3(), //D
 				Color(0.0f, 0.0f, 0.0f, 1.0f), //S
 				Color(0.0f, 0.0f, 0.0f, 1.0f), //E
-				Vector3(x, 1, -z), //Position
+				Vector3(x, 1, z), //Position
 				5.0f, //Range
 				Math::Random(0.1f, 1.0f) //Intensity
 			};
+
 			Context::Get()->AddPointLight(light);
 		}
+		
 	}
 }
 
@@ -372,29 +375,29 @@ void DefferedSpotLightsDemo::AddSpotLights()
 	SpotLight light;
 	light =
 	{
-		Color(0.3f, 1.0f, 0.0f, 1.0f),//A
-		Color(0.7f, 1.0f, 0.0f, 1.0f),//D
-		Color(0.3f, 1.0f, 0.0f, 1.0f),//S
-		Color(0.3f, 1.0f, 0.0f, 1.0f),//E
-		Vector3(10, 20, -30),//Position
-		25.0f,// Range
+		Color(0.3f, 1.0f, 0.0f, 1.0f), //A
+		Color(0.7f, 1.0f, 0.0f, 1.0f), //D
+		Color(0.3f, 1.0f, 0.0f, 1.0f), //S
+		Color(0.3f, 1.0f, 0.0f, 1.0f), //E
+		Vector3(-10, 20, -30), //Position
+		25.0f, //Range
 		Vector3(0, -1, 0), //Direction
 		30.0f, //Angle
-		0.9f //Itensity
+		0.9f //Intensity
 	};
 	Context::Get()->AddSpotLight(light);
 
 	light =
 	{
-		Color(1.0f, 0.2f, 0.9f, 1.0f),
-		Color(1.0f, 0.2f, 0.9f, 1.0f),
-		Color(1.0f, 0.2f, 0.9f, 1.0f),
-		Color(1.0f, 0.2f, 0.9f, 1.0f),
-		Vector3(10, 20, -30),
-		30.0f,
-		Vector3(0, -1, 0),
-		40.0f,
-		0.9f
+		Color(1.0f, 0.2f, 0.9f, 1.0f), //A
+		Color(1.0f, 0.2f, 0.9f, 1.0f), //D
+		Color(1.0f, 0.2f, 0.9f, 1.0f), //S
+		Color(1.0f, 0.2f, 0.9f, 1.0f), //E
+		Vector3(10, 20, -30), //Position
+		30.0f, //Range
+		Vector3(0, -1, 0), //Direction
+		40.0f,//Angle
+		0.9f//Intensity
 	};
 	Context::Get()->AddSpotLight(light);
 }

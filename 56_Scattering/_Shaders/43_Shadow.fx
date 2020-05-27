@@ -6,6 +6,8 @@ float4 PS(MeshOutput input) : SV_Target0
 {
     float4 color = PS_AllLight(input);
 
+    
+
     input.sPosition.xyz /= input.sPosition.w;
 
     [flatten]

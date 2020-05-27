@@ -1,22 +1,22 @@
 #include "Framework.h"
 #include "GBuffer.h"
 
-GBuffer::GBuffer(Shader* shader, UINT width, UINT height)
+GBuffer::GBuffer(Shader * shader, UINT width, UINT height)
 	: shader(shader)
 {
 	this->width = width < 1 ? (UINT)D3D::Width() : width;
 	this->height = height < 1 ? (UINT)D3D::Height() : height;
 
-
+	
 	diffuseRTV = new RenderTarget(this->width, this->height, DXGI_FORMAT_R32G32B32A32_FLOAT);
 	specularRTV = new RenderTarget(this->width, this->height, DXGI_FORMAT_R32G32B32A32_FLOAT);
 	emissiveRTV = new RenderTarget(this->width, this->height, DXGI_FORMAT_R32G32B32A32_FLOAT);
 	normalRTV = new RenderTarget(this->width, this->height, DXGI_FORMAT_R32G32B32A32_FLOAT);
-	tangentRTV = new RenderTarget(this->width, this->height, DXGI_FORMAT_R32G32B32A32_FLOAT);
+	tangentRTV = new RenderTarget(this->width, this->height, DXGI_FORMAT_R32G32B32A32_FLOAT);		
 	depthStencil = new DepthStencil(this->width, this->height, true);
 
 	viewport = new Viewport((float)this->width, (float)this->height);
-
+		
 	sSrvs = shader->AsSRV("GBufferMaps");
 
 	pointLightBuffer = new ConstantBuffer(&pointLightDesc, sizeof(PointLightDesc));
@@ -33,11 +33,11 @@ GBuffer::GBuffer(Shader* shader, UINT width, UINT height)
 	CreateDepthStencilView();
 	CreateDepthStencilState();
 	CreateRasterierState();
-
+	
 	for (UINT i = 0; i < 6; i++)
-	{
-		debug2D[i] = new Render2D();
-		debug2D[i]->GetTransform()->Position(75 + (float)i * 150, 75, 0);
+	{		
+		debug2D[i] = new Render2D();		
+		debug2D[i]->GetTransform()->Position(75 + (float)i * 150 , 75, 0); 
 		debug2D[i]->GetTransform()->Scale(150, 150, 0);
 	}
 	debug2D[0]->SRV(diffuseRTV->SRV());
@@ -45,9 +45,9 @@ GBuffer::GBuffer(Shader* shader, UINT width, UINT height)
 	debug2D[2]->SRV(emissiveRTV->SRV());
 	debug2D[3]->SRV(normalRTV->SRV());
 	debug2D[4]->SRV(tangentRTV->SRV());
-	debug2D[5]->SRV(depthStencil->SRV());
-
-
+	debug2D[5]->SRV(depthStencil->SRV());	
+	
+	
 
 }
 
@@ -57,7 +57,7 @@ GBuffer::~GBuffer()
 	SafeDelete(specularRTV);
 	SafeDelete(emissiveRTV);
 	SafeDelete(normalRTV);
-	SafeDelete(tangentRTV);
+	SafeDelete(tangentRTV);	
 	SafeDelete(depthStencil);
 	SafeDelete(viewport);
 
@@ -71,8 +71,8 @@ GBuffer::~GBuffer()
 
 	SafeRelease(debugRSS);
 	SafeRelease(lightRSS);
-
-	for (UINT i = 0; i < 6; i++)
+	
+	for (UINT i = 0 ; i < 6; i++)
 		SafeDelete(debug2D[i]);
 }
 
@@ -84,10 +84,10 @@ void GBuffer::PackGBuffer()
 	rtvs[2] = emissiveRTV;
 	rtvs[3] = normalRTV;
 	rtvs[4] = tangentRTV;
-
+	
 	RenderTarget::Sets(rtvs, 5, depthStencil);
 	viewport->RSSetViewport();
-
+	
 	sDSS->SetDepthStencilState(0, packDss);
 }
 
@@ -107,20 +107,15 @@ void GBuffer::Render()
 	};
 	sSrvs->SetResourceArray(srvs, 0, 6);
 	D3D::GetDC()->IASetVertexBuffers(0, 0, NULL, NULL, NULL);
-
+	
 	RenderDirectional();
-
+	
 	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_1_CONTROL_POINT_PATCHLIST);
 
-	if (bDrawPointLights == true)
-	{
+	if(bDrawPointLights == true)
 		RenderPointLights();
-	}
-	if (bDrawSpotLights == true)
-	{
+	if(bDrawSpotLights == true)
 		RenderSpotLights();
-	}
-	
 	
 }
 
@@ -130,7 +125,7 @@ void GBuffer::DebugRender()
 	{
 		debug2D[i]->Update();
 		debug2D[i]->Render();
-	}
+	}	
 }
 
 void GBuffer::CreateDepthStencilView()
@@ -170,7 +165,7 @@ void GBuffer::CreateDepthStencilState()
 
 	//No Depth Write Less
 	desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-	const D3D11_DEPTH_STENCILOP_DESC stencilMarkOp2 =
+	const D3D11_DEPTH_STENCILOP_DESC stencilMarkOp2 = 
 	{
 		D3D11_STENCIL_OP_KEEP,
 		D3D11_STENCIL_OP_KEEP,
@@ -204,13 +199,11 @@ void GBuffer::CreateRasterierState()
 
 void GBuffer::RenderDirectional()
 {
-	//Directional
-	{
-		D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-		sDSS->SetDepthStencilState(0, noDepthWriteLessDSS);
-		shader->Draw(0, 6, 4);
-	}
+	sDSS->SetDepthStencilState(0, noDepthWriteLessDSS);
+	shader->Draw(0, 6, 4);
+	
 }
 
 void GBuffer::CalcPointLights(UINT count)
@@ -288,7 +281,7 @@ void GBuffer::CalcSpotLights(UINT count)
 		D3DXVec3Cross(&up, &direction, &right);
 		D3DXVec3Normalize(&up, &up);
 
-		Matrix;
+		
 		D3DXMatrixIdentity(&R);
 		for (int k = 0; k < 3; k++)
 		{
@@ -297,7 +290,7 @@ void GBuffer::CalcSpotLights(UINT count)
 			R.m[2][k] = direction[k];
 		}
 
-		spotLightDesc.Projection[i] = S * R * T * Context::Get()->View() * Context::Get()->Projection();
+		spotLightDesc.Projection[i] = S * R *  T * Context::Get()->View() * Context::Get()->Projection();
 
 	}
 
@@ -316,9 +309,9 @@ void GBuffer::RenderSpotLights()
 
 		UINT count = Context::Get()->SpotLights(spotLightDesc.SpotLight);
 		CalcSpotLights(count);
-
+		
 		shader->Draw(0, 9, count);
-	}
+	}	
 
 	//SpotLight
 	{

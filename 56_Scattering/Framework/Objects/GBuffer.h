@@ -6,13 +6,14 @@ public:
 	GBuffer(Shader* shader, UINT width = 0, UINT height = 0);
 	~GBuffer();
 
-	void PackGBuffer();
-	void Render();
+	void PackGBuffer();	
+	void Render();	
 	void DebugRender();
 
 	void SetDebug(bool val) { bDebug = val; }
 	void SetDrawPointLights(bool val) { bDrawPointLights = val; }
 	void SetDrawSpotLights(bool val) { bDrawSpotLights = val; }
+	
 private:
 	void CreateDepthStencilView();
 	void CreateDepthStencilState();
@@ -20,15 +21,15 @@ private:
 
 private:
 	void RenderDirectional();
-private:
+
 	void CalcPointLights(UINT count);
 	void RenderPointLights();
 
 	void CalcSpotLights(UINT count);
 	void RenderSpotLights();
-
-
-private:
+	
+	
+private:	
 	struct PointLightDesc
 	{
 		float TessFator = 16.0f;
@@ -55,9 +56,9 @@ private:
 	bool bDrawSpotLights = true;
 
 private:
-	Shader* shader;
+	Shader * shader;
 	UINT width, height;
-
+	
 	RenderTarget* diffuseRTV;
 	RenderTarget* specularRTV;
 	RenderTarget* emissiveRTV;
@@ -75,10 +76,10 @@ private:
 
 	ID3D11RasterizerState* debugRSS;
 	ID3D11RasterizerState* lightRSS;
-	ID3DX11EffectRasterizerVariable* sRSS;
-
+	ID3DX11EffectRasterizerVariable* sRSS;	
+	
 	ID3DX11EffectShaderResourceVariable* sSrvs;
-
+	
 	ConstantBuffer* pointLightBuffer;
 	ID3DX11EffectConstantBuffer* sPointLightBuffer;
 

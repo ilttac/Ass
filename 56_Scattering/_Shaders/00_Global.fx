@@ -1,17 +1,14 @@
-
-
-//Common
+// Common
 //-----------------------------------------------
-
 cbuffer CB_PerFrame
 {
     matrix View;
     matrix ViewInverse;
     matrix Projection;
-	matrix ProjectionInverse;
-	
+    matrix ProjectionInverse;
     matrix VP;
     float Time;
+   
 };
 
 cbuffer CB_World

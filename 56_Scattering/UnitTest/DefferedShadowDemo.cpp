@@ -1,21 +1,21 @@
 #include "stdafx.h"
-#include "DefferdShadowDemo.h"
+#include "DefferedShadowDemo.h"
 
-void DefferdShadowDemo::Initialize()
+void DefferedShadowDemo::Initialize()
 {
 	Context::Get()->GetCamera()->RotationDegree(23, 0, 0);
 	Context::Get()->GetCamera()->Position(0, 32, -67);
-	((Freedom*)Context::Get()->GetCamera())->Speed(20, 2);
+	((Freedom *)Context::Get()->GetCamera())->Speed(20, 2);
 
 	shader = new Shader(L"53_DefferedShadow.fxo");
-	
-	gBuffer = new GBuffer(shader);
+
 	shadow = new Shadow(shader, Vector3(0, 0, 0), 65);
+	gBuffer = new GBuffer(shader);
 
 	sky = new SkyCube(L"Environment/GrassCube1024.dds", shader);
 	sky->Pass(11);
 
-	snow = new Snow(Vector3(300, 100, 500),100000,L"Environment/Snow.png");
+	snow = new Snow(Vector3(300, 100, 500), 100000, L"Environment/Snow.png");
 
 	Mesh();
 	Airplane();
@@ -23,26 +23,26 @@ void DefferdShadowDemo::Initialize()
 
 	AddPointLights();
 	AddSpotLights();
+
 }
 
-void DefferdShadowDemo::Destroy()
+void DefferedShadowDemo::Destroy()
 {
 	SafeDelete(shader);
 	SafeDelete(gBuffer);
 	SafeDelete(shadow);
 
-	SafeDelete(snow);
 	SafeDelete(sky);
+	SafeDelete(snow);
 }
 
-void DefferdShadowDemo::Update()
+void DefferedShadowDemo::Update()
 {
 	ImGui::SliderFloat3("Light", Context::Get()->Direction(), -1, 1);
 
 	sky->Update();
 
-	snow->Update();
-	sphere->Update();
+	sphere->Update();	
 	cylinder->Update();
 	cube->Update();
 	grid->Update();
@@ -56,14 +56,18 @@ void DefferdShadowDemo::Update()
 		colliders[i].Collider->GetTransform()->World(attach);
 		colliders[i].Collider->Update();
 	}
+	
+	snow->Udpate();
+
 }
 
-void DefferdShadowDemo::PreRender()
-{	//Depth
+void DefferedShadowDemo::PreRender()
+{
+	//Depth
 	{
 		shadow->Set();
 
-		Pass(0,1,2);
+		Pass(0, 1, 2);
 
 		//sky->Pass(0);
 		//sky->Render();
@@ -83,6 +87,7 @@ void DefferdShadowDemo::PreRender()
 		airplane->Render();
 		kachujin->Render();
 	}
+
 	//GBuffer
 	{
 		gBuffer->PackGBuffer();
@@ -107,24 +112,24 @@ void DefferdShadowDemo::PreRender()
 		airplane->Render();
 		kachujin->Render();
 	}
-	
 
 }
 
-void DefferdShadowDemo::Render()
+void DefferedShadowDemo::Render()
 {
 	gBuffer->Render();
+	
 	sky->Render();
 
 	snow->Render();
 }
 
-void DefferdShadowDemo::PostRender()
+void DefferedShadowDemo::PostRender()
 {
 	gBuffer->DebugRender();
 }
 
-void DefferdShadowDemo::Mesh()
+void DefferedShadowDemo::Mesh()
 {
 	//Create Material
 	{
@@ -132,7 +137,7 @@ void DefferdShadowDemo::Mesh()
 		floor = new Material(shader);
 		floor->DiffuseMap("Floor.png");
 		floor->SpecularMap("Floor_Specular.png");
-		floor->NormalMap("Floor_Normal.png");
+		floor->NormalMap("Floor_Normal.png");		
 		floor->Specular(1, 1, 1, 15);
 		floor->Emissive(0.2f, 0.2f, 0.2f, 0.3f);
 
@@ -199,7 +204,7 @@ void DefferdShadowDemo::Mesh()
 			transform->Scale(5, 5, 5);
 		}
 
-
+		
 	}
 
 	sphere->UpdateTransforms();
@@ -207,13 +212,13 @@ void DefferdShadowDemo::Mesh()
 	cube->UpdateTransforms();
 	grid->UpdateTransforms();
 
-	meshes.push_back(sphere);
+	meshes.push_back(sphere);	
 	meshes.push_back(cylinder);
 	meshes.push_back(cube);
 	meshes.push_back(grid);
 }
 
-void DefferdShadowDemo::Airplane()
+void DefferedShadowDemo::Airplane()
 {
 	airplane = new ModelRender(shader);
 	airplane->ReadMaterial(L"B787/Airplane");
@@ -227,7 +232,7 @@ void DefferdShadowDemo::Airplane()
 	models.push_back(airplane);
 }
 
-void DefferdShadowDemo::Kachujin()
+void DefferedShadowDemo::Kachujin()
 {
 	weapon = new Model();
 	weapon->ReadMaterial(L"Weapon/Sword");
@@ -249,7 +254,7 @@ void DefferdShadowDemo::Kachujin()
 	kachujin->GetModel()->Attach(shader, weapon, 35, &attachTransform);
 
 
-	Transform * transform = NULL;
+	Transform* transform = NULL;
 
 	transform = kachujin->AddTransform();
 	transform->Position(-25, 0, -30);
@@ -287,7 +292,7 @@ void DefferdShadowDemo::Kachujin()
 	}
 }
 
-void DefferdShadowDemo::Pass(UINT mesh, UINT model, UINT anim)
+void DefferedShadowDemo::Pass(UINT mesh, UINT model, UINT anim)
 {
 	for (MeshRender* temp : meshes)
 		temp->Pass(mesh);
@@ -299,9 +304,9 @@ void DefferdShadowDemo::Pass(UINT mesh, UINT model, UINT anim)
 		temp->Pass(anim);
 }
 
-void DefferdShadowDemo::AddPointLights()
+void DefferedShadowDemo::AddPointLights()
 {
-	PointLight light;
+	PointLight light;	
 
 	for (int z = -30; z <= 30; z += 30)
 	{
@@ -310,46 +315,48 @@ void DefferdShadowDemo::AddPointLights()
 			light =
 			{
 				Color(0.0f, 0.0f, 0.0f, 1.0f), //A
-				Math::RandomColor3(), //D
+				Math::RandomColor3(), //D				
 				Color(0.0f, 0.0f, 0.0f, 1.0f), //S
 				Color(0.0f, 0.0f, 0.0f, 1.0f), //E
-				Vector3(x, 1, -z), //Position
+				Vector3(x, 1, z), //Position
 				5.0f, //Range
 				Math::Random(0.1f, 1.0f) //Intensity
 			};
+
 			Context::Get()->AddPointLight(light);
 		}
+		
 	}
 }
 
-void DefferdShadowDemo::AddSpotLights()
+void DefferedShadowDemo::AddSpotLights()
 {
 	SpotLight light;
 	light =
 	{
-		Color(0.3f, 1.0f, 0.0f, 1.0f),//A
-		Color(0.7f, 1.0f, 0.0f, 1.0f),//D
-		Color(0.3f, 1.0f, 0.0f, 1.0f),//S
-		Color(0.3f, 1.0f, 0.0f, 1.0f),//E
-		Vector3(-10, 20, -30),//Position
-		25.0f,// Range
+		Color(0.3f, 1.0f, 0.0f, 1.0f), //A
+		Color(0.7f, 1.0f, 0.0f, 1.0f), //D
+		Color(0.3f, 1.0f, 0.0f, 1.0f), //S
+		Color(0.3f, 1.0f, 0.0f, 1.0f), //E
+		Vector3(-10, 20, -30), //Position
+		25.0f, //Range
 		Vector3(0, -1, 0), //Direction
 		30.0f, //Angle
-		0.9f //Itensity
+		0.9f //Intensity
 	};
 	Context::Get()->AddSpotLight(light);
 
 	light =
 	{
-		Color(1.0f, 0.2f, 0.9f, 1.0f),
-		Color(1.0f, 0.2f, 0.9f, 1.0f),
-		Color(1.0f, 0.2f, 0.9f, 1.0f),
-		Color(1.0f, 0.2f, 0.9f, 1.0f),
-		Vector3(10, 20, -30),
-		30.0f,
-		Vector3(0, -1, 0),
-		40.0f,
-		0.9f
+		Color(1.0f, 0.2f, 0.9f, 1.0f), //A
+		Color(1.0f, 0.2f, 0.9f, 1.0f), //D
+		Color(1.0f, 0.2f, 0.9f, 1.0f), //S
+		Color(1.0f, 0.2f, 0.9f, 1.0f), //E
+		Vector3(10, 20, -30), //Position
+		30.0f, //Range
+		Vector3(0, -1, 0), //Direction
+		40.0f,//Angle
+		0.9f//Intensity
 	};
 	Context::Get()->AddSpotLight(light);
 }

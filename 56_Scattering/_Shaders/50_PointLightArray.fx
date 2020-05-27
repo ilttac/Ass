@@ -11,9 +11,9 @@ technique11 T0
 
     //Deffered-Directional
     P_DSS_VP(P3, Deffered_DepthStencil_State, VS_Directional, PS_Directional)
-	
-	//Deffered-PointLigts
-	P_RS_VTP(P4, Deffered_Rasterizer_State, VS_PointLights,HS_PointLights,DS_PointLights,PS_PointLights_Debug)
-	P_RS_DSS_BS_VTP(P5, Deffered_Rasterizer_State, Deffered_DepthStencil_State, Blend_Addtive, VS_PointLights, HS_PointLights, DS_PointLights, PS_PointLights)
+
+    //Deffered-PointLights
+    P_RS_VTP(P4, Deffered_Rasterizer_State, VS_PointLights, HS_PointLights, DS_PointLights, PS_PointLights_Debug)
+    P_RS_DSS_BS_VTP(P5, Deffered_Rasterizer_State, Deffered_DepthStencil_State, Blend_Addtive, VS_PointLights, HS_PointLights, DS_PointLights, PS_PointLights)
 }
 

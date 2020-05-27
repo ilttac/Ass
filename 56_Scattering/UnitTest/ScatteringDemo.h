@@ -25,9 +25,9 @@ private:
 
 private:
 	Shader * shader;
-	GBuffer* gBuffer;
-					 
+
 	Shadow* shadow;
+	GBuffer* gBuffer;
 
 	SkyCube* sky;
 	Snow* snow;
@@ -41,7 +41,6 @@ private:
 	MeshRender* cylinder;
 	MeshRender* cube;
 	MeshRender* grid;
-
 
 	ModelRender* airplane = NULL;
 

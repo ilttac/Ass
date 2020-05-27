@@ -56,12 +56,6 @@ output.sPosition = output.Position;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-
-float4 PS_Sky(MeshOutput input) : SV_Target0
-{
-    return SkyCubeMap.Sample(LinearSampler, input.oPosition);
-}
-
 void SetMeshWorld(inout matrix world, VertexMesh input)
 {
     world = input.Transform;

@@ -55,7 +55,7 @@ void DefferedDemo::PreRender()
 {
 	gBuffer->PackGBuffer();
 	
-	Pass(0,1,2);
+	Pass(0, 1, 2);
 
 	//sky->Pass(0);
 	//sky->Render();

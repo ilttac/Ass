@@ -22,32 +22,32 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{EB7A4EF9-D765-4687-A483-1118A7DBB965}</ProjectGuid>
     <RootNamespace>UnitTest</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -130,10 +130,10 @@
     <ClCompile Include="CpuBillboardDemo.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="DefferdShadowDemo.cpp" />
     <ClCompile Include="DefferedDemo.cpp" />
     <ClCompile Include="DefferedPointLightArrayDemo.cpp" />
     <ClCompile Include="DefferedPointLightsDemo.cpp" />
+    <ClCompile Include="DefferedShadowDemo.cpp" />
     <ClCompile Include="DefferedSpotLightsDemo.cpp" />
     <ClCompile Include="DynamicCubeMapDemo.cpp" />
     <ClCompile Include="FrameworkDemo.cpp" />
@@ -185,10 +185,10 @@
     <ClInclude Include="CpuBillboardDemo.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="DefferdShadowDemo.h" />
     <ClInclude Include="DefferedDemo.h" />
     <ClInclude Include="DefferedPointLightArrayDemo.h" />
     <ClInclude Include="DefferedPointLightsDemo.h" />
+    <ClInclude Include="DefferedShadowDemo.h" />
     <ClInclude Include="DefferedSpotLightsDemo.h" />
     <ClInclude Include="DynamicCubeMapDemo.h" />
     <ClInclude Include="FrameworkDemo.h" />

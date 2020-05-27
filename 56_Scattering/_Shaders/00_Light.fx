@@ -109,7 +109,7 @@ void PS_Projection(inout float4 color, float4 wvp)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void ComputeLight(out MaterialDesc output,float3 normal, float3 wPosition)
+void ComputeLight(out MaterialDesc output, float3 normal, float3 wPosition)
 {
     output.Ambient = 0;
     output.Diffuse = 0;
@@ -152,10 +152,8 @@ void ComputeLight(out MaterialDesc output,float3 normal, float3 wPosition)
             
         output.Emissive = Material.Emissive * emissive;
     }
-
-   
-
 }
+
 
 
 
@@ -263,6 +261,8 @@ void ComputePointLight(inout MaterialDesc output, float3 normal, float3 wPositio
 
 }
 
+
+
 ///////////////////////////////////////////////////////////////////////////////
 
 struct SpotLightDesc
@@ -270,7 +270,7 @@ struct SpotLightDesc
     float4 Ambient;
     float4 Diffuse;
     float4 Specular;
-    float4 Emissive;
+    float4 Emissie;
 
     float3 Position;
     float Range;
@@ -328,7 +328,7 @@ void ComputeSpotLight(inout MaterialDesc output, float3 normal, float3 wPosition
 
         float NdotE = dot(E, normal);
         float emissive = smoothstep(1.0f - Material.Emissive.a, 1.0f, 1.0f - saturate(NdotE));
-        result.Emissive = emissive * Material.Emissive * SpotLights[i].Emissive;
+        result.Emissive = emissive * Material.Emissive * SpotLights[i].Emissie;
 
         float temp = pow(saturate(dot(-light, SpotLights[i].Direction)), SpotLights[i].Angle);
 
@@ -342,6 +342,7 @@ void ComputeSpotLight(inout MaterialDesc output, float3 normal, float3 wPosition
     }
 
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -457,10 +458,10 @@ float4 PS_Shadow(MeshOutput input, float4 color)
 
 float4 PS_Shadow(float4 position, float4 color)
 {
-	MeshOutput input = (MeshOutput) 0;
-	input.sPosition = position;
-	
-	return PS_Shadow(input, color);
+    MeshOutput input = (MeshOutput) 0;
+    input.sPosition = position;
+
+    return PS_Shadow(input, color);
 }
 
 float4 PS_Shadow(MeshGeometryOutput input, float4 color)
@@ -479,13 +480,13 @@ float4 PS_Shadow(MeshGeometryOutput input, float4 color)
     output.Tangent = input.Tangent;
 
     return PS_Shadow(output, color);
+
 }
 
-///////////////////////////////////////////////////////////////////////////////
 // Poisson smapling
 static const float2 PoissonDisk[16] =
 {
-	float2(-0.94201624, -0.39906216),
+    float2(-0.94201624, -0.39906216),
 	float2(0.94558609, -0.76890725),
 	float2(-0.094184101, -0.92938870),
 	float2(0.34495938, 0.29387760),
@@ -503,55 +504,56 @@ static const float2 PoissonDisk[16] =
 	float2(0.14383161, -0.14100790)
 };
 
-float4 PS_Shadow_PCSS(float4 position,float4 color)
+float4 PS_Shadow_PCSS(float4 position, float4 color)
 {
-	position.xyz /= position.w;
+    position.xyz /= position.w;
 
     [flatten]
-	if (position.x < -1.0f || position.x > 1.0f ||
+    if (position.x < -1.0f || position.x > 1.0f ||
         position.y < -1.0f || position.y > 1.0f ||
         position.z < 0.0f || position.z > 1.0f)
-		return color;
+        return color;
 
-	position.x = position.x * 0.5f + 0.5f;
-	position.y = -position.y * 0.5f + 0.5f;
-	position.z -= ShadowBias;
-	
-	float4 avgBlockerDepth = 0;
-	float blockerCount = 0;
-	float4 d = 0; // Depth
-	float4 b = 0; // Factor
-	
-	//[unroll]
-	for (int y = -2; y <= 2; y += 2)
-	{
-		//[unroll]
-		for (int x = -2; x <= 2; x += 2)
-		{
-			d = ShadowMap.GatherRed(LinearSampler, position.xy, int2(x, y));
-			b = (position.z <= d) ? 0.0f : 1.0f;
+    position.x = position.x * 0.5f + 0.5f;
+    position.y = -position.y * 0.5f + 0.5f;
+    position.z -= ShadowBias;
 
-			blockerCount += dot(b, 1.0f); //그림자를 그리지말아야할 갯수
-			avgBlockerDepth += dot(b, d);
-			
-		}
-	}
-	if (blockerCount <= 0.0f)
-		return color;
-		
-	avgBlockerDepth /= blockerCount;
-	float ratio = ((position.z - avgBlockerDepth) * 65) / avgBlockerDepth;
-	ratio *= ratio;
-	
-	float att = 0;
-	float2 offset = 0;
-	//[unroll]
-	for (int i = 0; i < 16; i++)
-	{
-		offset = ratio * ShadowMapSize.xy * PoissonDisk[i];
-		att += ShadowMap.SampleCmpLevelZero(ShadowSampler, position.xy + offset, position.z);
-	}
-	
-	return float4(color.rgb * (att * 1 / 16), 1);
-	
+    float4 avgBlockerDepth = 0;
+    float blockerCount = 0;
+    float4 d = 0; //Depth
+    float4 b = 0; //Factor
+
+    //[unroll]
+    for (int y = -2; y <= 2; y += 2)
+    {
+        //[unroll]
+        for (int x = -2; x <= 2; x += 2)
+        {
+            d = ShadowMap.GatherRed(LinearSampler, position.xy, int2(x, y));
+            b = (position.z <= d) ? 0.0f : 1.0f;
+
+            blockerCount += dot(b, 1.0f);
+            avgBlockerDepth += dot(b, d);
+        }
+    }
+
+    if(blockerCount <= 0.0f)
+        return color;
+
+    avgBlockerDepth /= blockerCount;
+
+    float ratio = ((position.z - avgBlockerDepth) * 65) / avgBlockerDepth;
+    ratio *= ratio;
+
+    float att = 0;
+    float2 offset = 0;
+    //[unroll]
+    for (int i = 0; i < 16; i++)
+    {
+        offset = ratio * ShadowMapSize.xy * PoissonDisk[i];
+        att += ShadowMap.SampleCmpLevelZero(ShadowSampler, position.xy + offset, position.z);
+    }
+
+    return float4(color.rgb * (att * 1 / 16), 1);
+
 }

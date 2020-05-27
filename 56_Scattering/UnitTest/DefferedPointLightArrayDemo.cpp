@@ -7,8 +7,8 @@ void DefferedPointLightArrayDemo::Initialize()
 	Context::Get()->GetCamera()->Position(0, 32, -67);
 	((Freedom *)Context::Get()->GetCamera())->Speed(20, 2);
 
-	//shader = new Shader(L"50_PointLightArray.fxo");
-	shader = new Shader(L"51_SpotLights.fxo");
+	shader = new Shader(L"50_PointLightArray.fxo");
+	//shader = new Shader(L"51_SpotLights.fxo"); //데모작성할것
 	gBuffer = new GBuffer(shader);
 
 	sky = new SkyCube(L"Environment/GrassCube1024.dds", shader);
@@ -19,6 +19,7 @@ void DefferedPointLightArrayDemo::Initialize()
 
 	AddPointLights();
 	AddSpotLights();
+
 }
 
 void DefferedPointLightArrayDemo::Destroy()
@@ -33,9 +34,10 @@ void DefferedPointLightArrayDemo::Update()
 	static bool bDebug = false;
 	ImGui::Checkbox("Debug", &bDebug);
 	gBuffer->SetDebug(bDebug);
-	sky->Update();
 
 	ImGui::SliderFloat3("Light", Context::Get()->Direction(), -1, 1);
+
+	sky->Update();
 
 	sphere->Update();	
 	cylinder->Update();
@@ -60,7 +62,7 @@ void DefferedPointLightArrayDemo::PreRender()
 {
 	gBuffer->PackGBuffer();
 	
-	Pass(0,1,2);
+	Pass(0, 1, 2);
 
 	//sky->Pass(0);
 	//sky->Render();
@@ -354,16 +356,18 @@ void DefferedPointLightArrayDemo::AddPointLights()
 		{
 			light =
 			{
-							Color(0.0f, 0.0f, 0.0f, 1.0f), //A
+				Color(0.0f, 0.0f, 0.0f, 1.0f), //A
 				Math::RandomColor3(), //D
 				Color(0.0f, 0.0f, 0.0f, 1.0f), //S
 				Color(0.0f, 0.0f, 0.0f, 1.0f), //E
-				Vector3(x, 1, -z), //Position
+				Vector3(x, 1, z), //Position
 				5.0f, //Range
 				Math::Random(0.1f, 1.0f) //Intensity
 			};
+
 			Context::Get()->AddPointLight(light);
 		}
+		
 	}
 }
 

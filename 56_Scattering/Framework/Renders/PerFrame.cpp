@@ -45,7 +45,7 @@ void PerFrame::Render()
 
 	bufferDesc.Projection = Context::Get()->Projection();
 	D3DXMatrixInverse(&bufferDesc.ProjectionInverse, NULL, &bufferDesc.Projection);
-	
+
 	bufferDesc.VP = bufferDesc.View * bufferDesc.Projection;
 
 	buffer->Apply();

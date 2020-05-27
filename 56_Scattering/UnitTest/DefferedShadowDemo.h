@@ -1,7 +1,7 @@
 #pragma once
 #include "Systems/IExecute.h"
 
-class DefferdShadowDemo : public IExecute
+class DefferedShadowDemo : public IExecute
 {
 public:
 	virtual void Initialize() override;
@@ -25,9 +25,9 @@ private:
 
 private:
 	Shader * shader;
-	GBuffer* gBuffer;
-					 
+
 	Shadow* shadow;
+	GBuffer* gBuffer;
 
 	SkyCube* sky;
 	Snow* snow;
@@ -41,7 +41,6 @@ private:
 	MeshRender* cylinder;
 	MeshRender* cube;
 	MeshRender* grid;
-
 
 	ModelRender* airplane = NULL;
 

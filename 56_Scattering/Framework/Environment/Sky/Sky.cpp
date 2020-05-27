@@ -1,8 +1,8 @@
 #include "Framework.h"
 #include "Sky.h"
 
-Sky::Sky(Shader* shader)
-	:Renderer(shader)
+Sky::Sky(Shader * shader)
+	: Renderer(shader)
 {
 	scatterDesc.InvWaveLength.x = 1.0f / powf(scatterDesc.WaveLength.x, 4.0f);
 	scatterDesc.InvWaveLength.y = 1.0f / powf(scatterDesc.WaveLength.y, 4.0f);
@@ -12,6 +12,7 @@ Sky::Sky(Shader* shader)
 	scatterDesc.WaveLengthMie.y = powf(scatterDesc.WaveLength.y, -0.84f);
 	scatterDesc.WaveLengthMie.z = powf(scatterDesc.WaveLength.z, -0.84f);
 
+	
 }
 
 Sky::~Sky()

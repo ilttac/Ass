@@ -1,6 +1,6 @@
 #include "00_Global.fx"
-#include "00_Deffered.fx"
 //#include "00_Light.fx"
+#include "00_Deffered.fx"
 #include "00_Model.fx"
 
 Texture2D DefferedMaps[6];
@@ -24,22 +24,23 @@ static const float2 ScreenNDC[4] = { float2(-1, +1), float2(+1, +1), float2(-1, 
 
 struct VertexOutput_Deffered
 {
-	float4 Position : SV_Position;
-	float2 Screen : Position1;
+    float4 Position : SV_Position;
+    float2 Screen : Position1;
 };
 
 
 VertexOutput_Deffered VS_Deffered(uint VertexID : SV_VertexID)
 {
-	VertexOutput_Deffered output;
+    VertexOutput_Deffered output;
 
-	output.Position = float4(ScreenNDC[VertexID], 0, 1);
-	output.Screen = output.Position.xy;
+    output.Position = float4(ScreenNDC[VertexID], 0, 1);
+    output.Screen = output.Position.xy;
 
-	return output;
+    return output;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
 struct PixelOutput_PackGBuffer
 {
     float4 Diffuse : SV_Target0;
@@ -49,21 +50,22 @@ struct PixelOutput_PackGBuffer
     float4 Tangent : SV_Target4;
 };
 
+
 PixelOutput_PackGBuffer PS_PackGBuffer(MeshOutput input)
 {
     Texture(Material.Diffuse, DiffuseMap, input.Uv);
     Texture(Material.Specular, SpecularMap, input.Uv);
    
-	PixelOutput_PackGBuffer output;
+    PixelOutput_PackGBuffer output;
 
-	output.Diffuse = float4(Material.Diffuse.rgb, 1);
-	output.Specular = Material.Specular;
-	output.Specular.a = max(1e-6, (Material.Specular.a - Deffered.SPecularPowerRange.x) / Deffered.SPecularPowerRange.y);
-	output.Emissive = Material.Emissive;
-	output.Normal = float4(input.Normal, 1);
-	output.Tangent = float4(input.Tangent , 1);
-	
-	return output;
+    output.Diffuse = float4(Material.Diffuse.rgb, 1);
+    output.Specular = Material.Specular;
+    output.Specular.a = max(1e-6, (Material.Specular.a - Deffered.SPecularPowerRange.x) / Deffered.SPecularPowerRange.y);
+    output.Emissive = Material.Emissive;
+    output.Normal = float4(input.Normal, 1);
+    output.Tangent = float4(input.Tangent, 1);
+
+    return output;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -77,7 +79,7 @@ void UnpackGBuffer(inout float4 position, in float2 screen, out MaterialDesc mat
     material.Emissive = DefferedMaps[3].Load(int3(position.xy, 0));
 
     normal = DefferedMaps[4].Load(int3(position.xy, 0)).rgb;
-	tangent = DefferedMaps[5].Load(int3(position.xy, 0)).rgb;
+    tangent = DefferedMaps[5].Load(int3(position.xy, 0)).rgb;
 
     float depth = DefferedMaps[0].Load(int3(position.xy, 0)).r;
     float linearDepth = Deffered.Perspective.z / (depth + Deffered.Perspective.w);
@@ -96,17 +98,17 @@ float4 PS_Directional(VertexOutput_Deffered input) : SV_Target
     float4 position = input.Position;
     float3 normal = 0, tangent = 0;
     MaterialDesc material = MakeMaterial();
-   
+    
     UnpackGBuffer(position, input.Screen, material, normal, tangent);
-	material.Diffuse = float4(1, 1, 1, 1);
-	
+    material.Diffuse = float4(1, 1, 1, 1);
+   
     MaterialDesc result = MakeMaterial();
     MaterialDesc output = MakeMaterial();
     
-    ComputeLight(output, material, normal, position.xyz);
+    ComputeLight_Deffered(output, material, normal, position.xyz);
     AddMaterial(result, output);
-
-	return float4(MaterialToColor(result), 1);
+    
+    return float4(MaterialToColor(result), 1);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -224,7 +226,6 @@ technique11 T0
     P_DSS_VP(P2, Deffered_DepthStencil_State, VS_Animation, PS_PackGBuffer)
 
     //Deffered-Directional
-    P_DSS_VP(P3, Deffered_DepthStencil_State, VS_Deffered, PS_Directional)
-
-
+    P_DSS_VP(P3, Deffered_DepthStencil_State, VS_Deffered, PS_Directional)  
 }
+

@@ -1,4 +1,5 @@
 #pragma once
+
 class Sky : public Renderer
 {
 public:
@@ -15,15 +16,16 @@ public:
 private:
 	struct ScatterDesc
 	{
-		Vector3 WaveLength = Vector3(0.65f,0.57f,0.475f);
-		int SampleCount = 8;
+		Vector3 WaveLength = Vector3(0.65f, 0.57f, 0.475f);
+		int SamepleCount = 8;
 
 		Vector3 InvWaveLength;
 		float StarIntensity;
 
 		Vector3 WaveLengthMie;
 		float MoonAlpha;
-	}scatterDesc;
+	} scatterDesc;
+
 private:
 	Shader* shader;
 
@@ -33,6 +35,6 @@ private:
 	float theta = 0.0f, prevTheta = 1.0f;
 
 	class Scattering* scattering;
-	ConstantBuffer* scatteringBuffer;
-	ID3DX11EffectConstantBuffer* sScatteringBuffer;
+	ConstantBuffer* scatterBuffer;
+	ID3DX11EffectConstantBuffer* sScatterBuffer;
 };

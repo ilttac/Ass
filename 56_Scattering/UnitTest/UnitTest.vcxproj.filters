@@ -108,9 +108,6 @@
     <ClCompile Include="DynamicCubeMapDemo.cpp">
       <Filter>Objects</Filter>
     </ClCompile>
-    <ClCompile Include="DefferedDemo.cpp">
-      <Filter>Deffered</Filter>
-    </ClCompile>
     <ClCompile Include="TessTriangleDemo.cpp">
       <Filter>Tessellation</Filter>
     </ClCompile>
@@ -119,6 +116,9 @@
     </ClCompile>
     <ClCompile Include="TessDistanceDemo.cpp">
       <Filter>Tessellation</Filter>
+    </ClCompile>
+    <ClCompile Include="DefferedDemo.cpp">
+      <Filter>Deffered</Filter>
     </ClCompile>
     <ClCompile Include="FrustumDemo.cpp">
       <Filter>Objects</Filter>
@@ -132,7 +132,7 @@
     <ClCompile Include="DefferedSpotLightsDemo.cpp">
       <Filter>Deffered</Filter>
     </ClCompile>
-    <ClCompile Include="DefferdShadowDemo.cpp">
+    <ClCompile Include="DefferedShadowDemo.cpp">
       <Filter>Deffered</Filter>
     </ClCompile>
     <ClCompile Include="ScatteringDemo.cpp">
@@ -271,7 +271,7 @@
     <ClInclude Include="DefferedSpotLightsDemo.h">
       <Filter>Deffered</Filter>
     </ClInclude>
-    <ClInclude Include="DefferdShadowDemo.h">
+    <ClInclude Include="DefferedShadowDemo.h">
       <Filter>Deffered</Filter>
     </ClInclude>
     <ClInclude Include="ScatteringDemo.h">

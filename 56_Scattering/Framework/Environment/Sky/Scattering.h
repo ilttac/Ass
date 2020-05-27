@@ -7,15 +7,16 @@ public:
 	~Scattering();
 
 	void Update();
-	void Render();
+
 	void PreRender();
+	void Render();
 	void PostRender();
-	
+
 	void Pass(UINT val) { pass = val; }
 	void SetDebug(bool val) { bDebug = val; }
-private:
-	void CreateQuad(); //ScreenNdc
 
+private:
+	void CreateQuad();
 
 private:
 	bool bDebug = false;

@@ -18,7 +18,7 @@ private:
 	void CreateMeshData();
 
 private:
-	Material* red;
+	Material * red;
 	Shader* shader;
 	VertexBuffer* vertexBuffer;
 	IndexBuffer* indexBuffer;
@@ -29,7 +29,7 @@ private:
 	Material* floor;
 	Shader* gridShader;
 	MeshRender* grid;
-
+	
 	float fov = 0.25f;
 	float zFar = 100.0f;
 
@@ -39,4 +39,5 @@ private:
 
 	Shader* modelShader;
 	ModelRender* model;
+
 };

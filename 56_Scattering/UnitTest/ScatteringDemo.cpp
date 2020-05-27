@@ -5,17 +5,17 @@ void ScatteringDemo::Initialize()
 {
 	Context::Get()->GetCamera()->RotationDegree(23, 0, 0);
 	Context::Get()->GetCamera()->Position(0, 32, -67);
-	((Freedom*)Context::Get()->GetCamera())->Speed(20, 2);
+	((Freedom *)Context::Get()->GetCamera())->Speed(20, 2);
 
 	shader = new Shader(L"53_DefferedShadow.fxo");
-	
-	gBuffer = new GBuffer(shader);
+
 	shadow = new Shadow(shader, Vector3(0, 0, 0), 65);
+	gBuffer = new GBuffer(shader);
 
 	sky = new SkyCube(L"Environment/GrassCube1024.dds", shader);
 	sky->Pass(11);
 
-	snow = new Snow(Vector3(300, 100, 500),100000,L"Environment/Snow.png");
+	snow = new Snow(Vector3(300, 100, 500), 100000, L"Environment/Snow.png");
 
 	Mesh();
 	Airplane();
@@ -23,6 +23,7 @@ void ScatteringDemo::Initialize()
 
 	AddPointLights();
 	AddSpotLights();
+
 }
 
 void ScatteringDemo::Destroy()
@@ -31,8 +32,8 @@ void ScatteringDemo::Destroy()
 	SafeDelete(gBuffer);
 	SafeDelete(shadow);
 
-	SafeDelete(snow);
 	SafeDelete(sky);
+	SafeDelete(snow);
 }
 
 void ScatteringDemo::Update()
@@ -41,8 +42,7 @@ void ScatteringDemo::Update()
 
 	sky->Update();
 
-	snow->Update();
-	sphere->Update();
+	sphere->Update();	
 	cylinder->Update();
 	cube->Update();
 	grid->Update();
@@ -56,14 +56,18 @@ void ScatteringDemo::Update()
 		colliders[i].Collider->GetTransform()->World(attach);
 		colliders[i].Collider->Update();
 	}
+	
+	snow->Udpate();
+
 }
 
 void ScatteringDemo::PreRender()
-{	//Depth
+{
+	//Depth
 	{
 		shadow->Set();
 
-		Pass(0,1,2);
+		Pass(0, 1, 2);
 
 		//sky->Pass(0);
 		//sky->Render();
@@ -83,6 +87,7 @@ void ScatteringDemo::PreRender()
 		airplane->Render();
 		kachujin->Render();
 	}
+
 	//GBuffer
 	{
 		gBuffer->PackGBuffer();
@@ -107,13 +112,13 @@ void ScatteringDemo::PreRender()
 		airplane->Render();
 		kachujin->Render();
 	}
-	
 
 }
 
 void ScatteringDemo::Render()
 {
 	gBuffer->Render();
+	
 	sky->Render();
 
 	snow->Render();
@@ -132,7 +137,7 @@ void ScatteringDemo::Mesh()
 		floor = new Material(shader);
 		floor->DiffuseMap("Floor.png");
 		floor->SpecularMap("Floor_Specular.png");
-		floor->NormalMap("Floor_Normal.png");
+		floor->NormalMap("Floor_Normal.png");		
 		floor->Specular(1, 1, 1, 15);
 		floor->Emissive(0.2f, 0.2f, 0.2f, 0.3f);
 
@@ -199,7 +204,7 @@ void ScatteringDemo::Mesh()
 			transform->Scale(5, 5, 5);
 		}
 
-
+		
 	}
 
 	sphere->UpdateTransforms();
@@ -207,7 +212,7 @@ void ScatteringDemo::Mesh()
 	cube->UpdateTransforms();
 	grid->UpdateTransforms();
 
-	meshes.push_back(sphere);
+	meshes.push_back(sphere);	
 	meshes.push_back(cylinder);
 	meshes.push_back(cube);
 	meshes.push_back(grid);
@@ -249,7 +254,7 @@ void ScatteringDemo::Kachujin()
 	kachujin->GetModel()->Attach(shader, weapon, 35, &attachTransform);
 
 
-	Transform * transform = NULL;
+	Transform* transform = NULL;
 
 	transform = kachujin->AddTransform();
 	transform->Position(-25, 0, -30);
@@ -301,7 +306,7 @@ void ScatteringDemo::Pass(UINT mesh, UINT model, UINT anim)
 
 void ScatteringDemo::AddPointLights()
 {
-	PointLight light;
+	PointLight light;	
 
 	for (int z = -30; z <= 30; z += 30)
 	{
@@ -310,15 +315,17 @@ void ScatteringDemo::AddPointLights()
 			light =
 			{
 				Color(0.0f, 0.0f, 0.0f, 1.0f), //A
-				Math::RandomColor3(), //D
+				Math::RandomColor3(), //D				
 				Color(0.0f, 0.0f, 0.0f, 1.0f), //S
 				Color(0.0f, 0.0f, 0.0f, 1.0f), //E
-				Vector3(x, 1, -z), //Position
+				Vector3(x, 1, z), //Position
 				5.0f, //Range
 				Math::Random(0.1f, 1.0f) //Intensity
 			};
+
 			Context::Get()->AddPointLight(light);
 		}
+		
 	}
 }
 
@@ -327,29 +334,29 @@ void ScatteringDemo::AddSpotLights()
 	SpotLight light;
 	light =
 	{
-		Color(0.3f, 1.0f, 0.0f, 1.0f),//A
-		Color(0.7f, 1.0f, 0.0f, 1.0f),//D
-		Color(0.3f, 1.0f, 0.0f, 1.0f),//S
-		Color(0.3f, 1.0f, 0.0f, 1.0f),//E
-		Vector3(-10, 20, -30),//Position
-		25.0f,// Range
+		Color(0.3f, 1.0f, 0.0f, 1.0f), //A
+		Color(0.7f, 1.0f, 0.0f, 1.0f), //D
+		Color(0.3f, 1.0f, 0.0f, 1.0f), //S
+		Color(0.3f, 1.0f, 0.0f, 1.0f), //E
+		Vector3(-10, 20, -30), //Position
+		25.0f, //Range
 		Vector3(0, -1, 0), //Direction
 		30.0f, //Angle
-		0.9f //Itensity
+		0.9f //Intensity
 	};
 	Context::Get()->AddSpotLight(light);
 
 	light =
 	{
-		Color(1.0f, 0.2f, 0.9f, 1.0f),
-		Color(1.0f, 0.2f, 0.9f, 1.0f),
-		Color(1.0f, 0.2f, 0.9f, 1.0f),
-		Color(1.0f, 0.2f, 0.9f, 1.0f),
-		Vector3(10, 20, -30),
-		30.0f,
-		Vector3(0, -1, 0),
-		40.0f,
-		0.9f
+		Color(1.0f, 0.2f, 0.9f, 1.0f), //A
+		Color(1.0f, 0.2f, 0.9f, 1.0f), //D
+		Color(1.0f, 0.2f, 0.9f, 1.0f), //S
+		Color(1.0f, 0.2f, 0.9f, 1.0f), //E
+		Vector3(10, 20, -30), //Position
+		30.0f, //Range
+		Vector3(0, -1, 0), //Direction
+		40.0f,//Angle
+		0.9f//Intensity
 	};
 	Context::Get()->AddSpotLight(light);
 }

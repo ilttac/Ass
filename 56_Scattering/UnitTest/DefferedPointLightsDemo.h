@@ -41,7 +41,6 @@ private:
 	MeshRender* cube;
 	MeshRender* grid;
 
-
 	ModelRender* airplane = NULL;
 
 	Model* weapon;

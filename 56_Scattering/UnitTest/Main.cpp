@@ -1,6 +1,3 @@
-//Main.cpp
-//??
-
 #include "stdafx.h"
 #include "Main.h"
 #include "Systems/Window.h"
@@ -48,15 +45,16 @@
 #include "DefferedPointLightsDemo.h"
 #include "DefferedPointLightArrayDemo.h"
 #include "DefferedSpotLightsDemo.h"
-#include "DefferdShadowDemo.h"
+#include "DefferedShadowDemo.h"
+
 void Main::Initialize()
 {
-	Push(new DefferdShadowDemo());
+	Push(new DefferedShadowDemo());
 }
 
 void Main::Ready()
 {
-
+	
 }
 
 void Main::Destroy()
