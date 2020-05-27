@@ -25,6 +25,9 @@
     <Filter Include="Objects">
       <UniqueIdentifier>{2ffd65da-5039-450b-bbb8-0e2800e537d8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Environment\Sky">
+      <UniqueIdentifier>{0fdd309c-7b65-42d4-aa9a-56e577bbfe71}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Renders\Context.cpp">
@@ -183,6 +186,12 @@
     </ClCompile>
     <ClCompile Include="Objects\Frustum.cpp">
       <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Environment\Sky\Sky.cpp">
+      <Filter>Environment\Sky</Filter>
+    </ClCompile>
+    <ClCompile Include="Environment\Sky\Scattering.cpp">
+      <Filter>Environment\Sky</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -348,6 +357,12 @@
     </ClInclude>
     <ClInclude Include="Objects\Frustum.h">
       <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Environment\Sky\Sky.h">
+      <Filter>Environment\Sky</Filter>
+    </ClInclude>
+    <ClInclude Include="Environment\Sky\Scattering.h">
+      <Filter>Environment\Sky</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

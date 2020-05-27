@@ -1,4 +1,6 @@
-//cbuffer
+
+
+//Common
 //-----------------------------------------------
 
 cbuffer CB_PerFrame
@@ -33,6 +35,10 @@ Texture2D ShadowMap;
 SamplerComparisonState ShadowSampler;
 
 static const float2 NDC[4] = { float2(-1, +1), float2(+1, +1), float2(-1, -1), float2(+1, -1) };
+
+static const float PI = 3.14159265f;
+static const float G = -0.980f;
+static const float G2 = -0.980f * -0.980f;
 
 //Function
 //-----------------------------------------------

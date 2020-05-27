@@ -23,6 +23,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "00", "00", "{9850716F-03E9-
 		_Shaders\00_Global.fx = _Shaders\00_Global.fx
 		_Shaders\00_Light.fx = _Shaders\00_Light.fx
 		_Shaders\00_Model.fx = _Shaders\00_Model.fx
+		_Shaders\00_Sky.fx = _Shaders\00_Sky.fx
 		_Shaders\00_Terrain.fx = _Shaders\00_Terrain.fx
 	EndProjectSection
 EndProject

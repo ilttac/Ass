@@ -32,7 +32,6 @@ SkyCube::SkyCube(wstring file, Shader* shader)
 		desc.StencilWriteMask = D3D11_DEFAULT_STENCIL_WRITE_MASK;
 
 		D3D11_DEPTH_STENCILOP_DESC opDesc;
-		ZeroMemory(&opDesc, sizeof(D3D11_DEPTH_STENCILOP_DESC));
 		opDesc.StencilFailOp = D3D11_STENCIL_OP_KEEP;
 		opDesc.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
 		opDesc.StencilPassOp = D3D11_STENCIL_OP_KEEP;
