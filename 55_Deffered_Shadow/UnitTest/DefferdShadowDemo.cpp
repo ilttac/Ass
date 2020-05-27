@@ -15,6 +15,8 @@ void DefferdShadowDemo::Initialize()
 	sky = new SkyCube(L"Environment/GrassCube1024.dds", shader);
 	sky->Pass(11);
 
+	snow = new Snow(Vector3(300, 100, 500),100000,L"Environment/Snow.png");
+
 	Mesh();
 	Airplane();
 	Kachujin();
@@ -28,17 +30,18 @@ void DefferdShadowDemo::Destroy()
 	SafeDelete(shader);
 	SafeDelete(gBuffer);
 	SafeDelete(shadow);
+
+	SafeDelete(snow);
+	SafeDelete(sky);
 }
 
 void DefferdShadowDemo::Update()
 {
-	static bool bDebug = false;
-	ImGui::Checkbox("Debug", &bDebug);
-	gBuffer->SetDebug(bDebug);
-	sky->Update();
-
 	ImGui::SliderFloat3("Light", Context::Get()->Direction(), -1, 1);
 
+	sky->Update();
+
+	snow->Update();
 	sphere->Update();
 	cylinder->Update();
 	cube->Update();
@@ -112,6 +115,8 @@ void DefferdShadowDemo::Render()
 {
 	gBuffer->Lighting();
 	sky->Render();
+
+	snow->Render();
 }
 
 void DefferdShadowDemo::PostRender()

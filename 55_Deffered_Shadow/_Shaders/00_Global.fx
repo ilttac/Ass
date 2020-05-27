@@ -254,7 +254,7 @@ pass name \
 pass name \
 { \
     SetRasterizerState(rs); \
-    SetDepthStencilState(dss, 1); \
+    SetDepthStencilState(dss, 0); \
     SetVertexShader(CompileShader(vs_5_0, vs())); \
     SetPixelShader(CompileShader(ps_5_0, ps())); \
 }

@@ -20,6 +20,33 @@ SkyCube::SkyCube(wstring file, Shader* shader)
 	));
 
 	sSrv = this->shader->AsSRV("SkyCubeMap");
+
+	//DepthStencilState
+	{
+		D3D11_DEPTH_STENCIL_DESC desc;
+		ZeroMemory(&desc, sizeof(D3D11_DEPTH_STENCIL_DESC));
+		desc.DepthEnable = false; //±íÀÌ´Â²¯Áö¸¸
+		desc.DepthFunc = D3D11_COMPARISON_LESS; // °Ë»ç ¼öÇà
+		desc.StencilEnable = true;
+		desc.StencilReadMask = D3D11_DEFAULT_STENCIL_READ_MASK;
+		desc.StencilWriteMask = D3D11_DEFAULT_STENCIL_WRITE_MASK;
+
+		D3D11_DEPTH_STENCILOP_DESC opDesc;
+		opDesc.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+		opDesc.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+		opDesc.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+		opDesc.StencilFunc = D3D11_COMPARISON_EQUAL;
+
+		
+		desc.FrontFace = opDesc;
+		desc.BackFace = opDesc;
+
+		Check(D3D::GetDevice()->CreateDepthStencilState(&desc, &dss));
+
+		
+		//sDss = shader->AsDepthStencil("SkyDepthStencil");
+	}
+	
 }
 
 SkyCube::~SkyCube()
@@ -42,6 +69,7 @@ void SkyCube::Update()
 
 void SkyCube::Render()
 {	
+	sDss->SetDepthStencilState(0, dss);
 	sSrv->SetResource(srv);
 
 	sphereRender->Pass(pass);

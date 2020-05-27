@@ -30,6 +30,7 @@ private:
 	Shadow* shadow;
 
 	SkyCube* sky;
+	Snow* snow;
 
 	Material* floor;
 	Material* stone;

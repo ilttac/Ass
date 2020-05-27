@@ -28,6 +28,6 @@ technique11 T0
 	P_RS_DSS_BS_VTP(P10, Deffered_Rasterizer_State, Deffered_DepthStencil_State, Blend_Addtive, VS_SpotLights, HS_SpotLights, DS_SpotLights, PS_SpotLights)
 
 	//Sky
-	P_RS_DSS_VP(p11,FrontCounterCloskwise_True,DepthEnable_False,VS_Mesh,PS_Sky)
+	P_RS_DSS_VP(P11, FrontCounterCloskwise_True, SkyDepthStencil, VS_Mesh, PS_Sky)
 }
 

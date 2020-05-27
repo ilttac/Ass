@@ -22,7 +22,7 @@ private:
 		Vector2 MapSize;
 		float Bias = -0.0006f;
 
-		UINT Quality = 0;
+		UINT Quality = 2;
 	} desc;
 
 private:

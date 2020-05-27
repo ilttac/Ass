@@ -26,8 +26,9 @@ Shadow::Shadow(Shader * shader, Vector3 & position, float radius, UINT width, UI
 		desc.MaxLOD = FLT_MAX;
 
 		Check(D3D::GetDevice()->CreateSamplerState(&desc, &samplerState));
-		sSamplerState = shader->AsSampler("ShadowSampler");
 	}
+
+	sSamplerState = shader->AsSampler("ShadowSampler");
 }
 
 Shadow::~Shadow()
