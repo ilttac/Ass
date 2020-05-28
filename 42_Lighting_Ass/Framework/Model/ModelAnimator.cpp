@@ -167,6 +167,13 @@ void ModelAnimator::PlayClip(UINT instance, UINT clip, float speed, float takeTi
 	tweenDesc[instance].Next.Speed = speed;
 }
 
+void ModelAnimator::ForcePlayClip(UINT instance, UINT clip, float speed, float takeTime)
+{
+	tweenDesc[instance].TakeTime = takeTime;
+	tweenDesc[instance].Curr.Clip = clip;
+	tweenDesc[instance].Curr.Speed = speed;
+}
+
 
 
 void ModelAnimator::Pass(UINT pass)

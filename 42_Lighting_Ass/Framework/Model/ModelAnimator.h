@@ -15,7 +15,7 @@ public:
 	void ReadClip(wstring file);
 
 	void PlayClip(UINT instance, UINT clip, float speed = 1.0f, float takeTime = 1.0f);
-
+	void ForcePlayClip(UINT instance, UINT clip, float speed, float takeTime);
 	Model* GetModel() { return model; }
 
 	void Pass(UINT pass);
@@ -27,7 +27,7 @@ public:
 	Matrix GetAttachTransform(UINT index);
 	void CreateTexture();
 
-	UINT CurrClipNumber() { return tweenDesc[0].Curr.Clip; }
+	UINT CurrClipNumber(UINT index) { return tweenDesc[index].Curr.Clip; }
 
 private:
 	

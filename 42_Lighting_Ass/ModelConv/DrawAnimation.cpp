@@ -10,7 +10,7 @@ void DrawAnimation::Initialize()
 
 	shader = new Shader(L"33_Animation.fx");
 
-	//Kachujin();
+	Kachujin();
 	Michelle();
 	//Kumata();
 	Hallin();
@@ -21,22 +21,30 @@ void DrawAnimation::Update()
 	static UINT clip = 0;
 	if (kachujin != NULL)
 	{
-		if (Keyboard::Get()->Down(VK_SPACE))
+		for (int i = 0; i < 20; i++)
 		{
-			++clip;
-			clip %= 4;
-			kachujin->PlayClip(4, clip, 1.0f, 0.7f);
+			if (Keyboard::Get()->Press(VK_SPACE))
+			{
+				++clip;
+				clip %= 4;
+			}
+			kachujin->PlayClip(i, clip, 1.0f, 0.7f);
+			kachujin->UpdateTransforms();
+			kachujin->PlayClip(i, (clip + 1) % 4, 1.0f, 4.7f);
+			kachujin->UpdateTransforms();
+			kachujin->Update();
 		}
-		kachujin->Update();
-	}		
+
+
+	}
 	if (michelle != NULL)
 	{
-		michelle->PlayClip(0, clip, 1.0f, 0.7f);
+		michelle->PlayClip(0, 0, 1.0f, 0.7f);
 		michelle->Update();
 	}
 	if (hallin != NULL)
 	{
-		hallin->PlayClip(0, clip, 1.0f, 0.7f);
+		hallin->PlayClip(0, 0, 1.0f, 0.7f);
 		hallin->Update();
 	}
 
@@ -44,7 +52,7 @@ void DrawAnimation::Update()
 
 void DrawAnimation::Render()
 {
-	if (kachujin != NULL) kachujin->Render();	
+	if (kachujin != NULL) kachujin->Render();
 	if (michelle != NULL) michelle->Render();
 	if (hallin != NULL) hallin->Render();
 }
@@ -55,10 +63,10 @@ void DrawAnimation::Kachujin()
 	kachujin = new ModelAnimator(shader);
 	kachujin->ReadMaterial(L"Kachujin/Mesh");
 	kachujin->ReadMesh(L"Kachujin/Mesh");
-	kachujin->ReadClip(L"Kachujin/Idle");
-	kachujin->ReadClip(L"Kachujin/Running");
-	kachujin->ReadClip(L"Kachujin/Jump");
-	kachujin->ReadClip(L"Kachujin/Hip_Hop_Dancing");	
+	kachujin->ReadClip(L"Kachujin/Idle");//0
+	kachujin->ReadClip(L"Kachujin/Running");//1
+	kachujin->ReadClip(L"Kachujin/Jump");//2
+	kachujin->ReadClip(L"Kachujin/Hip_Hop_Dancing");//3	
 
 	weapon = new Model();
 	weapon->ReadMaterial(L"Weapon/Sword");
@@ -77,7 +85,7 @@ void DrawAnimation::Kachujin()
 		transform->Scale(0.01f, 0.01f, 0.01f);
 	}
 	kachujin->UpdateTransforms();
-	
+
 	kachujin->Pass(2);
 }
 

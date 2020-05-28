@@ -21,15 +21,16 @@ private:
 	void Archer();
 	void Pass(UINT mesh, UINT model, UINT anim);
 	
-	void PlayerTracking(ModelAnimator* monster, ModelAnimator* player);
-	void MonsterPatrol(ModelAnimator* monster, bool& mbPatrolState,float& randomX,float& randomZ);
-	void RotateTowards(ModelAnimator* modelAnim, Vector3 targetPos);
-	void MonsterAttack(ModelAnimator* monster, ModelAnimator* player,string monsterName);
+	void PlayerTracking(ModelAnimator* monster, ModelAnimator* player,UINT monIndex);
+	void MonsterPatrol(ModelAnimator* monster, bool& mbPatrolState,float* randomX,float* randomZ, UINT monIndex);
+	void RotateTowards(ModelAnimator* modelAnim, Vector3 targetPos, UINT monIndex);
+	void MonsterAttack(ModelAnimator* monster, ModelAnimator* player,string monsterName, UINT monIndex);
 	void PlayerMove();
 	void PlayerWeaponChange();
 	void ArrowUpdate();
 private:
 	const static UINT arrowCount = 100;
+	enum { eMonsterMaxNum =10};
 	Shader * shader;
 	
 	class SkyCube* sky;
@@ -41,7 +42,7 @@ private:
 	ModelRender* archerWeapon;
 	Transform* archerWeaponTransform[arrowCount] = { NULL ,};
 	Vector3 arrowNorMal[arrowCount];
-	float arrowdelayTime = 0.0f;
+	float arrowdelayTime[eMonsterMaxNum] = { 0.0f ,};
 
 	ModelAnimator* michelle = NULL;
 	ModelAnimator* hallin = NULL;
@@ -50,9 +51,10 @@ private:
 	UINT weaponCount;
 
 	//Monster 가 여러명이라면 index 로 관리
-	float ranX[10] = { 0.0f , };
-	float ranZ[10] = { 0.0f ,};
-
+	float ranArcherX[10] = { 0.0f , };
+	float ranArcherZ[10] = { 0.0f ,};
+	float ranHallinX[10] = { 0.0f , };
+	float ranHallinZ[10] = { 0.0f , };
 	
 
 	Vector3 cameraPos;
@@ -60,18 +62,18 @@ private:
 
 	bool ColliderRenderSwitchState;
 
-	bool bPatrolState; //순찰중이면 ranX,Z의 값을 바꾸면 안됨.
-	bool bSearchState; //search range에 들어오면 true
-	bool bAttakRangeState;
+	bool bPatrolState[eMonsterMaxNum] = {false,}; //순찰중이면 ranX,Z의 값을 바꾸면 안됨.
+	bool bSearchState[eMonsterMaxNum] = { false, }; //search range에 들어오면 true
+	bool bAttakRangeState[eMonsterMaxNum] = { false, };
 
 	//archer
-	bool bArcherPatrolState;	//순찰중이면 ranX,Z의 값을 바꾸면 안됨.
-	bool bArcherSearchState;	//search range에 들어오면 true
-	bool bArcherAttakRangeState;
+	bool bArcherPatrolState[eMonsterMaxNum] = {false,};	//순찰중이면 ranX,Z의 값을 바꾸면 안됨.
+	bool bArcherSearchState[eMonsterMaxNum] = {false,};	//search range에 들어오면 true
+	bool bArcherAttakRangeState[eMonsterMaxNum] = {false,};
 
 
-	bool bWeaponcolliderState;
-	bool bWeaponArcherObbState;
+	bool bWeaponcolliderState[eMonsterMaxNum] = {false,};
+	bool bWeaponArcherObbState[eMonsterMaxNum] = {false,};
 	bool bPlayerAttackState;
 	bool bPlayerHitReaction;
 
@@ -93,20 +95,20 @@ private:
 		Transform* Init;
 		Transform* Transform;
 		SquareCollider* Collider;
-	}collider[4];
+	}collider[eMonsterMaxNum];
 
 	struct PlayerObbCollider
 	{
 		Transform* Init;
 		Transform* Transform;
 		Collider* Collider;
-	}playerObbCollider[4];
+	}playerObbCollider[eMonsterMaxNum];
 	struct WeaponCollider
 	{
 		Transform* Init;
 		Transform* Transform;
 		Collider* Collider;
-	}weaponCollider[4];
+	}weaponCollider[eMonsterMaxNum];
 	
 	//hallin
 	struct HallinObbCollider
@@ -114,20 +116,20 @@ private:
 		Transform* Init;
 		Transform* Transform;
 		Collider* Collider;
-	}hallinObbCollider[4];
+	}hallinObbCollider[eMonsterMaxNum];
 	struct MColliderDesc
 	{
 		Transform* Init;
 		Transform* Transform;
 		SquareCollider* Collider;
-	}mcollider[4];
+	}mcollider[eMonsterMaxNum];
 
 	struct MAttackColliderDesc
 	{
 		Transform* Init;
 		Transform* Transform;
 		SquareCollider* Collider;
-	}mAtkcollider[4];
+	}mAtkcollider[eMonsterMaxNum];
 
 	//Archer
 	struct ArcherObbColider
@@ -135,20 +137,20 @@ private:
 		Transform* Init;
 		Transform* Transform;
 		Collider* Collider;
-	}archerObbColider[4];
+	}archerObbColider[eMonsterMaxNum];
 	struct ArcherAttackCollider
 	{
 		Transform* Init;
 		Transform* Transform;
 		SquareCollider* Collider;
-	}archerAtkCollider[4];	
+	}archerAtkCollider[eMonsterMaxNum];
 
 	struct ArcherSearchCollider
 	{
 		Transform* Init;
 		Transform* Transform;
 		SquareCollider* Collider;
-	}archerSerachCollider[4];
+	}archerSerachCollider[eMonsterMaxNum];
 	struct ArcherArrowCollider
 	{
 		Transform* Init;

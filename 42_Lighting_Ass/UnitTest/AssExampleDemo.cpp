@@ -16,16 +16,8 @@ void AssExampleDemo::Initialize()
 	shader = new Shader(L"33_Animation.fx");
 	sky = new SkyCube(L"Environment/GrassCube1024.dds");
 
-	bPatrolState = false;
-	bSearchState = false;
-	bAttakRangeState = false;
 	ColliderRenderSwitchState = false;
 
-	bArcherPatrolState = false;
-	bArcherSearchState = false;
-	bArcherAttakRangeState = false;
-
-	bWeaponcolliderState = false;
 	bPlayerAttackState = false;
 	bPlayerHitReaction = false;
 
@@ -41,14 +33,18 @@ void AssExampleDemo::Destroy()
 {
 	SafeDelete(shader);
 	SafeDelete(sky);
+	SafeDelete(grid);
+	SafeDelete(floor);
 
 	SafeDelete(weapon);
 	SafeDelete(archerWeapon);
+	SafeDelete(michelle);
+	SafeDelete(archer);
+	SafeDelete(hallin);
 	for (int i = 0; i < arrowCount; i++)
 	{
 		SafeDeleteArray(archerWeaponTransform[i]);
 	}
-
 }
 
 void AssExampleDemo::Update()
@@ -57,62 +53,53 @@ void AssExampleDemo::Update()
 	grid->Update();
 	ImGui::Checkbox("Collider", &ColliderRenderSwitchState);
 
-	if (4 == michelle->CurrClipNumber() && bWeaponcolliderState)
+
+	for (int i = 0; i < eMonsterMaxNum; i++)
 	{
-		hallin->PlayClip(0, 3, 2.0f, 6.0f);
+		if (archer->CurrClipNumber(i) == 3)
+		{
+			continue;
+		}
+		if (4 == michelle->CurrClipNumber(0) && bWeaponcolliderState[i])
+		{
+			hallin->PlayClip(i, 3, 1.0f, 1.0f);
+		}
+		if (4 == michelle->CurrClipNumber(0) && bWeaponArcherObbState[i])
+		{
+			archer->PlayClip(i, 3, 1.0f, 1.0f);
+		}
+
+
+		if (true == bSearchState[i] && false == bAttakRangeState[i]) // 수정필요
+		{
+			PlayerTracking(hallin, michelle, i);
+		}
+		else if (false == bSearchState[i] && false == bAttakRangeState[i])
+		{
+			MonsterPatrol(hallin, bPatrolState[i], ranHallinX, ranHallinZ, i);
+		}
+
+		if (true == bArcherSearchState[i] && false == bArcherAttakRangeState[i]) //수정필요
+		{
+			PlayerTracking(archer, michelle, i);
+		}
+		else if (false == bArcherSearchState[i] && false == bArcherAttakRangeState[i])
+		{
+			MonsterPatrol(archer, bArcherPatrolState[i], ranArcherX, ranArcherZ, i);
+		}
+		if (bAttakRangeState[i]) MonsterAttack(hallin, michelle, "hallin", i);
+		if (bArcherAttakRangeState[i]) MonsterAttack(archer, michelle, "archer", i);
 	}
-	else
-	{
-		if (true == bSearchState && false == bAttakRangeState)
-		{
-			PlayerTracking(hallin, michelle);
-		}
-		if (false == bSearchState && false == bAttakRangeState)
-		{
-			MonsterPatrol(hallin, bPatrolState, ranX[0], ranZ[0]);
-		}
-		if (true == bArcherSearchState && false == bArcherAttakRangeState)
-		{
-			PlayerTracking(archer, michelle);
-		}
-		if (false == bArcherSearchState && false == bArcherAttakRangeState)
-		{
-			MonsterPatrol(archer, bArcherPatrolState, ranX[1], ranZ[1]);
-		}
-		if (bAttakRangeState) MonsterAttack(hallin, michelle, "hallin");
-		if (bArcherAttakRangeState) MonsterAttack(archer, michelle, "archer");
-	}
+
 
 	if (michelle != NULL)
 	{
 		PlayerMove();
-		if (bPlayerHitReaction)
-		{
-			michelle->PlayClip(0, 3, 1.0f, 1.0f);
-		}
-		if (Keyboard::Get()->Press('B'))
-		{
-			michelle->PlayClip(0, 5, 2.0f, 5.0f);
-		}
-		if (Keyboard::Get()->Press('K'))
-		{
-			michelle->PlayClip(0, 4, 2.0f, 1.0f);
-		}
-		if (!Keyboard::Get()->Press(VK_LEFT) &&
-			!Keyboard::Get()->Press(VK_UP) &&
-			!Keyboard::Get()->Press(VK_RIGHT) &&
-			!Keyboard::Get()->Press(VK_DOWN) &&
-			!Keyboard::Get()->Down(VK_SPACE) &&
-			!Keyboard::Get()->Press('K')&&
-			!Keyboard::Get()->Press('B')&&
-			!bPlayerHitReaction)
-		{
-			michelle->PlayClip(0, 0, 2.0f, 1.0f);
-		}
+		
 		PlayerWeaponChange();
 
 		michelle->UpdateTransforms();
-		michelle->Pass(2);
+
 		michelle->Update();
 
 		Matrix attach = michelle->GetTransform(0)->World();
@@ -128,18 +115,19 @@ void AssExampleDemo::Update()
 	}
 	if (hallin != NULL)
 	{
-
-		Matrix attach = hallin->GetTransform(0)->World();
-
 		//Collider
-		mcollider[0].Collider->GetTransform()->World(attach);
-		mcollider[0].Collider->Update();
+		for (int i = 0; i < eMonsterMaxNum; i++)
+		{
+			Matrix attach = hallin->GetTransform(i)->World();
+			mcollider[i].Collider->GetTransform()->World(attach);
+			mcollider[i].Collider->Update();
 
-		mAtkcollider[0].Collider->GetTransform()->World(attach);
-		mAtkcollider[0].Collider->Update();
+			mAtkcollider[i].Collider->GetTransform()->World(attach);
+			mAtkcollider[i].Collider->Update();
 
-		hallinObbCollider[0].Collider->GetTransform()->World(attach);
-		hallinObbCollider[0].Collider->Update();
+			hallinObbCollider[i].Collider->GetTransform()->World(attach);
+			hallinObbCollider[i].Collider->Update();
+		}
 		hallin->UpdateTransforms();
 		//hallin->Pass(2);
 		hallin->Update();
@@ -147,21 +135,25 @@ void AssExampleDemo::Update()
 	}
 	if (archer != NULL)
 	{
-		Matrix attach = archer->GetTransform(0)->World();
+		for (int i = 0; i < eMonsterMaxNum; i++)
+		{
+			Matrix attach = archer->GetTransform(i)->World();
 
-		//Collider
-		archerSerachCollider[0].Collider->GetTransform()->World(attach);
-		archerSerachCollider[0].Collider->Update();
+			//Collider
+			archerSerachCollider[i].Collider->GetTransform()->World(attach);
+			archerSerachCollider[i].Collider->Update();
 
-		archerAtkCollider[0].Collider->GetTransform()->World(attach);
-		archerAtkCollider[0].Collider->Update();
+			archerAtkCollider[i].Collider->GetTransform()->World(attach);
+			archerAtkCollider[i].Collider->Update();
 
-		archerObbColider[0].Collider->GetTransform()->World(attach);
-		archerObbColider[0].Collider->Update();
+			archerObbColider[i].Collider->GetTransform()->World(attach);
+			archerObbColider[i].Collider->Update();
+			arrowdelayTime[i] += 1.0f * Time::Delta();
+		}
+		ArrowUpdate();
 
 		archer->UpdateTransforms();
 		archer->Update();
-		ArrowUpdate();
 	}
 }
 
@@ -174,7 +166,7 @@ void AssExampleDemo::Render()
 	if (archerWeapon != NULL)
 	{
 		archerWeapon->Render();
-		archerWeapon->Pass(1);
+		//archerWeapon->Pass(1);
 	}
 	if (michelle != NULL)michelle->Render();
 	if (hallin != NULL)hallin->Render();
@@ -213,16 +205,18 @@ void AssExampleDemo::Render()
 	//	}
 	//}
 	//collider
-	bSearchState = collider[0].Collider->IsIntersect(mcollider[0].Collider);
-	bAttakRangeState = collider[0].Collider->IsIntersect(mAtkcollider[0].Collider);
+	for (int i = 0; i < eMonsterMaxNum; i++)
+	{
+		bSearchState[i] = collider[0].Collider->IsIntersect(mcollider[i].Collider);
+		bAttakRangeState[i] = collider[0].Collider->IsIntersect(mAtkcollider[i].Collider);
 
-	bArcherSearchState = collider[0].Collider->IsIntersect(archerSerachCollider[0].Collider);
-	bArcherAttakRangeState = collider[0].Collider->IsIntersect(archerAtkCollider[0].Collider);
+		bArcherSearchState[i] = collider[0].Collider->IsIntersect(archerSerachCollider[i].Collider);
+		bArcherAttakRangeState[i] = collider[0].Collider->IsIntersect(archerAtkCollider[i].Collider);
 
+		bWeaponcolliderState[i] = weaponCollider[0].Collider->IsIntersect(hallinObbCollider[i].Collider);
+		bWeaponArcherObbState[i] = weaponCollider[0].Collider->IsIntersect(archerObbColider[i].Collider);
 
-
-	bWeaponcolliderState = weaponCollider[0].Collider->IsIntersect(hallinObbCollider[0].Collider);
-	bWeaponArcherObbState = weaponCollider[0].Collider->IsIntersect(archerObbColider[0].Collider);
+	}
 	for (int i = 0; i < 100; i++)
 	{
 		if (archerArrowCollider[i].Collider != NULL)
@@ -236,36 +230,40 @@ void AssExampleDemo::Render()
 	}
 	if (ColliderRenderSwitchState)
 	{
+		for (int i = 0; i < eMonsterMaxNum; i++)
+		{
+			collider[0].Collider->Render(bSearchState[i] || bAttakRangeState[i] ? Color(1, 0, 0, 1) : Color(0, 1, 0, 1));
+			mcollider[i].Collider->Render(bSearchState[i] ? Color(1, 0, 0, 1) : Color(0, 1, 0, 1));
+			mAtkcollider[i].Collider->Render(bAttakRangeState[i] ? Color(1, 0, 0, 1) : Color(0, 1, 0, 1));
 
-		collider[0].Collider->Render(bSearchState || bAttakRangeState ? Color(1, 0, 0, 1) : Color(0, 1, 0, 1));
-		mcollider[0].Collider->Render(bSearchState ? Color(1, 0, 0, 1) : Color(0, 1, 0, 1));
-		mAtkcollider[0].Collider->Render(bAttakRangeState ? Color(1, 0, 0, 1) : Color(0, 1, 0, 1));
+			if (!bWeaponcolliderState[i])
+			{
+				weaponCollider[0].Collider->Render(Color(0, 1, 0, 1));
+				hallinObbCollider[i].Collider->Render(Color(0, 1, 0, 1));
+			}
+			else
+			{
+				weaponCollider[0].Collider->Render(Color(1, 0, 0, 1));
+				hallinObbCollider[i].Collider->Render(Color(1, 0, 0, 1));
+			}
+			if (!bWeaponArcherObbState[i])
+			{
+				weaponCollider[0].Collider->Render(Color(0, 1, 0, 1));
+				archerObbColider[i].Collider->Render(Color(0, 1, 0, 1));
+			}
+			else
+			{
+				weaponCollider[0].Collider->Render(Color(1, 0, 0, 1));
+				archerObbColider[i].Collider->Render(Color(1, 0, 0, 1));
+			}
+			archerSerachCollider[i].Collider->Render(bArcherSearchState[i] ? Color(1, 0, 0, 1) : Color(0, 1, 0, 1));
+			archerAtkCollider[i].Collider->Render(bArcherAttakRangeState[i] ? Color(1, 0, 0, 1) : Color(0, 1, 0, 1));
+			archerObbColider[i].Collider->Render(Color(0, 1, 0, 1));
+		}
 
-		if (!bWeaponcolliderState)
-		{
-			weaponCollider[0].Collider->Render(Color(0, 1, 0, 1));
-			hallinObbCollider[0].Collider->Render(Color(0, 1, 0, 1));
-		}
-		else
-		{
-			weaponCollider[0].Collider->Render(Color(1, 0, 0, 1));
-			hallinObbCollider[0].Collider->Render(Color(1, 0, 0, 1));
-		}
-		if (!bWeaponArcherObbState)
-		{
-			weaponCollider[0].Collider->Render(Color(0, 1, 0, 1));
-			archerObbColider[0].Collider->Render(Color(0, 1, 0, 1));
-		}
-		else
-		{
-			weaponCollider[0].Collider->Render(Color(1, 0, 0, 1));
-			archerObbColider[0].Collider->Render(Color(1, 0, 0, 1));
-		}
 
 		playerObbCollider[0].Collider->Render(Color(0, 1, 0, 1));
-		archerSerachCollider[0].Collider->Render(bArcherSearchState ? Color(1, 0, 0, 1) : Color(0, 1, 0, 1));
-		archerAtkCollider[0].Collider->Render(bArcherAttakRangeState ? Color(1, 0, 0, 1) : Color(0, 1, 0, 1));
-		archerObbColider[0].Collider->Render(Color(0, 1, 0, 1));
+
 		for (int i = 0; i < 100; i++)
 		{
 			if (archerArrowCollider[i].Collider != NULL)archerArrowCollider[i].Collider->Render(bPlayerHitReaction ? Color(1, 0, 0, 1) : Color(0, 1, 0, 1));
@@ -324,7 +322,7 @@ void AssExampleDemo::Michelle()
 	transform = michelle->AddTransform();
 	transform->Position(40, 0, -35);
 	transform->Scale(0.075f, 0.075f, 0.075f);
-	michelle->PlayClip(0, 0, 1.0f);
+	michelle->PlayClip(0, 0,0.5f,0.5f);
 
 	michelle->UpdateTransforms();
 
@@ -363,39 +361,52 @@ void AssExampleDemo::Hallin()
 	hallin->ReadClip(L"Hallin/Zombie_Attack");
 	hallin->ReadClip(L"Hallin/Hit_Reaction");
 
-	Transform* transform = NULL;
+	for (float x = 0; x < 20; x += 4.0f)
+	{
+		for (float z = 0; z < 20; z += 10.0f)
+		{
+			Transform* transform = NULL;
 
-	transform = hallin->AddTransform();
-	transform->Position(-25, 0, -30);
-	transform->Scale(0.075f, 0.075f, 0.075f);
-	hallin->PlayClip(0, 0, 1.0, 8.0f);
+			transform = hallin->AddTransform();
+			transform->Position(-25 + x, 0, -30 + z);
+			transform->Scale(0.075f, 0.075f, 0.075f);
+		}
+
+	}
+
+	for (int i = 0; i < eMonsterMaxNum; i++)
+	{
+		hallin->PlayClip(i, 0, 0.5f, 0.5f);
+	}
+
 
 	hallin->UpdateTransforms();
 
 
 	//Collider init
+	for (int i = 0; i < eMonsterMaxNum; i++)
 	{
-		mcollider[0].Init = new Transform();
-		mcollider[0].Init->Scale(400, 400, 400);
+		mcollider[i].Init = new Transform();
+		mcollider[i].Init->Scale(400, 400, 400);
 
-		//mcollider[0].Init->Position(0, 0, 0);
+		//mcollider[i].Init->Position(0, 0, 0);
 
-		mcollider[0].Transform = new Transform();
-		mcollider[0].Collider = new SquareCollider(mcollider[0].Transform, mcollider[0].Init);
+		mcollider[i].Transform = new Transform();
+		mcollider[i].Collider = new SquareCollider(mcollider[i].Transform, mcollider[i].Init);
 
-		mAtkcollider[0].Init = new Transform();
-		mAtkcollider[0].Init->Scale(200, 200, 200);
+		mAtkcollider[i].Init = new Transform();
+		mAtkcollider[i].Init->Scale(200, 200, 200);
 
 
-		mAtkcollider[0].Transform = new Transform();
-		mAtkcollider[0].Collider = new SquareCollider(mAtkcollider[0].Transform, mAtkcollider[0].Init);
+		mAtkcollider[i].Transform = new Transform();
+		mAtkcollider[i].Collider = new SquareCollider(mAtkcollider[i].Transform, mAtkcollider[i].Init);
 
-		hallinObbCollider[0].Init = new Transform();
-		hallinObbCollider[0].Init->Position(0, 100, 0);
-		hallinObbCollider[0].Init->Scale(100, 200, 100);
+		hallinObbCollider[i].Init = new Transform();
+		hallinObbCollider[i].Init->Position(0, 100, 0);
+		hallinObbCollider[i].Init->Scale(100, 200, 100);
 
-		hallinObbCollider[0].Transform = new Transform();
-		hallinObbCollider[0].Collider = new Collider(hallinObbCollider[0].Transform, hallinObbCollider[0].Init);
+		hallinObbCollider[i].Transform = new Transform();
+		hallinObbCollider[i].Collider = new Collider(hallinObbCollider[i].Transform, hallinObbCollider[i].Init);
 	}
 
 	hallin->Pass(2);
@@ -417,12 +428,18 @@ void AssExampleDemo::Archer()
 
 	archerWeapon->Pass(1);
 
+	for (float x = 0; x < 20; x += 4.0f)
+	{
+		for (float z = 0; z < 20; z += 10.0f)
+		{
+			Transform* transform = NULL;
 
-	Transform* transform = NULL;
+			transform = archer->AddTransform();
+			transform->Position(-5 + x, 0, -10 + z);
+			transform->Scale(0.075f, 0.075f, 0.075f);
+		}
 
-	transform = archer->AddTransform();
-	transform->Position(-5, 0, -10);
-	transform->Scale(0.075f, 0.075f, 0.075f);
+	}
 
 	//archerWeaponTransform->Position(archer->GetTransform(0)->GetPositon().x, 5, archer->GetTransform(0)->GetPositon().z);
 	//archerWeaponTransform->Scale(3.5f, 3.5f, 3.5f);
@@ -431,7 +448,6 @@ void AssExampleDemo::Archer()
 	Matrix R;
 	D3DXMatrixIdentity(&S);
 	D3DXMatrixIdentity(&R);
-	archer->PlayClip(0, 2, 1.0, 8.0f);
 	*archer->GetModel()->Bones()[70]->Parent() = *(archer->GetModel()->Bones()[37]);	//arrow 70
 
 	D3DXMatrixTranslation(&S, 0, 0, -30);
@@ -442,28 +458,29 @@ void AssExampleDemo::Archer()
 	//righthand 37
 
 	//Collider init
+	for (int i = 0; i < eMonsterMaxNum; i++)
 	{
-		archerSerachCollider[0].Init = new Transform();
-		archerSerachCollider[0].Init->Scale(1000, 1000, 1000);
+		archerSerachCollider[i].Init = new Transform();
+		archerSerachCollider[i].Init->Scale(1000, 1000, 1000);
 
-		//mcollider[0].Init->Position(0, 0, 0);
+		//mcollider[i].Init->Position(0, 0, 0);
 
-		archerSerachCollider[0].Transform = new Transform();
-		archerSerachCollider[0].Collider = new SquareCollider(archerSerachCollider[0].Transform, archerSerachCollider[0].Init);
+		archerSerachCollider[i].Transform = new Transform();
+		archerSerachCollider[i].Collider = new SquareCollider(archerSerachCollider[i].Transform, archerSerachCollider[i].Init);
 
-		archerAtkCollider[0].Init = new Transform();
-		archerAtkCollider[0].Init->Scale(800, 800, 800);
+		archerAtkCollider[i].Init = new Transform();
+		archerAtkCollider[i].Init->Scale(800, 800, 800);
 
 
-		archerAtkCollider[0].Transform = new Transform();
-		archerAtkCollider[0].Collider = new SquareCollider(archerAtkCollider[0].Transform, archerAtkCollider[0].Init);
+		archerAtkCollider[i].Transform = new Transform();
+		archerAtkCollider[i].Collider = new SquareCollider(archerAtkCollider[i].Transform, archerAtkCollider[i].Init);
 
-		archerObbColider[0].Init = new Transform();
-		archerObbColider[0].Init->Position(0, 100, 0);
-		archerObbColider[0].Init->Scale(100, 200, 100);
+		archerObbColider[i].Init = new Transform();
+		archerObbColider[i].Init->Position(0, 100, 0);
+		archerObbColider[i].Init->Scale(100, 200, 100);
 
-		archerObbColider[0].Transform = new Transform();
-		archerObbColider[0].Collider = new Collider(archerObbColider[0].Transform, archerObbColider[0].Init);
+		archerObbColider[i].Transform = new Transform();
+		archerObbColider[i].Collider = new Collider(archerObbColider[i].Transform, archerObbColider[i].Init);
 	}
 	archer->Pass(2);
 }
@@ -480,68 +497,72 @@ void AssExampleDemo::Pass(UINT mesh, UINT model, UINT anim)
 		temp->Pass(anim);
 }
 
-void AssExampleDemo::PlayerTracking(ModelAnimator * monster, ModelAnimator * player)
+void AssExampleDemo::PlayerTracking(ModelAnimator * monster, ModelAnimator * player, UINT monIndex)
 {
-	Vector3 mPos = monster->GetTransform(0)->GetPositon();
+	Vector3 mPos = monster->GetTransform(monIndex)->GetPositon();
 	Vector3 pPos = player->GetTransform(0)->GetPositon();
-	RotateTowards(monster, pPos);
+	if (monster->CurrClipNumber(monIndex) != 3)
+	{
+		RotateTowards(monster, pPos, monIndex);
+	}
 
 	Vector3 nor = Vector3(0, 0, 0);
 	D3DXVec3Normalize(&nor, &(pPos - mPos));
 
 	float runSpeed = 5.0f;
 
-	Vector3 origin = monster->GetTransform(0)->GetPositon();
+	Vector3 origin = monster->GetTransform(monIndex)->GetPositon();
 	origin.x += runSpeed * nor.x * Time::Delta();
 	origin.z += runSpeed * nor.z * Time::Delta();
-	monster->PlayClip(0, 1, 1.0f, 4.0f);
+	monster->PlayClip(monIndex, 1, 1.0f, 1.0f);
 
-	if (D3DXVec3Length(&(pPos - origin)) < 1.0f)
+	if(D3DXVec3Length(&(pPos - origin)) < 1.0f)
 	{
 		return;
 	}
-	monster->GetTransform(0)->Position(origin.x, 0, origin.z);
+	monster->GetTransform(monIndex)->Position(origin.x, 0, origin.z);
 }
 
-void AssExampleDemo::MonsterPatrol(ModelAnimator * monster, bool& mbPatrolState, float& ranX, float& ranZ)
+void AssExampleDemo::MonsterPatrol(ModelAnimator * monster, bool& mbPatrolState, float* ranX, float* ranZ, UINT monIndex)
 {
 	//순찰 종료 조건
 	//1. 플레이어가 search range에 있을때. --PlayerTracking의 반환값으로 판별
 	//2. 해당 정점에 도착했을때. -- patrol 함수내에서 판별
-	Vector3 mPos = monster->GetTransform(0)->GetPositon();
-
+	Vector3 mPos = monster->GetTransform(monIndex)->GetPositon();
 	float runSpeed = 10.0f;
 
 	if (mbPatrolState == false)
 	{
-		ranX = rand() % 40 - 20;
-		ranZ = rand() % 40 - 20;
+		ranX[monIndex] = rand() % 80 - 40;
+		ranZ[monIndex] = rand() % 80 - 40;
 		mbPatrolState = true;
 	}
-
-	RotateTowards(monster, Vector3(ranX, 0, ranZ));
+	if (monster->CurrClipNumber(monIndex) != 3)
+	{
+		RotateTowards(monster, Vector3(ranX[monIndex], 0, ranZ[monIndex]), monIndex);
+	}
 
 	Vector3 nor = Vector3(0, 0, 0);
-	D3DXVec3Normalize(&nor, &(Vector3(ranX, 0, ranZ) - mPos));
+	D3DXVec3Normalize(&nor, &(Vector3(ranX[monIndex], 0, ranZ[monIndex]) - mPos));
 
-	Vector3 origin = monster->GetTransform(0)->GetPositon();
+	Vector3 origin = monster->GetTransform(monIndex)->GetPositon();
 	origin.x += runSpeed * nor.x * Time::Delta();
 	origin.z += runSpeed * nor.z * Time::Delta();
 
-	monster->GetTransform(0)->Position(origin.x, 0, origin.z);
-	monster->PlayClip(0, 1, 1.0f, 4.0f);
+	monster->GetTransform(monIndex)->Position(origin.x, 0, origin.z);
+	monster->PlayClip(monIndex, 1, 1.0f, 1.0f);
+	
 
-
-	if (D3DXVec3Length(&(Vector3(ranX, 0, ranZ) - origin)) < 1.0f)
+	if (D3DXVec3Length(&(Vector3(ranX[monIndex], 0, ranZ[monIndex]) - origin)) < 1.0f)
 	{
 		mbPatrolState = false;
 	}
 
 }
 
-void AssExampleDemo::RotateTowards(ModelAnimator * modelAnim, Vector3 targetPos)
+void AssExampleDemo::RotateTowards(ModelAnimator * modelAnim, Vector3 targetPos, UINT monIndex)
 {
-	Vector3 mPos = modelAnim->GetTransform(0)->GetPositon();
+	Vector3 mPos = modelAnim->GetTransform(monIndex)->GetPositon();
 	Vector3 nor = Vector3(0, 0, 0);
 
 	D3DXVec3Normalize(&nor, &(targetPos - mPos));
@@ -549,19 +570,19 @@ void AssExampleDemo::RotateTowards(ModelAnimator * modelAnim, Vector3 targetPos)
 
 	float radian = acos(D3DXVec3Dot(&front, &nor));
 	Vector3  right;
-	D3DXVec3Cross(&right, &front, &D3DXVECTOR3(0.0f, 1.0f, 0.0f));
+	D3DXVec3Cross(&right, &front, &D3DXVECTOR3(0.0f, 2.0f, 0.0f));
 
 	if (D3DXVec3Dot(&right, &nor) > 0)
 	{
-		modelAnim->GetTransform(0)->Rotation(0, -radian, 0);
+		modelAnim->GetTransform(monIndex)->Rotation(0, -radian, 0);
 	}
 	else
 	{
-		modelAnim->GetTransform(0)->Rotation(0, +radian, 0);
+		modelAnim->GetTransform(monIndex)->Rotation(0, +radian, 0);
 	}
 }
 
-void AssExampleDemo::MonsterAttack(ModelAnimator * monster, ModelAnimator * player, string monsterName)
+void AssExampleDemo::MonsterAttack(ModelAnimator * monster, ModelAnimator * player, string monsterName, UINT monIndex)
 {
 	Vector3 pPos = player->GetTransform(0)->GetPositon();
 	Matrix transform;
@@ -569,9 +590,9 @@ void AssExampleDemo::MonsterAttack(ModelAnimator * monster, ModelAnimator * play
 	if (monsterName == "archer")
 	{
 		//archerWeaponTransform = archerWeapon[0]->AddTransform();
-		if (arrowdelayTime > 2.0f)
+		if (arrowdelayTime[monIndex] > 2.0f)
 		{
-			arrowdelayTime = 0.0f;
+			arrowdelayTime[monIndex] = 0.0f;
 			for (int i = 0; i < 100; i++)
 			{
 				if (archerWeaponTransform[i] == NULL)
@@ -579,8 +600,8 @@ void AssExampleDemo::MonsterAttack(ModelAnimator * monster, ModelAnimator * play
 					archerWeaponTransform[i] = new Transform();
 					archerWeaponTransform[i] = archerWeapon->AddTransform();
 					archerWeaponTransform[i]->Scale(0.35f, 0.35f, 0.35f);
-					archerWeaponTransform[i]->Rotation(Math::ToRadian(90), archer->GetTransform(0)->GetRotation().y, 0);
-					archerWeaponTransform[i]->Position(archer->GetTransform(0)->GetPositon().x, 10, archer->GetTransform(0)->GetPositon().z);
+					archerWeaponTransform[i]->Rotation(Math::ToRadian(90), archer->GetTransform(monIndex)->GetRotation().y, 0);
+					archerWeaponTransform[i]->Position(archer->GetTransform(monIndex)->GetPositon().x, 10, archer->GetTransform(monIndex)->GetPositon().z);
 
 					Vector3 pPosYup = Vector3(pPos.x, pPos.y + archerWeaponTransform[i]->GetPositon().y, pPos.z);
 					D3DXVec3Normalize(&arrowNorMal[i], &(pPosYup - archerWeaponTransform[i]->GetPositon()));
@@ -596,6 +617,18 @@ void AssExampleDemo::MonsterAttack(ModelAnimator * monster, ModelAnimator * play
 					archerWeapon->UpdateTransforms();
 					break;
 				}
+				else if (archerWeaponTransform[i] != NULL && (archerWeaponTransform[i]->GetPositon().x > 200 ||
+					archerWeaponTransform[i]->GetPositon().x < -200 ||
+					archerWeaponTransform[i]->GetPositon().z >  200 ||
+					archerWeaponTransform[i]->GetPositon().z < -200))
+				{
+					archerWeaponTransform[i]->Rotation(Math::ToRadian(90), archer->GetTransform(monIndex)->GetRotation().y, 0);
+					archerWeaponTransform[i]->Position(archer->GetTransform(monIndex)->GetPositon().x, 10, archer->GetTransform(monIndex)->GetPositon().z);
+
+					Vector3 pPosYup = Vector3(pPos.x, pPos.y + archerWeaponTransform[i]->GetPositon().y, pPos.z);
+					D3DXVec3Normalize(&arrowNorMal[i], &(pPosYup - archerWeaponTransform[i]->GetPositon()));
+					break;
+				}
 				else
 				{
 					continue;
@@ -608,8 +641,14 @@ void AssExampleDemo::MonsterAttack(ModelAnimator * monster, ModelAnimator * play
 	{
 
 	}
-	RotateTowards(monster, pPos);
-	monster->PlayClip(0, 2, 3.0f, 3.0f);
+	RotateTowards(monster, pPos, monIndex);
+
+	if (monster->CurrClipNumber(monIndex) == 1)
+	{
+		monster->PlayClip(monIndex, 2, 1.0f, 1.0f);
+	}
+
+	
 	monster->UpdateTransforms();
 
 }
@@ -620,43 +659,113 @@ void AssExampleDemo::PlayerMove()
 
 	if (Keyboard::Get()->Press(VK_UP))
 	{
-		if (michelle->CurrClipNumber() != 1)
+		if (michelle->CurrClipNumber(0) != 1)
 		{
-			michelle->PlayClip(0, 1, 3.0f, 3.0f);
+			michelle->PlayClip(0, 1,1.0f, 1.0f);
 		}
-		origin.z += 12.0f * Time::Delta();
+		origin.z += 18.0f * Time::Delta();
 		michelle->GetTransform(0)->rotation.y = Math::ToRadian(180.f);
 		michelle->GetTransform(0)->Position(origin);
 	}
-	else if (Keyboard::Get()->Press(VK_RIGHT))
+	if (Keyboard::Get()->Press(VK_RIGHT))
 	{
-		if (michelle->CurrClipNumber() != 1)
+		if (michelle->CurrClipNumber(0) != 1)
 		{
-			michelle->PlayClip(0, 1, 3.0f, 3.0f);
+			michelle->PlayClip(0, 1, 1.0f, 1.0f);
 		}
-		origin.x += 12.0f * Time::Delta();
+		origin.x += 18.0f * Time::Delta();
 		michelle->GetTransform(0)->rotation.y = Math::ToRadian(-90.f);
 		michelle->GetTransform(0)->Position(origin);
 	}
-	else if (Keyboard::Get()->Press(VK_LEFT))
+	if (Keyboard::Get()->Press(VK_LEFT))
 	{
-		if (michelle->CurrClipNumber() != 1)
+		if (michelle->CurrClipNumber(0) != 1)
 		{
-			michelle->PlayClip(0, 1, 3.0f, 3.0f);
+			michelle->PlayClip(0, 1, 1.0f, 1.0f);
 		}
-		origin.x -= 12.0f * Time::Delta();
+		origin.x -= 18.0f * Time::Delta();
 		michelle->GetTransform(0)->rotation.y = Math::ToRadian(90.0f);
 		michelle->GetTransform(0)->Position(origin);
 	}
-	else if (Keyboard::Get()->Press(VK_DOWN))
+	if (Keyboard::Get()->Press(VK_DOWN))
 	{
-		if (michelle->CurrClipNumber() != 1)
+		if (michelle->CurrClipNumber(0) != 1)
 		{
-			michelle->PlayClip(0, 1, 3.0f, 3.0f);
+			michelle->PlayClip(0, 1, 1.0f, 1.0f);
 		}
-		origin.z -= 12.0f * Time::Delta();
+		origin.z -= 18.0f * Time::Delta();
 		michelle->GetTransform(0)->rotation.y = Math::ToRadian(0.0f);
 		michelle->GetTransform(0)->Position(origin);
+	}
+
+	/////////////////////////////////////
+	if (Keyboard::Get()->Press(VK_UP) && Keyboard::Get()->Press(VK_LEFT))
+	{
+		if (michelle->CurrClipNumber(0) != 1)
+		{
+			michelle->PlayClip(0, 1, 1.0f, 1.0f);
+		}
+		origin.x -= 6.0f * Time::Delta();
+		origin.z += 6.0f * Time::Delta();
+		michelle->GetTransform(0)->rotation.y = Math::ToRadian(135.0f);
+		michelle->GetTransform(0)->Position(origin);
+	}
+	else if (Keyboard::Get()->Press(VK_UP) && Keyboard::Get()->Press(VK_RIGHT))
+	{
+		if (michelle->CurrClipNumber(0) != 1)
+		{
+			michelle->PlayClip(0, 1, 1.0f, 1.0f);
+		}
+		origin.x += 6.0f * Time::Delta();
+		origin.z += 6.0f * Time::Delta();
+		michelle->GetTransform(0)->rotation.y = Math::ToRadian(-135.0f);
+		michelle->GetTransform(0)->Position(origin);
+	}
+	else if (Keyboard::Get()->Press(VK_RIGHT) && Keyboard::Get()->Press(VK_DOWN))
+	{
+		if (michelle->CurrClipNumber(0) != 1)
+		{
+			michelle->PlayClip(0, 1, 1.0f, 1.0f);
+		}
+		origin.x += 6.0f * Time::Delta();
+		origin.z -= 6.0f * Time::Delta();
+		michelle->GetTransform(0)->rotation.y = Math::ToRadian(-45.0f);
+		michelle->GetTransform(0)->Position(origin);
+	}
+	else if (Keyboard::Get()->Press(VK_LEFT) && Keyboard::Get()->Press(VK_DOWN))
+	{
+		if (michelle->CurrClipNumber(0) != 1)
+		{
+			michelle->PlayClip(0, 1, 1.0f, 1.0f);
+		}
+		origin.x -= 6.0f * Time::Delta();
+		origin.z -= 6.0f * Time::Delta();
+		michelle->GetTransform(0)->rotation.y = Math::ToRadian(45.0f);
+		michelle->GetTransform(0)->Position(origin);
+	}
+
+	if (bPlayerHitReaction)
+	{
+		michelle->PlayClip(0, 3, 1.0f, 1.0f);
+	}
+	if (Keyboard::Get()->Press('B'))
+	{
+		michelle->PlayClip(0, 5, 1.0f, 2.0f);
+	}
+	if (Keyboard::Get()->Press('K'))
+	{
+		michelle->PlayClip(0, 4, 1.0f, 1.0f);
+	}
+	if (!Keyboard::Get()->Press(VK_LEFT) &&
+		!Keyboard::Get()->Press(VK_UP) &&
+		!Keyboard::Get()->Press(VK_RIGHT) &&
+		!Keyboard::Get()->Press(VK_DOWN) &&
+		!Keyboard::Get()->Down(VK_SPACE) &&
+		!Keyboard::Get()->Press('K') &&
+		!Keyboard::Get()->Press('B') &&
+		!bPlayerHitReaction)
+	{
+		michelle->PlayClip(0, 0, 1.0f, 1.0f);
 	}
 }
 
@@ -721,11 +830,13 @@ void AssExampleDemo::PlayerWeaponChange()
 
 void AssExampleDemo::ArrowUpdate()
 {
-	arrowdelayTime += 1.0f * Time::Delta();
+
 	for (int i = 0; i < 100; i++)
 	{
+
 		if (archerWeaponTransform[i] != NULL)
 		{
+
 			Matrix attach = archerWeaponTransform[i]->World();
 
 			Vector3 origin = archerWeaponTransform[i]->GetPositon();
@@ -737,23 +848,15 @@ void AssExampleDemo::ArrowUpdate()
 			archerArrowCollider[i].Collider->GetTransform()->World(attach);
 			archerArrowCollider[i].Collider->Update();
 			archerWeaponTransform[i]->Update();
-			if (archerWeaponTransform[i]->GetPositon().x > 200 ||
-				archerWeaponTransform[i]->GetPositon().x < -200 ||
-				archerWeaponTransform[i]->GetPositon().z >  200 ||
-				archerWeaponTransform[i]->GetPositon().z < -200)
-			{
-				
-			}
+
 
 			archerWeapon->Update();
 			archerWeapon->UpdateTransforms();
-
 		}
 		else
 		{
-			break;
+			continue;
 		}
-
 	}
 }
 
