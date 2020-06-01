@@ -15,6 +15,8 @@ public:
 	void Pass(UINT val) { pass = val; }
 	void SetDebug(bool val) { bDebug = val; }
 
+	RenderTarget* RayleighRTV() { return rayleighTarget; }
+	RenderTarget* MieRTV() { return mieTarget; }
 private:
 	void CreateQuad();
 

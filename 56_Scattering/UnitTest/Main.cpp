@@ -47,6 +47,7 @@
 #include "DefferedSpotLightsDemo.h"
 #include "DefferedShadowDemo.h"
 #include "ScatteringDemo.h"
+
 void Main::Initialize()
 {
 	Push(new ScatteringDemo());

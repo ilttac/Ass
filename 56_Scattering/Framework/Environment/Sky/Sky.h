@@ -1,12 +1,12 @@
 #pragma once
 
-class Sky : public Renderer
+class Sky 
 {
 public:
 	Sky(Shader* shader);
 	~Sky();
 
-	void Pass(UINT scatteringPass);
+	void Pass(UINT scatteringPass, UINT domePass);
 
 	void Update();
 	void PreRender();
@@ -28,7 +28,6 @@ private:
 
 private:
 	Shader* shader;
-
 	bool bRealTime = false;
 
 	float timeFactor = 1.0f;
@@ -37,4 +36,9 @@ private:
 	class Scattering* scattering;
 	ConstantBuffer* scatterBuffer;
 	ID3DX11EffectConstantBuffer* sScatterBuffer;
+
+	MeshRender* sphere;
+	ID3DX11EffectShaderResourceVariable* sRayleighMap;
+	ID3DX11EffectShaderResourceVariable* sMieMap;
+	ID3DX11EffectShaderResourceVariable* sStarMap;
 };

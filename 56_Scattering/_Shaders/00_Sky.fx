@@ -177,3 +177,52 @@ PixelOutput_Scattering PS_Scattering(VertexOutput_Scattering input)
     return output;
 
 }
+
+////
+// Draw SkyShpere
+////
+
+float GetRayleightPhase(float c)
+{
+	return 0.75f * (1.0f * c);
+
+}
+
+float GetMiePhase(float c, float c2)
+{
+	float3 result = 0;
+	result.x = 1.5f * ((1.0f - G2) / (2.0f + G2));
+	result.y = 1.0f + G2;
+	result.z = 2.0f * G;
+	
+	return result.x * (1.0f + c2) / pow(result.y - result.z * c, 1.5f);
+}
+
+float3 HDR(float3 LDR)
+{
+	
+	return 1.0f - exp(SunExposure * LDR);
+}
+
+Texture2D RayleighMap;
+Texture2D MieMap;
+Texture2D StartMap;
+
+float4 PS_Sky(MeshOutput input) : SV_Target
+{
+	float3 sunDirection = -normalize(GlobalLight.Direction);
+	
+	float temp = dot(sunDirection, input.oPosition) / length(input.oPosition);
+	float temp2 = temp * temp;
+	
+	float3 rSamples = RayleighMap.Sample(LinearSampler, input.Uv).rgb;
+	float3 mSamples = MieMap.Sample(LinearSampler, input.Uv).rgb;
+	
+	float3 color = 0;
+	color = GetRayleightPhase(temp2) * rSamples + GetMiePhase(temp, temp2) * mSamples;
+	color = HDR(color);
+	
+	color += max(0, (1 - color.rgb) * float3(0.05f, 0.05f, 0.1f));
+
+	return float4(color, 1);
+}

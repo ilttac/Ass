@@ -42,7 +42,7 @@ void Scattering::PreRender()
 	RenderTarget::Sets(rtvs, 2, depthStencil);
 
 	viewport->RSSetViewport();
-	
+
 	UINT stride = sizeof(VertexTexture);
 	UINT offset = 0;
 
@@ -55,14 +55,13 @@ void Scattering::PreRender()
 
 void Scattering::Render()
 {
-	//Todo 05.
-
+	
 }
 
 void Scattering::PostRender()
 {
 	render2D->SRV(rayleighTarget->SRV());
-	render2D->GetTransform()->Position(0 +100,D3D::Height() - 100,0);
+	render2D->GetTransform()->Position(0 + 100, D3D::Height() - 100, 0);
 	render2D->Update();
 	render2D->Render();
 
@@ -89,6 +88,7 @@ void Scattering::CreateQuad()
 	vertices[4].Uv = Vector2(0, 0);
 	vertices[5].Uv = Vector2(1, 0);
 
-	vertexBuffer = new VertexBuffer(vertices, 6, sizeof(VertexBuffer));
+	vertexBuffer = new VertexBuffer(vertices, 6, sizeof(VertexTexture));
+
 
 }

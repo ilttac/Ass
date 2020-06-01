@@ -3,7 +3,7 @@
 #include "Scattering.h"
 
 Sky::Sky(Shader * shader)
-	: Renderer(shader)
+	: shader(shader)
 {
 	scatterDesc.InvWaveLength.x = 1.0f / powf(scatterDesc.WaveLength.x, 4.0f);
 	scatterDesc.InvWaveLength.y = 1.0f / powf(scatterDesc.WaveLength.y, 4.0f);
@@ -16,30 +16,37 @@ Sky::Sky(Shader * shader)
 	scattering = new Scattering(shader);
 	scatterBuffer = new ConstantBuffer(&scatterDesc, sizeof(ScatterDesc));
 	sScatterBuffer = shader->AsConstantBuffer("CB_Scattering");
+
+	sphere = new MeshRender(shader, new MeshSphere(0.5f));
+	sphere->AddTransform()->Scale(500, 500, 500);
+	sRayleighMap = shader->AsSRV("RayleighMap");
+	sMieMap = shader->AsSRV("MieMap");
 }
 
 Sky::~Sky()
 {
 	SafeDelete(scattering);
 	SafeDelete(scatterBuffer);
+	SafeDelete(sphere);
 }
 
-void Sky::Pass(UINT scatteringPass)
+void Sky::Pass(UINT scatteringPass, UINT domePass)
 {
 	scattering->Pass(scatteringPass);
+	sphere->Pass(domePass);
 }
 
 void Sky::Update()
 {
-	Super::Update();
-	
+
 	//Auto
 	{
 
 	}
+
 	//Manual
 	{
-		ImGui::SliderFloat("Theta", &theta, -Math::PI,Math::PI);//0 양쪽끝 // 맨위 3.14
+		ImGui::SliderFloat("Theta", &theta, -Math::PI, Math::PI);
 
 		float x = sinf(theta);
 		float y = cosf(theta);
@@ -48,6 +55,7 @@ void Sky::Update()
 	}
 
 	scattering->Update();
+	sphere->Update();
 }
 
 void Sky::PreRender()
@@ -57,11 +65,9 @@ void Sky::PreRender()
 
 	prevTheta = theta;
 
-	//쉐이더로 밀어주는 부분 
 	scatterBuffer->Apply();
 	sScatterBuffer->SetConstantBuffer(scatterBuffer->Buffer());
 
-	Super::Render();//쉐이더로 밀어준다.
 	scattering->PreRender();
 }
 
@@ -73,21 +79,23 @@ void Sky::Render()
 	//Scattering
 	{
 		position.y -= 0.2f;
-		
-		GetTransform()->Position(position);
-		GetTransform()->Scale(1, 1, 1);
-		GetTransform()->Rotation(0, 0, 1);
+
+		sphere->GetTransform(0)->Position(position);
+		sphere->GetTransform(0)->Scale(1, 1, 1);
+		sphere->GetTransform(0)->RotationDegree(0, 0, 90);
+		sphere->UpdateTransforms();
 
 		scatterDesc.StarIntensity = Context::Get()->Direction().y;
 		scatterBuffer->Apply();
 		sScatterBuffer->SetConstantBuffer(scatterBuffer->Buffer());
 
-		Super::Render();
-		scattering->Render();
+		sRayleighMap->SetResource(scattering->RayleighRTV()->SRV());
+		sMieMap->SetResource(scattering->MieRTV()->SRV());
+		sphere->Render();
 	}
 }
 
 void Sky::PostRender()
 {
-	scattering->PostRender(); // rtv 띄우는 부분.
+	scattering->PostRender();
 }

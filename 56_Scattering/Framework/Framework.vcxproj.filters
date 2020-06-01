@@ -193,6 +193,9 @@
     <ClCompile Include="Environment\Sky\Scattering.cpp">
       <Filter>Environment\Sky</Filter>
     </ClCompile>
+    <ClCompile Include="Environment\Sky\Dome.cpp">
+      <Filter>Environment\Sky</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Renders\Context.h">
@@ -362,6 +365,9 @@
       <Filter>Environment\Sky</Filter>
     </ClInclude>
     <ClInclude Include="Environment\Sky\Scattering.h">
+      <Filter>Environment\Sky</Filter>
+    </ClInclude>
+    <ClInclude Include="Environment\Sky\Dome.h">
       <Filter>Environment\Sky</Filter>
     </ClInclude>
   </ItemGroup>
