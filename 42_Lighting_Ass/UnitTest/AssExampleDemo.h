@@ -28,9 +28,10 @@ private:
 	void PlayerMove();
 	void PlayerWeaponChange();
 	void ArrowUpdate();
+
 private:
 	const static UINT arrowCount = 100;
-	enum { eMonsterMaxNum =10};
+	enum { eMonsterMaxNum = 10};
 	Shader * shader;
 	
 	class SkyCube* sky;
@@ -75,7 +76,7 @@ private:
 	bool bWeaponcolliderState[eMonsterMaxNum] = {false,};
 	bool bWeaponArcherObbState[eMonsterMaxNum] = {false,};
 	bool bPlayerAttackState;
-	bool bPlayerHitReaction;
+	bool bPlayerHitReaction[2] = {false,};
 
 	
 	enum CameraState
@@ -151,6 +152,7 @@ private:
 		Transform* Transform;
 		SquareCollider* Collider;
 	}archerSerachCollider[eMonsterMaxNum];
+
 	struct ArcherArrowCollider
 	{
 		Transform* Init;

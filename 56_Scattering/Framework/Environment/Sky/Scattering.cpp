@@ -42,6 +42,12 @@ void Scattering::PreRender()
 	RenderTarget::Sets(rtvs, 2, depthStencil);
 
 	viewport->RSSetViewport();
+	
+	UINT stride = sizeof(VertexTexture);
+	UINT offset = 0;
+
+	vertexBuffer->Render();
+
 	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	shader->Draw(0, pass, 6);
@@ -50,12 +56,39 @@ void Scattering::PreRender()
 void Scattering::Render()
 {
 	//Todo 05.
+
 }
 
 void Scattering::PostRender()
 {
+	render2D->SRV(rayleighTarget->SRV());
+	render2D->GetTransform()->Position(0 +100,D3D::Height() - 100,0);
+	render2D->Update();
+	render2D->Render();
+
+	render2D->SRV(mieTarget->SRV());
+	render2D->GetTransform()->Position(200 + 100, D3D::Height() - 100, 0);
+	render2D->Update();
+	render2D->Render();
 }
 
 void Scattering::CreateQuad()
 {
+	VertexTexture vertices[6];
+	vertices[0].Position = Vector3(-1.0f, -1.0f, 0.0f);
+	vertices[1].Position = Vector3(-1.0f, +1.0f, 0.0f);
+	vertices[2].Position = Vector3(+1.0f, -1.0f, 0.0f);
+	vertices[3].Position = Vector3(+1.0f, -1.0f, 0.0f);
+	vertices[4].Position = Vector3(-1.0f, +1.0f, 0.0f);
+	vertices[5].Position = Vector3(+1.0f, +1.0f, 0.0f);
+
+	vertices[0].Uv = Vector2(0, 1);
+	vertices[1].Uv = Vector2(0, 0);
+	vertices[2].Uv = Vector2(1, 1);
+	vertices[3].Uv = Vector2(1, 1);
+	vertices[4].Uv = Vector2(0, 0);
+	vertices[5].Uv = Vector2(1, 0);
+
+	vertexBuffer = new VertexBuffer(vertices, 6, sizeof(VertexBuffer));
+
 }

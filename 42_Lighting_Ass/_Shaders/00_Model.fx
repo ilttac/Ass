@@ -171,15 +171,11 @@ void SetAnimationWorld(inout matrix world, VertexModel input)
             next = matrix(n0, n1, n2, n3);
 
             nextAnim = lerp(curr, next, time[1]);
-
             currAnim = lerp(currAnim, nextAnim, Tweenframes[input.InstanceID].TweenTime);
         }
-
         transform += mul(weights[i], currAnim);
     }
-
     world = mul(transform, input.Transform);
-    
 }
 
 MeshOutput VS_Animation(VertexModel input)

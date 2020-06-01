@@ -10,6 +10,7 @@ void AssExampleDemo::Initialize()
 	Context::Get()->GetCamera()->Position(0, 32, -67);
 	Context::Get()->GetCamera()->RotationDegree(23, 0, 0);
 	dynamic_cast<Freedom*>(Context::Get()->GetCamera())->Speed(50, 5);
+	
 	srand((UINT)time(NULL));
 
 	cameraState = eCameraIdle;
@@ -19,7 +20,6 @@ void AssExampleDemo::Initialize()
 	ColliderRenderSwitchState = false;
 
 	bPlayerAttackState = false;
-	bPlayerHitReaction = false;
 
 	weaponCount = 0;
 
@@ -53,23 +53,13 @@ void AssExampleDemo::Update()
 	grid->Update();
 	ImGui::Checkbox("Collider", &ColliderRenderSwitchState);
 
-
+	//hallin
 	for (int i = 0; i < eMonsterMaxNum; i++)
 	{
-		if (archer->CurrClipNumber(i) == 3)
-		{
-			continue;
-		}
 		if (4 == michelle->CurrClipNumber(0) && bWeaponcolliderState[i])
 		{
 			hallin->PlayClip(i, 3, 1.0f, 1.0f);
 		}
-		if (4 == michelle->CurrClipNumber(0) && bWeaponArcherObbState[i])
-		{
-			archer->PlayClip(i, 3, 1.0f, 1.0f);
-		}
-
-
 		if (true == bSearchState[i] && false == bAttakRangeState[i]) // 수정필요
 		{
 			PlayerTracking(hallin, michelle, i);
@@ -78,7 +68,20 @@ void AssExampleDemo::Update()
 		{
 			MonsterPatrol(hallin, bPatrolState[i], ranHallinX, ranHallinZ, i);
 		}
-
+		if (bAttakRangeState[i]) MonsterAttack(hallin, michelle, "hallin", i);
+	}
+	//archer
+	for (int i = 0; i < eMonsterMaxNum; i++)
+	{
+		if (archer->CurrClipNumber(i) == 3)
+		{
+			continue;
+		}
+		else if (4 == michelle->CurrClipNumber(0) && bWeaponArcherObbState[i])
+		{
+			archer->PlayClip(i, 3, 1.0f, 2.3f, true);
+			//collider 없애주기애는 객체는 안사라지므로 놔둠
+		}
 		if (true == bArcherSearchState[i] && false == bArcherAttakRangeState[i]) //수정필요
 		{
 			PlayerTracking(archer, michelle, i);
@@ -87,10 +90,8 @@ void AssExampleDemo::Update()
 		{
 			MonsterPatrol(archer, bArcherPatrolState[i], ranArcherX, ranArcherZ, i);
 		}
-		if (bAttakRangeState[i]) MonsterAttack(hallin, michelle, "hallin", i);
 		if (bArcherAttakRangeState[i]) MonsterAttack(archer, michelle, "archer", i);
 	}
-
 
 	if (michelle != NULL)
 	{
@@ -138,7 +139,6 @@ void AssExampleDemo::Update()
 		for (int i = 0; i < eMonsterMaxNum; i++)
 		{
 			Matrix attach = archer->GetTransform(i)->World();
-
 			//Collider
 			archerSerachCollider[i].Collider->GetTransform()->World(attach);
 			archerSerachCollider[i].Collider->Update();
@@ -172,38 +172,38 @@ void AssExampleDemo::Render()
 	if (hallin != NULL)hallin->Render();
 	if (archer != NULL)archer->Render();
 
-	//if (4 == michelle->CurrClipNumber())
-	//{
-	//	float x = Context::Get()->GetCamera()->GetPositionX();
-	//	float y = Context::Get()->GetCamera()->GetPositionY();
-	//	float z = Context::Get()->GetCamera()->GetPositionZ();
+	if (5 == michelle->CurrClipNumber(0))
+	{
+		float x = Context::Get()->GetCamera()->GetPositionX();
+		float y = Context::Get()->GetCamera()->GetPositionY();
+		float z = Context::Get()->GetCamera()->GetPositionZ();
 
-	//	switch (cameraState)
-	//	{
-	//	case eCameraIdle:
-	//		Context::Get()->GetCamera()->Position(x - 2, y, z);
-	//		cameraState = eCameraLeft;
-	//		break;
-	//	case eCameraLeft:
-	//		Context::Get()->GetCamera()->Position(x + 2, y + 2, z);
-	//		cameraState = eCameraTop;
-	//		break;
-	//	case eCameraTop:
-	//		Context::Get()->GetCamera()->Position(x + 2, y - 2, z);
-	//		cameraState = eCameraRight;
-	//		break;
-	//	case eCameraRight:
-	//		Context::Get()->GetCamera()->Position(x - 2, y - 2, z);
-	//		cameraState = eCameraBottom;
-	//		break;
-	//	case eCameraBottom:
-	//		Context::Get()->GetCamera()->Position(x, y + 2, z);
-	//		cameraState = eCameraIdle;
-	//		break;
-	//	default:
-	//		break;
-	//	}
-	//}
+		switch (cameraState)
+		{
+		case eCameraIdle:
+			Context::Get()->GetCamera()->Position(x - 2, y, z);
+			cameraState = eCameraLeft;
+			break;
+		case eCameraLeft:
+			Context::Get()->GetCamera()->Position(x + 2, y + 2, z);
+			cameraState = eCameraTop;
+			break;
+		case eCameraTop:
+			Context::Get()->GetCamera()->Position(x + 2, y - 2, z);
+			cameraState = eCameraRight;
+			break;
+		case eCameraRight:
+			Context::Get()->GetCamera()->Position(x - 2, y - 2, z);
+			cameraState = eCameraBottom;
+			break;
+		case eCameraBottom:
+			Context::Get()->GetCamera()->Position(x, y + 2, z);
+			cameraState = eCameraIdle;
+			break;
+		default:
+			break;
+		}
+	}
 	//collider
 	for (int i = 0; i < eMonsterMaxNum; i++)
 	{
@@ -216,13 +216,14 @@ void AssExampleDemo::Render()
 		bWeaponcolliderState[i] = weaponCollider[0].Collider->IsIntersect(hallinObbCollider[i].Collider);
 		bWeaponArcherObbState[i] = weaponCollider[0].Collider->IsIntersect(archerObbColider[i].Collider);
 
+		bPlayerHitReaction[1] = playerObbCollider[0].Collider->IsIntersect(hallinObbCollider[i].Collider);
 	}
 	for (int i = 0; i < 100; i++)
 	{
 		if (archerArrowCollider[i].Collider != NULL)
 		{
-			bPlayerHitReaction = archerArrowCollider[i].Collider->IsIntersect(playerObbCollider[0].Collider);
-			if (bPlayerHitReaction == true)
+			bPlayerHitReaction[0] = archerArrowCollider[i].Collider->IsIntersect(playerObbCollider[0].Collider);
+			if (bPlayerHitReaction[0] == true)
 			{
 				break;
 			}
@@ -266,7 +267,7 @@ void AssExampleDemo::Render()
 
 		for (int i = 0; i < 100; i++)
 		{
-			if (archerArrowCollider[i].Collider != NULL)archerArrowCollider[i].Collider->Render(bPlayerHitReaction ? Color(1, 0, 0, 1) : Color(0, 1, 0, 1));
+			if (archerArrowCollider[i].Collider != NULL)archerArrowCollider[i].Collider->Render(bPlayerHitReaction[0] ? Color(1, 0, 0, 1) : Color(0, 1, 0, 1));
 		}
 	}
 }
@@ -590,58 +591,62 @@ void AssExampleDemo::MonsterAttack(ModelAnimator * monster, ModelAnimator * play
 	if (monsterName == "archer")
 	{
 		//archerWeaponTransform = archerWeapon[0]->AddTransform();
-		if (arrowdelayTime[monIndex] > 2.0f)
+
+		if (monster->NextClipNumber(monIndex) != 3)
 		{
-			arrowdelayTime[monIndex] = 0.0f;
-			for (int i = 0; i < 100; i++)
+			if (arrowdelayTime[monIndex] > 2.0f)
 			{
-				if (archerWeaponTransform[i] == NULL)
+				arrowdelayTime[monIndex] = 0.0f;
+				for (int i = 0; i < 100; i++)
 				{
-					archerWeaponTransform[i] = new Transform();
-					archerWeaponTransform[i] = archerWeapon->AddTransform();
-					archerWeaponTransform[i]->Scale(0.35f, 0.35f, 0.35f);
-					archerWeaponTransform[i]->Rotation(Math::ToRadian(90), archer->GetTransform(monIndex)->GetRotation().y, 0);
-					archerWeaponTransform[i]->Position(archer->GetTransform(monIndex)->GetPositon().x, 10, archer->GetTransform(monIndex)->GetPositon().z);
+					if (archerWeaponTransform[i] == NULL)
+					{
+						archerWeaponTransform[i] = new Transform();
+						archerWeaponTransform[i] = archerWeapon->AddTransform();
+						archerWeaponTransform[i]->Scale(0.35f, 0.35f, 0.35f);
+						archerWeaponTransform[i]->Rotation(Math::ToRadian(90), archer->GetTransform(monIndex)->GetRotation().y, 0);
+						archerWeaponTransform[i]->Position(archer->GetTransform(monIndex)->GetPositon().x, 10, archer->GetTransform(monIndex)->GetPositon().z);
 
-					Vector3 pPosYup = Vector3(pPos.x, pPos.y + archerWeaponTransform[i]->GetPositon().y, pPos.z);
-					D3DXVec3Normalize(&arrowNorMal[i], &(pPosYup - archerWeaponTransform[i]->GetPositon()));
+						Vector3 pPosYup = Vector3(pPos.x, pPos.y + archerWeaponTransform[i]->GetPositon().y, pPos.z);
+						D3DXVec3Normalize(&arrowNorMal[i], &(pPosYup - archerWeaponTransform[i]->GetPositon()));
 
-					archerArrowCollider[i].Init = new Transform();
-					archerArrowCollider[i].Init->Position(0, 0, 1);
-					archerArrowCollider[i].Init->Scale(1, 10, 1);
+						archerArrowCollider[i].Init = new Transform();
+						archerArrowCollider[i].Init->Position(0, 0, 1);
+						archerArrowCollider[i].Init->Scale(1, 10, 1);
 
-					archerArrowCollider[i].Transform = new Transform();
-					archerArrowCollider[i].Collider = new Collider(archerArrowCollider[i].Transform, archerArrowCollider[i].Init);
-					archerWeaponTransform[i]->Update();
-					archerWeapon->Update();
-					archerWeapon->UpdateTransforms();
-					break;
-				}
-				else if (archerWeaponTransform[i] != NULL && (archerWeaponTransform[i]->GetPositon().x > 200 ||
-					archerWeaponTransform[i]->GetPositon().x < -200 ||
-					archerWeaponTransform[i]->GetPositon().z >  200 ||
-					archerWeaponTransform[i]->GetPositon().z < -200))
-				{
-					archerWeaponTransform[i]->Rotation(Math::ToRadian(90), archer->GetTransform(monIndex)->GetRotation().y, 0);
-					archerWeaponTransform[i]->Position(archer->GetTransform(monIndex)->GetPositon().x, 10, archer->GetTransform(monIndex)->GetPositon().z);
+						archerArrowCollider[i].Transform = new Transform();
+						archerArrowCollider[i].Collider = new Collider(archerArrowCollider[i].Transform, archerArrowCollider[i].Init);
+						archerWeaponTransform[i]->Update();
+						archerWeapon->Update();
+						archerWeapon->UpdateTransforms();
+						break;
+					}
+					else if (archerWeaponTransform[i] != NULL && (archerWeaponTransform[i]->GetPositon().x > 200 ||
+						archerWeaponTransform[i]->GetPositon().x < -200 ||
+						archerWeaponTransform[i]->GetPositon().z >  200 ||
+						archerWeaponTransform[i]->GetPositon().z < -200))
+					{
+						archerWeaponTransform[i]->Rotation(Math::ToRadian(90), archer->GetTransform(monIndex)->GetRotation().y, 0);
+						archerWeaponTransform[i]->Position(archer->GetTransform(monIndex)->GetPositon().x, 10, archer->GetTransform(monIndex)->GetPositon().z);
 
-					Vector3 pPosYup = Vector3(pPos.x, pPos.y + archerWeaponTransform[i]->GetPositon().y, pPos.z);
-					D3DXVec3Normalize(&arrowNorMal[i], &(pPosYup - archerWeaponTransform[i]->GetPositon()));
-					break;
-				}
-				else
-				{
-					continue;
+						Vector3 pPosYup = Vector3(pPos.x, pPos.y + archerWeaponTransform[i]->GetPositon().y, pPos.z);
+						D3DXVec3Normalize(&arrowNorMal[i], &(pPosYup - archerWeaponTransform[i]->GetPositon()));
+						break;
+					}
+					else
+					{
+						continue;
+					}
 				}
 			}
+			RotateTowards(monster, pPos, monIndex);
 		}
 
 	}
 	else if (monsterName == "hallin")
 	{
-
+		RotateTowards(monster, pPos, monIndex);
 	}
-	RotateTowards(monster, pPos, monIndex);
 
 	if (monster->CurrClipNumber(monIndex) == 1)
 	{
@@ -744,7 +749,7 @@ void AssExampleDemo::PlayerMove()
 		michelle->GetTransform(0)->Position(origin);
 	}
 
-	if (bPlayerHitReaction)
+	if (bPlayerHitReaction[0] || bPlayerHitReaction[1])
 	{
 		michelle->PlayClip(0, 3, 1.0f, 1.0f);
 	}
@@ -763,7 +768,8 @@ void AssExampleDemo::PlayerMove()
 		!Keyboard::Get()->Down(VK_SPACE) &&
 		!Keyboard::Get()->Press('K') &&
 		!Keyboard::Get()->Press('B') &&
-		!bPlayerHitReaction)
+		!bPlayerHitReaction[0]&&
+		!bPlayerHitReaction[1])
 	{
 		michelle->PlayClip(0, 0, 1.0f, 1.0f);
 	}

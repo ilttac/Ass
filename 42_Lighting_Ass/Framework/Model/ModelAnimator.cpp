@@ -48,8 +48,10 @@ void ModelAnimator::Update()
 	{
 		TweenDesc& desc = tweenDesc[i];
 		ModelClip* clip = model->ClipByIndex(desc.Curr.Clip);
-
+		
+		
 		//현재 애니메이션
+		if(bOnceAnim[i] == false)
 		{
 			desc.Curr.RunningTime += Time::Delta();
 			float time = 1.0f / clip->FrameRate() / desc.Curr.Speed;
@@ -64,6 +66,7 @@ void ModelAnimator::Update()
 
 			desc.Curr.Time = desc.Curr.RunningTime / time;
 		}
+
 
 		//다음 애니메이션
 		if (desc.Next.Clip > -1)
@@ -160,20 +163,14 @@ void ModelAnimator::ReadClip(wstring file)
 	model->ReadClip(file);
 }
 
-void ModelAnimator::PlayClip(UINT instance, UINT clip, float speed, float takeTime)
+void ModelAnimator::PlayClip(UINT instance, UINT clip, float speed, float takeTime, bool bOncePlay)
 {
 	tweenDesc[instance].TakeTime = takeTime;
 	tweenDesc[instance].Next.Clip = clip;
 	tweenDesc[instance].Next.Speed = speed;
-}
 
-void ModelAnimator::ForcePlayClip(UINT instance, UINT clip, float speed, float takeTime)
-{
-	tweenDesc[instance].TakeTime = takeTime;
-	tweenDesc[instance].Curr.Clip = clip;
-	tweenDesc[instance].Curr.Speed = speed;
+	bOnceAnim[instance] = bOncePlay;
 }
-
 
 
 void ModelAnimator::Pass(UINT pass)

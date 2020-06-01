@@ -14,8 +14,8 @@ public:
 	void ReadMesh(wstring file);
 	void ReadClip(wstring file);
 
-	void PlayClip(UINT instance, UINT clip, float speed = 1.0f, float takeTime = 1.0f);
-	void ForcePlayClip(UINT instance, UINT clip, float speed, float takeTime);
+	void PlayClip(UINT instance, UINT clip, float speed = 1.0f, float takeTime = 1.0f,bool oncePlay = false);
+	
 	Model* GetModel() { return model; }
 
 	void Pass(UINT pass);
@@ -28,7 +28,7 @@ public:
 	void CreateTexture();
 
 	UINT CurrClipNumber(UINT index) { return tweenDesc[index].Curr.Clip; }
-
+	UINT NextClipNumber(UINT index) { return tweenDesc[index].Next.Clip; }
 private:
 	
 	void CreateClipTransform(UINT index);
@@ -124,6 +124,8 @@ private:
 
 	VertexBuffer* instanceBuffer;
 
+private:
+	bool bOnceAnim[MAX_MODEL_INSTANCE] = {false,};
 
 private:
 	Shader * computeShader;

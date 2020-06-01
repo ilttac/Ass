@@ -46,10 +46,10 @@
 #include "DefferedPointLightArrayDemo.h"
 #include "DefferedSpotLightsDemo.h"
 #include "DefferedShadowDemo.h"
-
+#include "ScatteringDemo.h"
 void Main::Initialize()
 {
-	Push(new DefferedShadowDemo());
+	Push(new ScatteringDemo());
 }
 
 void Main::Ready()

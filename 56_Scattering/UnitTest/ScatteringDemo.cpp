@@ -12,7 +12,7 @@ void ScatteringDemo::Initialize()
 	shadow = new Shadow(shader, Vector3(0, 0, 0), 65);
 	gBuffer = new GBuffer(shader);
 
-	sky = new SkyCube(L"Environment/GrassCube1024.dds", shader);
+	sky = new Sky(shader);
 	sky->Pass(11);
 
 	snow = new Snow(Vector3(300, 100, 500), 100000, L"Environment/Snow.png");
@@ -40,8 +40,7 @@ void ScatteringDemo::Update()
 {
 	ImGui::SliderFloat3("Light", Context::Get()->Direction(), -1, 1);
 
-	sky->Update();
-
+	
 	sphere->Update();	
 	cylinder->Update();
 	cube->Update();
@@ -50,13 +49,14 @@ void ScatteringDemo::Update()
 	airplane->Update();
 	kachujin->Update();
 
-	for (int i = 0; i < 4; i++)
-	{
-		Matrix attach = kachujin->GetAttachTransform(i);
-		colliders[i].Collider->GetTransform()->World(attach);
-		colliders[i].Collider->Update();
-	}
-	
+	//for (int i = 0; i < 4; i++)
+	//{
+	//	Matrix attach = kachujin->GetAttachTransform(i);
+	//	colliders[i].Collider->GetTransform()->World(attach);
+	//	colliders[i].Collider->Update();
+	//}
+	sky->Update();
+
 	snow->Udpate();
 
 }
@@ -112,7 +112,7 @@ void ScatteringDemo::PreRender()
 		airplane->Render();
 		kachujin->Render();
 	}
-
+	sky->PreRender();
 }
 
 void ScatteringDemo::Render()
@@ -125,8 +125,9 @@ void ScatteringDemo::Render()
 }
 
 void ScatteringDemo::PostRender()
-{
-	gBuffer->DebugRender();
+{/*
+	gBuffer->DebugRender();*/
+	sky->PostRender();
 }
 
 void ScatteringDemo::Mesh()

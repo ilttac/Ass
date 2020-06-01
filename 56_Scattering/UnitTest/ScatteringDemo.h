@@ -29,7 +29,7 @@ private:
 	Shadow* shadow;
 	GBuffer* gBuffer;
 
-	SkyCube* sky;
+	Sky* sky;
 	Snow* snow;
 
 	Material* floor;
