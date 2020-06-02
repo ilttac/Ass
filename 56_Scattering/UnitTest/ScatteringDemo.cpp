@@ -14,7 +14,9 @@ void ScatteringDemo::Initialize()
 
 	sky = new Sky(shader);
 	sky->Pass(11,12);
-
+	sky->Theta(Math::PI - 1e-6f);
+	sky->RealTime(true, Math::PI - 1e-6f,0.3f);
+	
 	snow = new Snow(Vector3(300, 100, 500), 1000, L"Environment/Snow.png");
 
 	Mesh();
@@ -38,9 +40,17 @@ void ScatteringDemo::Destroy()
 
 void ScatteringDemo::Update()
 {
-	ImGui::SliderFloat3("Light", Context::Get()->Direction(), -1, 1);
+	UINT& type = Context::Get()->FogType();
+	ImGui::InputInt("FogType", (int*)&type);
+	type %= 3;
+	shader->AsScalar("Fogtype")->SetInt(type);
 
-	
+	ImGui::ColorEdit3("FogColor", Context::Get()->FogColor());
+	ImGui::SliderFloat("FogMin", &Context::Get()->FogDistance().x,0.0f,10.0f);
+	ImGui::SliderFloat("FogMax", &Context::Get()->FogDistance().y, 0.0f, 300.0f);
+	ImGui::SliderFloat("FogDensity", &Context::Get()->FogDensity(), 0.0f, 300.0f);
+
+
 
 	sphere->Update();	
 	cylinder->Update();
@@ -56,7 +66,7 @@ void ScatteringDemo::Update()
 		colliders[i].Collider->GetTransform()->World(attach);
 		colliders[i].Collider->Update();
 	}*/
-	
+
 	sky->Update();
 	snow->Udpate();
 
@@ -160,7 +170,7 @@ void ScatteringDemo::Mesh()
 		brick->DiffuseMap("Bricks.png");
 		brick->SpecularMap("Bricks_Specular.png");
 		brick->NormalMap("Bricks_Normal.png");
-		brick->Specular(1, 0.3f, 0.3f, 2.0f);
+		brick->Specular(1, 0.3f, 0.3f, 20.0f);
 		brick->Emissive(0.2f, 0.2f, 0.2f, 0.3f);
 
 		//±¸
@@ -168,7 +178,7 @@ void ScatteringDemo::Mesh()
 		wall->DiffuseMap("Wall.png");
 		wall->SpecularMap("Wall_Specular.png");
 		wall->NormalMap("Wall_Normal.png");
-		wall->Specular(1, 1, 1, 2);
+		wall->Specular(1, 1, 1, 20.0f);
 		wall->Emissive(0.2f, 1.0f, 0.2f, 0.5f);
 
 	}
@@ -182,10 +192,10 @@ void ScatteringDemo::Mesh()
 		transform->Position(0, 5, 0);
 		transform->Scale(20, 10, 20);
 
-		grid = new MeshRender(shader, new MeshGrid(5, 5));
+		grid = new MeshRender(shader, new MeshGrid(15, 15));
 		transform = grid->AddTransform();
 		transform->Position(0, 0, 0);
-		transform->Scale(12, 1, 12);
+		transform->Scale(20, 1, 20);
 
 		cylinder = new MeshRender(shader, new MeshCylinder(0.5f, 3.0f, 20, 20));
 		sphere = new MeshRender(shader, new MeshSphere(0.5f, 20, 20));

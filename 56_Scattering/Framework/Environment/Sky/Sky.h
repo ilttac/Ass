@@ -13,6 +13,9 @@ public:
 	void Render();
 	void PostRender();
 
+	void Theta(float val) { theta = val; }
+
+	void RealTime(bool val,float theta,float timeFactor=1.0f);
 private:
 	struct ScatterDesc
 	{
@@ -26,11 +29,6 @@ private:
 		float padding2;
 	} scatterDesc;
 
-	struct DomeDesc
-	{
-		float StarIntensity;
-		float Padding[3];
-	}domeDesc;
 
 	struct CloudeDesc
 	{
@@ -54,9 +52,7 @@ private:
 
 	ID3DX11EffectShaderResourceVariable* sRayleighMap;
 	ID3DX11EffectShaderResourceVariable* sMieMap;
-	ID3DX11EffectShaderResourceVariable* sStarMap;
+	
 
 	class Dome* dome;
-	ConstantBuffer* domeBuffer;
-	ID3DX11EffectConstantBuffer* sDomeBuffer;
 };

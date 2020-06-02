@@ -66,6 +66,11 @@ public:
 	void AddSpotLight(SpotLight& light);
 	SpotLight& GetSpotLight(UINT index);
 
+	Color& FogColor() { return fogColor; }
+	Vector2& FogDistance() { return fogDistance; }
+	float& FogDensity() { return fogDensity; }
+	UINT& FogType() { return fogtype; }
+
 	class Perspective* GetPerspective() { return perspective; }
 	class Viewport* GetViewport() { return viewport; }
 	class Camera* GetCamera() { return camera; }
@@ -88,4 +93,9 @@ private:
 
 	UINT spotLightCount = 0;
 	SpotLight spotLights[MAX_SPOT_LIGHT];
+
+	Color fogColor = Color(1, 1, 1, 1);
+	Vector2 fogDistance = Vector2(1, 105);//min , max
+	float fogDensity = 0.5f;
+	UINT fogtype = 2;
 };

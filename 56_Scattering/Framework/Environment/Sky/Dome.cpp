@@ -4,6 +4,9 @@
 Dome::Dome(Shader* shader, Vector3 position, Vector3 scale, UINT drawCount)
 	:Renderer(shader),drawCount(drawCount)
 {
+	starMap = new Texture(L"Environment/Starfield.png");
+	sStarMap = shader->AsSRV("StarMap");
+
 	GetTransform()->Position(position);
 	GetTransform()->Scale(scale);
 
@@ -104,5 +107,6 @@ void Dome::Render()
 {
 	Super::Render();
 
+	sStarMap->SetResource(starMap->SRV());
 	shader->DrawIndexed(0, Pass(), indexCount);
 }

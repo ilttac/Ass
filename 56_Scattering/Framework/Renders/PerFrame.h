@@ -23,6 +23,8 @@ private:
 		float Padding[3];
 	}bufferDesc;
 
+
+
 	struct LightDesc
 	{
 		Color Ambient;
@@ -50,6 +52,13 @@ private:
 		SpotLight Lights[MAX_SPOT_LIGHT];
 	} spotLightDesc;
 
+	struct FogDesc
+	{
+		Color FogColor;
+		Vector2 FogDistance;
+		float FogDensity;
+		UINT FogType;
+	}fogDesc;
 private:
 	Shader * shader;
 
@@ -64,4 +73,8 @@ private:
 
 	ConstantBuffer* spotLightBuffer;
 	ID3DX11EffectConstantBuffer* sSpotLightBuffer;
+
+	ConstantBuffer* fogBuffer;
+	ID3DX11EffectConstantBuffer* sFogBuffer;
+
 };

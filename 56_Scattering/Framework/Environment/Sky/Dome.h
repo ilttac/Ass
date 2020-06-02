@@ -12,4 +12,6 @@ public:
 private:
 	UINT drawCount;
 
+	Texture* starMap;
+	ID3DX11EffectShaderResourceVariable* sStarMap;
 };

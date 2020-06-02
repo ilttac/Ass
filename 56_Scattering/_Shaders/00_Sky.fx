@@ -99,7 +99,7 @@ float2 GetDistance(float3 p1, float3 p2)
     for (int i = 0; i < Scattering.SamepleCount; i++)
     {
         float height = length(p1);
-        opticalDepth = GetDensityRatio(height);
+        opticalDepth += GetDensityRatio(height);
 
         p1 += sampleRay;
     }
@@ -203,7 +203,7 @@ VertexOutput_Dome VS_Dome(VertexTexture input)
 
 float GetRayleightPhase(float c)
 {
-	return 0.75f * (1.0f * c);
+	return 0.75f * (1.0f + c);
 
 }
 
@@ -225,7 +225,7 @@ float3 HDR(float3 LDR)
 
 Texture2D RayleighMap;
 Texture2D MieMap;
-Texture2D StartMap;
+Texture2D StarMap;
 
 float4 PS_Dome(VertexOutput_Dome input) : SV_Target
 {
@@ -243,5 +243,6 @@ float4 PS_Dome(VertexOutput_Dome input) : SV_Target
 	
 	color += max(0, (1 - color.rgb) * float3(0.05f, 0.05f, 0.1f));
 
-	return float4(color, 1);
+	float starInstensity = GlobalLight.Direction.y;
+	return float4(color, 1) + StarMap.Sample(LinearSampler, input.Uv) * saturate(starInstensity);
 }

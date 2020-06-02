@@ -7,9 +7,17 @@ cbuffer CB_PerFrame
     matrix Projection;
     matrix ProjectionInverse;
     matrix VP;
+
     float Time;
-   
 };
+
+cbuffer CB_Fog
+{
+	float4 FogColor;
+	float2 FogDistance;
+	float FogDensity;
+	uint FogType;
+}
 
 cbuffer CB_World
 {
@@ -65,6 +73,33 @@ float3 ViewPosition()
     return ViewInverse._41_42_43;
 }
 
+float4 LinearFogBlend(float4 color, float3 wPosition)
+{
+	float dist = saturate((distance(wPosition, ViewPosition()) - FogDistance.x) / (FogDistance.y + FogDistance.x));
+
+	return float4(lerp(color.rgb, FogColor.rgb, dist), 1); //color:mesh color
+
+}
+
+float4 ExpFogBlend(float4 color, float3 wPosition)
+{
+	float dist = distance(wPosition, ViewPosition());
+	
+	dist = dist / FogDistance.y * FogDistance.x;
+	
+	float factor = exp(-dist * FogDensity);
+	return float4(lerp(FogColor.rgb, color.rgb, factor), 1);
+}
+
+float4 Exp2FogBlend(float4 color, float3 wPosition)
+{
+	float dist = distance(wPosition, ViewPosition());
+	
+	dist = dist / FogDistance.y * FogDistance.x;
+	
+	float factor = exp(-(dist * FogDensity) * (dist * FogDensity));
+	return float4(lerp(FogColor.rgb, color.rgb, factor), 1);
+}
 //Mesh
 //-----------------------------------------------
 struct MeshOutput

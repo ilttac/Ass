@@ -18,9 +18,7 @@ Sky::Sky(Shader * shader)
 	scatterBuffer = new ConstantBuffer(&scatterDesc, sizeof(ScatterDesc));
 	sScatterBuffer = shader->AsConstantBuffer("CB_Scattering");
 
-	dome = new Dome(shader, Vector3(0, 0, 0), Vector3(100, 100, 100));
-	domeBuffer = new ConstantBuffer(&domeDesc, sizeof(DomeDesc));
-	sDomeBuffer = shader->AsConstantBuffer("CB_Dome");
+	dome = new Dome(shader, Vector3(0, 16, 0), Vector3(80, 80, 80));
 
 	sRayleighMap = shader->AsSRV("RayleighMap");
 	sMieMap = shader->AsSRV("MieMap");
@@ -31,7 +29,6 @@ Sky::~Sky()
 	SafeDelete(scattering);
 	SafeDelete(scatterBuffer);
 	SafeDelete(dome);
-	SafeDelete(domeBuffer);
 }
 
 void Sky::Pass(UINT scatteringPass, UINT domePass)
@@ -44,11 +41,21 @@ void Sky::Update()
 {
 
 	//Auto
+	if (bRealTime == true)
 	{
+		theta += Time::Delta() * timeFactor;
 
+		if (theta > Math::PI)
+		{
+			theta -= Math::PI * 2.0f;
+		}
+		float x = sinf(theta);
+		float y = cosf(theta);
+
+		Context::Get()->Direction() = Vector3(x, y, 0.0f);
 	}
-
 	//Manual
+	else
 	{
 		ImGui::SliderFloat("Theta", &theta, -Math::PI, Math::PI);
 
@@ -57,6 +64,7 @@ void Sky::Update()
 
 		Context::Get()->Direction() = Vector3(x, y, 0.0f);
 	}
+
 
 	scattering->Update();
 	dome->Update();
@@ -80,12 +88,8 @@ void Sky::Render()
 	Vector3 position;
 	Context::Get()->GetCamera()->Position(&position);
 
-	//Scattering
+	//Dome
 	{
-
-		scatterBuffer->Apply();
-		sScatterBuffer->SetConstantBuffer(scatterBuffer->Buffer());
-
 		sRayleighMap->SetResource(scattering->RayleighRTV()->SRV());
 		sMieMap->SetResource(scattering->MieRTV()->SRV());
 		
@@ -96,4 +100,12 @@ void Sky::Render()
 void Sky::PostRender()
 {
 	scattering->PostRender();
+}
+
+void Sky::RealTime(bool val, float theta, float timeFactor)
+{
+	bRealTime = val;
+
+	this->theta = theta;
+	this->timeFactor = timeFactor;
 }
