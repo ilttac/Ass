@@ -1,6 +1,6 @@
 #pragma once
 
-class Sky 
+class Sky
 {
 public:
 	Sky(Shader* shader);
@@ -16,15 +16,29 @@ public:
 private:
 	struct ScatterDesc
 	{
-		Vector3 WaveLength = Vector3(0.65f, 0.57f, 0.475f);
-		int SamepleCount = 8;
+		Vector3 WaveLength = Vector3(0.65f, 0.57f, .475f);
+		float padding;
 
 		Vector3 InvWaveLength;
-		float StarIntensity;
+		int SampleCount =8;
 
 		Vector3 WaveLengthMie;
-		float MoonAlpha;
+		float padding2;
 	} scatterDesc;
+
+	struct DomeDesc
+	{
+		float StarIntensity;
+		float Padding[3];
+	}domeDesc;
+
+	struct CloudeDesc
+	{
+		float Tile = 1.5f; //노이즈 사이의 간격
+		float Cover = 0.005f;
+		float Sharpness = 0.405;
+		float Speed = 0.05f;
+	}cloudDesc;
 
 private:
 	Shader* shader;
@@ -37,8 +51,12 @@ private:
 	ConstantBuffer* scatterBuffer;
 	ID3DX11EffectConstantBuffer* sScatterBuffer;
 
-	MeshRender* sphere;
+
 	ID3DX11EffectShaderResourceVariable* sRayleighMap;
 	ID3DX11EffectShaderResourceVariable* sMieMap;
 	ID3DX11EffectShaderResourceVariable* sStarMap;
+
+	class Dome* dome;
+	ConstantBuffer* domeBuffer;
+	ID3DX11EffectConstantBuffer* sDomeBuffer;
 };

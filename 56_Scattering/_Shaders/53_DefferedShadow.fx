@@ -29,6 +29,6 @@ technique11 T0
     //Sky
     //P_RS_DSS_VP(P11, FrontCounterCloskwise_True, SkyDepthStencil, VS_Mesh, PS_Sky)
     P_VP(P11, VS_Scattering, PS_Scattering)
-	P_RS_DSS_VP(P12, FrontCounterCloskwise_True, SkyDepthStencil, VS_Mesh, PS_Sky)
+	P_VP(P12, VS_Dome, PS_Dome)
 }
 

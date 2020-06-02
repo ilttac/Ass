@@ -1,6 +1,7 @@
 #include "Framework.h"
 #include "Sky.h"
 #include "Scattering.h"
+#include "Dome.h"
 
 Sky::Sky(Shader * shader)
 	: shader(shader)
@@ -17,8 +18,10 @@ Sky::Sky(Shader * shader)
 	scatterBuffer = new ConstantBuffer(&scatterDesc, sizeof(ScatterDesc));
 	sScatterBuffer = shader->AsConstantBuffer("CB_Scattering");
 
-	sphere = new MeshRender(shader, new MeshSphere(0.5f));
-	sphere->AddTransform()->Scale(500, 500, 500);
+	dome = new Dome(shader, Vector3(0, 0, 0), Vector3(100, 100, 100));
+	domeBuffer = new ConstantBuffer(&domeDesc, sizeof(DomeDesc));
+	sDomeBuffer = shader->AsConstantBuffer("CB_Dome");
+
 	sRayleighMap = shader->AsSRV("RayleighMap");
 	sMieMap = shader->AsSRV("MieMap");
 }
@@ -27,13 +30,14 @@ Sky::~Sky()
 {
 	SafeDelete(scattering);
 	SafeDelete(scatterBuffer);
-	SafeDelete(sphere);
+	SafeDelete(dome);
+	SafeDelete(domeBuffer);
 }
 
 void Sky::Pass(UINT scatteringPass, UINT domePass)
 {
 	scattering->Pass(scatteringPass);
-	sphere->Pass(domePass);
+	dome->Pass(domePass);
 }
 
 void Sky::Update()
@@ -55,7 +59,7 @@ void Sky::Update()
 	}
 
 	scattering->Update();
-	sphere->Update();
+	dome->Update();
 }
 
 void Sky::PreRender()
@@ -78,20 +82,14 @@ void Sky::Render()
 
 	//Scattering
 	{
-		position.y -= 0.2f;
 
-		sphere->GetTransform(0)->Position(position);
-		sphere->GetTransform(0)->Scale(1, 1, 1);
-		sphere->GetTransform(0)->RotationDegree(0, 0, 90);
-		sphere->UpdateTransforms();
-
-		scatterDesc.StarIntensity = Context::Get()->Direction().y;
 		scatterBuffer->Apply();
 		sScatterBuffer->SetConstantBuffer(scatterBuffer->Buffer());
 
 		sRayleighMap->SetResource(scattering->RayleighRTV()->SRV());
 		sMieMap->SetResource(scattering->MieRTV()->SRV());
-		sphere->Render();
+		
+		dome->Render();
 	}
 }
 

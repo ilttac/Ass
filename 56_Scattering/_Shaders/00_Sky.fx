@@ -30,13 +30,12 @@ static const float FloatHalf = 0.001953125f; //..를 반으로 나눔
 struct ScatteringDesc
 {
     float3 WaveLength;
+	float Padding;
+	
+    float3 InvWaveLength;
     int SamepleCount;
 
-    float3 InvWaveLength;
-    float StarIntensity;
-
     float3 WaveLengthMie;
-    float MoonAlpha;
 };
 
 cbuffer CB_Scattering
@@ -178,9 +177,29 @@ PixelOutput_Scattering PS_Scattering(VertexOutput_Scattering input)
 
 }
 
-////
-// Draw SkyShpere
-////
+/////////////////////////////////
+// Draw SkyDome
+/////////////////////////////////
+
+struct VertexOutput_Dome
+{
+	float4 Position : SV_Position;
+	float3 oPosition : Position1;
+	float2 Uv : Uv0;
+};
+
+VertexOutput_Dome VS_Dome(VertexTexture input)
+{
+	VertexOutput_Dome output;
+	
+	output.oPosition = -input.Position.xyz;
+	output.Position = WorldPostion(input.Position);
+	output.Position = ViewProjetion(output.Position);
+	
+	output.Uv = input.Uv;
+	
+	return output;
+}
 
 float GetRayleightPhase(float c)
 {
@@ -208,7 +227,7 @@ Texture2D RayleighMap;
 Texture2D MieMap;
 Texture2D StartMap;
 
-float4 PS_Sky(MeshOutput input) : SV_Target
+float4 PS_Dome(VertexOutput_Dome input) : SV_Target
 {
 	float3 sunDirection = -normalize(GlobalLight.Direction);
 	
