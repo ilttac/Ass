@@ -6,7 +6,7 @@ public:
 	Sky(Shader* shader);
 	~Sky();
 
-	void Pass(UINT scatteringPass, UINT domePass);
+	void Pass(UINT scatteringPass, UINT domePass,UINT moonPass);
 
 	void Update();
 	void PreRender();
@@ -55,4 +55,5 @@ private:
 	
 
 	class Dome* dome;
+	class Moon* moon;
 };

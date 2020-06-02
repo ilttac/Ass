@@ -2,6 +2,7 @@
 #include "Sky.h"
 #include "Scattering.h"
 #include "Dome.h"
+#include "Moon.h"
 
 Sky::Sky(Shader * shader)
 	: shader(shader)
@@ -19,6 +20,8 @@ Sky::Sky(Shader * shader)
 	sScatterBuffer = shader->AsConstantBuffer("CB_Scattering");
 
 	dome = new Dome(shader, Vector3(0, 16, 0), Vector3(80, 80, 80));
+	moon = new Moon(shader);
+
 
 	sRayleighMap = shader->AsSRV("RayleighMap");
 	sMieMap = shader->AsSRV("MieMap");
@@ -29,12 +32,14 @@ Sky::~Sky()
 	SafeDelete(scattering);
 	SafeDelete(scatterBuffer);
 	SafeDelete(dome);
+	SafeDelete(moon);
 }
 
-void Sky::Pass(UINT scatteringPass, UINT domePass)
+void Sky::Pass(UINT scatteringPass, UINT domePass,UINT moonPass)
 {
 	scattering->Pass(scatteringPass);
 	dome->Pass(domePass);
+	moon->Pass(moonPass);
 }
 
 void Sky::Update()
@@ -68,6 +73,7 @@ void Sky::Update()
 
 	scattering->Update();
 	dome->Update();
+	moon->Update();
 }
 
 void Sky::PreRender()
@@ -94,6 +100,11 @@ void Sky::Render()
 		sMieMap->SetResource(scattering->MieRTV()->SRV());
 		
 		dome->Render();
+	}
+
+	//Moon
+	{
+		moon->Render(theta);
 	}
 }
 
