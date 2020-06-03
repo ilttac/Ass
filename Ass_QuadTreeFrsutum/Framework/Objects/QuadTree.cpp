@@ -1,19 +1,23 @@
 #include "Framework.h"
 #include "QuadTree.h"
 
-QuadTree::QuadTree()
+QuadTree::QuadTree(Shader* shader,Frustum* frustum)
+	:Renderer(shader),frustum(frustum)
 {
 }
 
 QuadTree::~QuadTree()
 {
+	SafeDelete(parentNode);
 }
 
 void QuadTree::Init(Terrain* terrain)
 {
-	float centerX = 0.0f;
+	float centerX =  0.0f;
 	float centerZ = 0.0f;
 	float width = 0.0f;
+
+	Shader* test = shader;
 
 	int vertexCount = terrain->GetVertexCount();
 
@@ -43,11 +47,16 @@ void QuadTree::Init(Terrain* terrain)
 
 void QuadTree::Update()
 {
+	Super::Update();
 }
-
 void QuadTree::Render()
 {
-	search(parentNode);
+	Super::Render();
+	search(parentNode, 1);
+	// 이 프레임에 대해 그려지는 삼각형의 수를 초기화합니다.
+	drawCount = 0;
+	// 부모 노드에서 시작하여 트리 아래로 이동하여 보이는 각 노드를 렌더링합니다.
+	RenderNode(parentNode);
 }
 
 
@@ -156,7 +165,7 @@ void QuadTree::CreateTreeNode(NodeType* node, float positionX, float positionZ, 
 				// 이 새 노드가있는 삼각형이있는 경우 자식 노드를 만듭니다.
 				node->Nodes[i] = new NodeType;
 				node->transform = new Transform();
-				node->transform->Position(positionX, 0, positionZ-(width/2));
+				node->transform->Position(positionX, 0, positionZ);
 				node->transform->Scale(width, width/2, width);
 				node->collider = new Collider(node->transform);
 				// 이제이 새 자식 노드에서 시작하는 트리를 확장합니다.
@@ -309,26 +318,124 @@ bool QuadTree::IsTriangleContained(int index, float positionX, float positionZ, 
 	return true;
 }
 
-void QuadTree::search(NodeType* parent)
+void QuadTree::search(NodeType* parent,float count)
 {
+	if (count > 4) return;
+
 	if (parent->Nodes[0]->Width > 31) 
 	{ 
-		parent->Nodes[0]->collider->Render(Color(1, 0, 0, 1));
-		search(parent->Nodes[0]);
+		parent->Nodes[0]->collider->Render(Color(count/3, count / 3, count / 3, 1));
+		search(parent->Nodes[0],count +1);
 	}
 	if (parent->Nodes[1]->Width > 31)
 	{
-		parent->Nodes[1]->collider->Render(Color(1, 0, 0, 1));
-		search(parent->Nodes[1]);
+		parent->Nodes[1]->collider->Render(Color(count / 3, count / 3, count / 3, 1));
+		search(parent->Nodes[1], count + 1);
 	}
 	if (parent->Nodes[2]->Width > 31)
 	{
-		parent->Nodes[2]->collider->Render(Color(1, 0, 0, 1));
-		search(parent->Nodes[2]);
+		parent->Nodes[2]->collider->Render(Color(count / 3, count / 3, count / 3, 1));
+		search(parent->Nodes[2], count + 1);
 	}
 	if (parent->Nodes[3]->Width > 31)
 	{
-		parent->Nodes[3]->collider->Render(Color(1, 0, 0, 1));
-		search(parent->Nodes[3]);
+		parent->Nodes[3]->collider->Render(Color(count / 3, count / 3, count / 3, 1));
+		search(parent->Nodes[3], count + 1);
 	}
+}
+
+void QuadTree::RenderNode(NodeType* node)
+{
+
+	 int indexCount;
+	unsigned int stride, offset;
+
+
+	// Check to see if the node can be viewed, height doesn't matter in a quad tree.
+	
+
+
+	// If it can't be seen then none of its children can either so don't continue down the tree, this is where the speed is gained.
+	bool result[4] = { true,true,true,true };
+	//왼쪽위
+    if (!frustum->CheckPoint(Vector3(node->PositionX - (node->Width / 2), 0, node->PositionZ + (node->Width / 2))))
+	{
+		result[0] = false;
+	}
+	if (!frustum->CheckPoint(Vector3(node->PositionX + (node->Width / 2), 0, node->PositionZ + (node->Width / 2))))
+	{
+		result[1] = false;
+	}
+	if (!frustum->CheckPoint(Vector3(node->PositionX + (node->Width / 2), 0, node->PositionZ - (node->Width / 2))))
+	{
+		result[2] = false;
+	}
+	if (!frustum->CheckPoint(Vector3(node->PositionX - (node->Width / 2), 0, node->PositionZ - (node->Width / 2))))
+	{
+		result[3] = false;
+	}
+	int cnt = 0;
+	if (result[0])
+	{
+		int a;
+	}
+	if (result[1])
+	{
+		int a;
+	}
+	if (result[2])
+	{
+		int a;
+	}
+	if (result[3])
+	{
+		int a;
+	}
+	// If it can be seen then check all four child nodes to see if they can also be seen.
+	for (int i = 0; i < 4; i++)
+	{
+		if (false == result[i])
+		{
+			cnt++;
+			if (node->Nodes[i] != 0)
+			{
+				RenderNode(node->Nodes[i]);
+			}
+		}
+	}
+
+
+
+	if (cnt != 0)
+	{
+		return;
+	}
+	// If there were any children nodes then there is no need to continue as parent nodes won't contain any triangles to render.
+	
+
+	// Otherwise if this node can be seen and has triangles in it then render these triangles.
+
+	// Set vertex buffer stride and offset.
+	stride = sizeof(VertexType);
+	offset = 0;
+
+	// Set the vertex buffer to active in the input assembler so it can be rendered.
+	D3D::GetDC()->IASetVertexBuffers(0, 1, &node->VertexBuffer, &stride, &offset);
+
+	// Set the index buffer to active in the input assembler so it can be rendered.
+	D3D::GetDC()->IASetIndexBuffer(node->IndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+	// Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
+	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	// Determine the number of indices in this node.
+	indexCount = node->TriangleCount * 3;
+
+	// Call the terrain shader to render the polygons in this node.
+	shader->DrawIndexed(0,1,indexCount);
+
+	// Increase the count of the number of polygons that have been rendered during this frame.
+	drawCount += node->TriangleCount;
+
+	return;
 }

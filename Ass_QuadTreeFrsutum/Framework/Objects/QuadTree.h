@@ -1,9 +1,9 @@
 #pragma once
 
-class QuadTree
+class QuadTree : public Renderer
 {
 public:
-	QuadTree();
+	QuadTree(Shader* shader, Frustum* frsutum);
 	~QuadTree();
 
 private:
@@ -28,17 +28,20 @@ public:
 	void Init(class Terrain* terrain);
 	void Update();
 	void Render();
+	Transform* GetTransform() { return transform; }
 
 private:
 	int CountTriangles(float positionX, float positionZ, float width);
 	void CalculateMeshDimensions(int vertexCount, float& centerX, float& centerZ, float& meshWidth);
 	void CreateTreeNode(NodeType* node, float positionX, float positionZ, float width, ID3D11Device* device);
 	bool IsTriangleContained(int index, float positionX, float positionZ, float width);
-	void search(NodeType* parent);
-	
+	void search(NodeType* parent,float count);
+	void RenderNode(NodeType* node);
 private:
 	int triangleCount, drawCount;
 	VertexType* vertexList = nullptr;
 	NodeType* parentNode = nullptr;
-
+	Transform* transform = nullptr;
+	Frustum* frustum = nullptr;
+	//Shader* shader = nullptr;
 };

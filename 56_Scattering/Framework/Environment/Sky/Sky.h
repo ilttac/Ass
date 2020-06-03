@@ -6,7 +6,7 @@ public:
 	Sky(Shader* shader);
 	~Sky();
 
-	void Pass(UINT scatteringPass, UINT domePass,UINT moonPass);
+	void Pass(UINT scatteringPass, UINT domePass,UINT moonPass,UINT cloudPass);
 
 	void Update();
 	void PreRender();
@@ -30,7 +30,7 @@ private:
 	} scatterDesc;
 
 
-	struct CloudeDesc
+	struct CloudDesc
 	{
 		float Tile = 1.5f; //노이즈 사이의 간격
 		float Cover = 0.005f;
@@ -43,7 +43,7 @@ private:
 	bool bRealTime = false;
 
 	float timeFactor = 1.0f;
-	float theta = 0.0f, prevTheta = 1.0f;
+	float theta = 0.0f;
 
 	class Scattering* scattering;
 	ConstantBuffer* scatterBuffer;
@@ -56,4 +56,8 @@ private:
 
 	class Dome* dome;
 	class Moon* moon;
+
+	class Cloud* cloud;
+	ConstantBuffer* cloudBuffer;
+	ID3DX11EffectConstantBuffer* sCloudBuffer;
 };

@@ -3,6 +3,7 @@
 #include "Scattering.h"
 #include "Dome.h"
 #include "Moon.h"
+#include "Cloud.h"
 
 Sky::Sky(Shader * shader)
 	: shader(shader)
@@ -22,6 +23,10 @@ Sky::Sky(Shader * shader)
 	dome = new Dome(shader, Vector3(0, 16, 0), Vector3(80, 80, 80));
 	moon = new Moon(shader);
 
+	cloud = new Cloud(shader);
+	cloudBuffer = new ConstantBuffer(&cloudDesc, sizeof(CloudDesc));
+	sCloudBuffer = shader->AsConstantBuffer("CB_Cloud");
+
 	sRayleighMap = shader->AsSRV("RayleighMap");
 	sMieMap = shader->AsSRV("MieMap");
 }
@@ -32,18 +37,21 @@ Sky::~Sky()
 	SafeDelete(scatterBuffer);
 	SafeDelete(dome);
 	SafeDelete(moon);
+	SafeDelete(cloud);
+	SafeDelete(cloudBuffer);
 }
 
-void Sky::Pass(UINT scatteringPass, UINT domePass,UINT moonPass)
+void Sky::Pass(UINT scatteringPass, UINT domePass,UINT moonPass,UINT cloudPass)
 {
 	scattering->Pass(scatteringPass);
 	dome->Pass(domePass);
 	moon->Pass(moonPass);
+	cloud->Pass(cloudPass);
 }
 
 void Sky::Update()
 {
-
+	
 	//Auto
 	if (bRealTime == true)
 	{
@@ -73,14 +81,11 @@ void Sky::Update()
 	scattering->Update();
 	dome->Update();
 	moon->Update();
+	cloud->Update();
 }
 
 void Sky::PreRender()
 {
-	if (theta == prevTheta)
-		return;
-
-	prevTheta = theta;
 
 	scatterBuffer->Apply();
 	sScatterBuffer->SetConstantBuffer(scatterBuffer->Buffer());
@@ -104,11 +109,19 @@ void Sky::Render()
 	{
 		moon->Render(theta);
 	}
+
+	//Cloud
+	{
+		cloudBuffer->Apply();
+		sCloudBuffer->SetConstantBuffer(cloudBuffer->Buffer());
+		cloud->Render();
+	}
 }
 
 void Sky::PostRender()
 {
 	scattering->PostRender();
+	cloud->PostRender();
 }
 
 void Sky::RealTime(bool val, float theta, float timeFactor)

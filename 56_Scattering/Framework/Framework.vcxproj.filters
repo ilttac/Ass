@@ -199,6 +199,9 @@
     <ClCompile Include="Environment\Sky\Moon.cpp">
       <Filter>Environment\Sky</Filter>
     </ClCompile>
+    <ClCompile Include="Environment\Sky\Cloud.cpp">
+      <Filter>Environment\Sky</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Renders\Context.h">
@@ -374,6 +377,9 @@
       <Filter>Environment\Sky</Filter>
     </ClInclude>
     <ClInclude Include="Environment\Sky\Moon.h">
+      <Filter>Environment\Sky</Filter>
+    </ClInclude>
+    <ClInclude Include="Environment\Sky\Cloud.h">
       <Filter>Environment\Sky</Filter>
     </ClInclude>
   </ItemGroup>

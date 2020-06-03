@@ -13,7 +13,7 @@ void ScatteringDemo::Initialize()
 	gBuffer = new GBuffer(shader);
 
 	sky = new Sky(shader);
-	sky->Pass(11,12,13); 
+	sky->Pass(11,12,13,14); 
 	sky->Theta(Math::PI - 1e-6f);
 	//sky->RealTime(true, Math::PI - 1e-6f,0.4f);
 	
@@ -131,11 +131,9 @@ void ScatteringDemo::PreRender()
 
 void ScatteringDemo::Render()
 {
-	sky->Render();
-
 	gBuffer->Render();
+	sky->Render();
 	
-
 	snow->Render();
 }
 

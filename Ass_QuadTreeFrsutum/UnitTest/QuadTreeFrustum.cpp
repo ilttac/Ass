@@ -15,10 +15,10 @@ void QuadTreeFrustum::Initialize()
 	terrain = new Terrain(terrainShader, L"Terrain/Gray256.png");
 	terrain->BaseMap(L"Terrain/Dirt3.png");
 	Transform* transform = terrain->GetTransform();
-	transform->Position(0,0,-50);
+	transform->Position(0,0,0);
 	
-	quadTree = new QuadTree();
-	quadTree->Init(terrain);
+    //texture, vs,ps sha
+
 
 	floor = new Material(gridShader);
 	floor->DiffuseMap(L"White.png");
@@ -28,7 +28,7 @@ void QuadTreeFrustum::Initialize()
 	grid->UpdateTransforms();
 
 	camera = new Fixity();
-	camera->Position(0, 0, -50);
+	camera->Position(100, 0, 0);
 	perspective = new Perspective(1024, 768, 1, zFar, Math::PI * fov);
 	
 	t = new Transform();
@@ -36,6 +36,9 @@ void QuadTreeFrustum::Initialize()
 	frustumCamera = new FrustumCamera(t);
 	
 	frustum = new Frustum(camera, perspective);
+
+	quadTree = new QuadTree(terrainShader,frustum);
+	quadTree->Init(terrain);
 
 	shader = new Shader(L"47_CpuFrustum.fxo");
 	perFrame = new PerFrame(shader);
@@ -135,6 +138,7 @@ void QuadTreeFrustum::Update()
 	grid->Update();
 
 	terrain->Update();
+	quadTree->Update();
 	camera->Update();
 	model->Update();
 }
@@ -146,7 +150,7 @@ void QuadTreeFrustum::Render()
 	frustum->Render();
 	//wireFrame mode // ImGui 
 	//terrain->Pass(1);
-	terrain->Render();
+	//terrain->Render();
 	quadTree->Render();
 	
 	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

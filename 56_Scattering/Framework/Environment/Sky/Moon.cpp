@@ -3,7 +3,7 @@
 
 Moon::Moon(Shader* shader)
 	: Renderer(shader)
-	, distance(75) ,glowDistance(70)
+	, distance(65) ,glowDistance(55)
 {
 	moon = new Texture(L"Environment/Moon.png");
 	moonGlow = new Texture(L"Environment/MoonGlow.png");
@@ -64,7 +64,13 @@ void Moon::Render(float theta)
 	}
 	//Glow
 	{
+		Matrix W = GetGlowTransform(theta);
+		transform->World(W);
 
+		Super::Render();
+
+		sMoon->SetResource(moonGlow->SRV());
+		shader->Draw(0, Pass(), 6);
 	}
 	Super::Render();
 }
@@ -103,5 +109,23 @@ Matrix Moon::GetTransform(float theta)
 
 Matrix Moon::GetGlowTransform(float theta)
 {
-	return Matrix();
+	Vector3 position(0,0,0);
+	Context::Get()->GetCamera()->Position(&position);
+
+
+	Matrix S, R, T, D;
+	D3DXMatrixScaling(&S, 10, 10, 1);
+	D3DXMatrixRotationYawPitchRoll(&R, Math::PI * 0.5f, theta - (Math::PI * 0.5f), 0);
+	D3DXMatrixTranslation(&T, position.x, position.y, position.z);
+
+	Vector3 direction = Context::Get()->Direction();
+	D3DXMatrixTranslation
+	(
+		&D,
+		direction.x * glowDistance,
+		direction.y * glowDistance,
+		direction.z * glowDistance
+	);
+
+	return S * R* T* D;
 }

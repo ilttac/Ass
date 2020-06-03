@@ -31,5 +31,6 @@ technique11 T0
     P_VP(P11, VS_Scattering, PS_Scattering)
 	P_VP(P12, VS_Dome, PS_Dome)
 	P_BS_VP(P13, AlphaBlend ,VS_Moon, PS_Moon)
+	P_BS_VP(P14,AlphaBlend,VS_Cloud,PS_Cloud)
 }
 

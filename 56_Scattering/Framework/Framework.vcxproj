@@ -22,6 +22,7 @@
     <ClCompile Include="Environment\Billboard.cpp" />
     <ClCompile Include="Environment\Rain.cpp" />
     <ClCompile Include="Environment\SkyCube.cpp" />
+    <ClCompile Include="Environment\Sky\Cloud.cpp" />
     <ClCompile Include="Environment\Sky\Dome.cpp" />
     <ClCompile Include="Environment\Sky\Moon.cpp" />
     <ClCompile Include="Environment\Sky\Scattering.cpp" />
@@ -83,6 +84,7 @@
     <ClInclude Include="Environment\Billboard.h" />
     <ClInclude Include="Environment\Rain.h" />
     <ClInclude Include="Environment\SkyCube.h" />
+    <ClInclude Include="Environment\Sky\Cloud.h" />
     <ClInclude Include="Environment\Sky\Dome.h" />
     <ClInclude Include="Environment\Sky\Moon.h" />
     <ClInclude Include="Environment\Sky\Scattering.h" />
