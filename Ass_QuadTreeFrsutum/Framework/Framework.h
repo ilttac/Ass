@@ -8,6 +8,7 @@
 #include <vector>
 #include <list>
 #include <map>
+#include <queue>
 #include <unordered_map>
 #include <functional>
 #include <iterator>
@@ -106,6 +107,7 @@ typedef D3DXPLANE Plane;
 #include "Objects/GBuffer.h"
 #include "Objects/Frustum.h"
 #include "Objects/FrustumCamera.h"
+#include "Objects/QuadTree.h"
 
 #include "Model/Model.h"
 #include "Model/ModelMesh.h"

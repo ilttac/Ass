@@ -22,7 +22,6 @@ Sky::Sky(Shader * shader)
 	dome = new Dome(shader, Vector3(0, 16, 0), Vector3(80, 80, 80));
 	moon = new Moon(shader);
 
-
 	sRayleighMap = shader->AsSRV("RayleighMap");
 	sMieMap = shader->AsSRV("MieMap");
 }
@@ -59,6 +58,7 @@ void Sky::Update()
 
 		Context::Get()->Direction() = Vector3(x, y, 0.0f);
 	}
+
 	//Manual
 	else
 	{
@@ -69,7 +69,6 @@ void Sky::Update()
 
 		Context::Get()->Direction() = Vector3(x, y, 0.0f);
 	}
-
 
 	scattering->Update();
 	dome->Update();
@@ -101,7 +100,6 @@ void Sky::Render()
 		
 		dome->Render();
 	}
-
 	//Moon
 	{
 		moon->Render(theta);

@@ -83,8 +83,9 @@ Matrix Moon::GetTransform(float theta)
 	Vector3 position;
 	Context::Get()->GetCamera()->Position(&position);
 
+
 	Matrix S, R, T, D;
-	D3DXMatrixScaling(&S, 10, 10, 1);
+	D3DXMatrixScaling(&S, 5, 5, 1);
 	D3DXMatrixRotationYawPitchRoll(&R, Math::PI * 0.5f, theta - (Math::PI * 0.5f), 0);
 	D3DXMatrixTranslation(&T, position.x, position.y, position.z);
 

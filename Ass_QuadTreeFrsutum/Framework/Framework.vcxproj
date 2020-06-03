@@ -44,6 +44,7 @@
     <ClCompile Include="Objects\FrustumCamera.cpp" />
     <ClCompile Include="Objects\GBuffer.cpp" />
     <ClCompile Include="Objects\Projector.cpp" />
+    <ClCompile Include="Objects\QuadTree.cpp" />
     <ClCompile Include="Objects\Shadow.cpp" />
     <ClCompile Include="Renders\Buffers.cpp" />
     <ClCompile Include="Renders\Context.cpp" />
@@ -100,6 +101,7 @@
     <ClInclude Include="Objects\FrustumCamera.h" />
     <ClInclude Include="Objects\GBuffer.h" />
     <ClInclude Include="Objects\Projector.h" />
+    <ClInclude Include="Objects\QuadTree.h" />
     <ClInclude Include="Objects\Shadow.h" />
     <ClInclude Include="Renders\Buffers.h" />
     <ClInclude Include="Renders\Context.h" />

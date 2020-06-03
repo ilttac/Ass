@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "QuadTreeFrustum.h"
 #include "Viewer/Freedom.h"
-
+#include "../Framework/Objects/QuadTree.h"
 void QuadTreeFrustum::Initialize()
 {
 	Context::Get()->GetCamera()->RotationDegree(11, 0, 0);
@@ -9,12 +9,16 @@ void QuadTreeFrustum::Initialize()
 	((Freedom*)Context::Get()->GetCamera())->Speed(20, 2);
 
 	gridShader = new Shader(L"31_Mesh.fxo");
+	
 
 	terrainShader = new Shader(L"21_Terrain_Brush.fxo");
 	terrain = new Terrain(terrainShader, L"Terrain/Gray256.png");
 	terrain->BaseMap(L"Terrain/Dirt3.png");
 	Transform* transform = terrain->GetTransform();
 	transform->Position(0,0,-50);
+	
+	quadTree = new QuadTree();
+	quadTree->Init(terrain);
 
 	floor = new Material(gridShader);
 	floor->DiffuseMap(L"White.png");
@@ -139,12 +143,12 @@ void QuadTreeFrustum::Render()
 {
 	floor->Render();
 	grid->Render();
-
 	frustum->Render();
 	//wireFrame mode // ImGui 
 	//terrain->Pass(1);
 	terrain->Render();
-
+	quadTree->Render();
+	
 	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	perFrame->Render();

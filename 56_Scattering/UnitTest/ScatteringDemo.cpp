@@ -15,7 +15,7 @@ void ScatteringDemo::Initialize()
 	sky = new Sky(shader);
 	sky->Pass(11,12,13); 
 	sky->Theta(Math::PI - 1e-6f);
-	sky->RealTime(true, Math::PI - 1e-6f,0.3f);
+	//sky->RealTime(true, Math::PI - 1e-6f,0.4f);
 	
 	snow = new Snow(Vector3(300, 100, 500), 1000, L"Environment/Snow.png");
 

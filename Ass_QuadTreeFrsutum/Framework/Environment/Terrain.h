@@ -18,12 +18,20 @@ public:
 	float GetHeight(Vector3& position);
 	float GetHeightPick(Vector3& position);
 	Vector3 GetPickedPosition();
+	
+	int GetVertexCount();
+	void CopyVertexArray(void* vertexList);
+
 
 private:
 	void CreateVertexData();
 	void CreateIndexData();
 	void CreateNormalData();
 	void RaiseHeight(Vector3& position, UINT type, UINT range);
+	
+	
+
+
 
 private:
 	struct BrushDesc

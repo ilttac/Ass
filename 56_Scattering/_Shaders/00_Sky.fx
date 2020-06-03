@@ -246,3 +246,34 @@ float4 PS_Dome(VertexOutput_Dome input) : SV_Target
 	float starInstensity = GlobalLight.Direction.y;
 	return float4(color, 1) + StarMap.Sample(LinearSampler, input.Uv) * saturate(starInstensity);
 }
+
+///////////////////////////////////////////////////
+
+struct VertexOutput_Moon
+{
+	float4 Position : SV_Position;
+	float2 Uv : Uv;
+};
+
+VertexOutput_Moon VS_Moon(VertexTexture input)
+{
+	VertexOutput_Moon output;
+	
+	output.Position = WorldPostion(input.Position);
+	output.Position = ViewProjetion(output.Position);
+	output.Uv = input.Uv;
+	
+	return output;
+
+}
+
+Texture2D MoonMap;
+float MoonAlpha;
+
+float4 PS_Moon(VertexOutput_Moon input) :SV_Target
+{
+	float4 color = MoonMap.Sample(LinearSampler, input.Uv);
+	color.a *= MoonAlpha;
+	
+	return color;
+}

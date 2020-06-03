@@ -187,6 +187,9 @@
     <ClCompile Include="Objects\FrustumCamera.cpp">
       <Filter>Objects</Filter>
     </ClCompile>
+    <ClCompile Include="Objects\QuadTree.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Renders\Context.h">
@@ -353,6 +356,9 @@
       <Filter>Objects</Filter>
     </ClInclude>
     <ClInclude Include="Objects\FrustumCamera.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\QuadTree.h">
       <Filter>Objects</Filter>
     </ClInclude>
   </ItemGroup>

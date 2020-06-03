@@ -19,7 +19,7 @@ Terrain::Terrain(Shader * shader, wstring heightFile)
 	CreateVertexData();
 	CreateIndexData();
 	CreateNormalData();
-	
+
 	vertexBuffer = new VertexBuffer
 		(vertices, vertexCount, sizeof(TerrainVertex), 0, true);
 	indexBuffer = new IndexBuffer(indices, indexCount);
@@ -203,6 +203,16 @@ Vector3 Terrain::GetPickedPosition()
 	}
 
 	return Vector3(-1, FLT_MIN, -1);
+}
+
+int Terrain::GetVertexCount()
+{
+	return vertexCount;
+}
+
+void Terrain::CopyVertexArray(void* vertexList)
+{
+	memcpy(vertexList, vertices, sizeof(TerrainVertex) * vertexCount);
 }
 
 void Terrain::CreateVertexData()

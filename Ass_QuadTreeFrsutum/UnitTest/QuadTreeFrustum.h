@@ -45,6 +45,7 @@ private:
 	Fixity* camera;
 	Perspective* perspective;
 	Frustum* frustum;
+	QuadTree* quadTree;
 
 	Shader* modelShader;
 	ModelRender* model;

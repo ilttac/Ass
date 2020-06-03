@@ -46,8 +46,6 @@ void DefferedPointLightsDemo::Update()
 		colliders[i].Collider->GetTransform()->World(attach);
 		colliders[i].Collider->Update();
 	}
-	
-	
 
 }
 
