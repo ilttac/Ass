@@ -28,6 +28,7 @@ protected:
 
 protected:
 	Shader * shader;
+	PerFrame* perFrame;
 
 	Transform* transform;
 
@@ -45,6 +46,5 @@ private:
 
 	UINT pass = 0;
 
-	PerFrame* perFrame;
 
 };

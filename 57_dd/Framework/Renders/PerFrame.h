@@ -7,6 +7,9 @@ public:
 	~PerFrame();
 
 public:
+	void Clipping(Plane& plane) { bufferDesc.Clipping = plane; }
+
+	
 	void Update();
 	void Render();
 
@@ -18,6 +21,9 @@ private:
 		Matrix Projection;
 		Matrix ProjectionInverse;
 		Matrix VP;
+
+		Plane Culling[4];
+		Plane Clipping;
 
 		float Time;
 		float Padding[3];

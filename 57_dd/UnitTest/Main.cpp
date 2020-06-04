@@ -47,10 +47,11 @@
 #include "DefferedSpotLightsDemo.h"
 #include "DefferedShadowDemo.h"
 #include "ScatteringDemo.h"
+#include "WaterDemo.h"
 
 void Main::Initialize()
 {
-	Push(new ScatteringDemo());
+	Push(new WaterDemo());
 }
 
 void Main::Ready()

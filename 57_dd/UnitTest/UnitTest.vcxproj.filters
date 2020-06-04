@@ -138,6 +138,9 @@
     <ClCompile Include="ScatteringDemo.cpp">
       <Filter>Environment</Filter>
     </ClCompile>
+    <ClCompile Include="WaterDemo.cpp">
+      <Filter>Environment</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Main.h" />
@@ -275,6 +278,9 @@
       <Filter>Deffered</Filter>
     </ClInclude>
     <ClInclude Include="ScatteringDemo.h">
+      <Filter>Environment</Filter>
+    </ClInclude>
+    <ClInclude Include="WaterDemo.h">
       <Filter>Environment</Filter>
     </ClInclude>
   </ItemGroup>

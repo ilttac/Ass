@@ -8,6 +8,9 @@ cbuffer CB_PerFrame
     matrix ProjectionInverse;
     matrix VP;
 
+	float4 Culling[4];
+	float4 Clipping;
+
     float Time;
 };
 
@@ -24,9 +27,16 @@ cbuffer CB_World
     matrix World;
 };
 
+cbuffer CB_Reflection //반사카메라
+{
+	matrix Reflection;
+};
+
 Texture2D DiffuseMap;
 Texture2D SpecularMap;
 Texture2D NormalMap;
+Texture2D ReflectionMap;
+Texture2D RefractionMap;
 
 TextureCube SkyCubeMap;
 TextureCube DynamicCubeMap;
@@ -115,6 +125,9 @@ struct MeshOutput
     float2 Uv : Uv0;
     float3 Normal : Normal0;
     float3 Tangent : Tangent0;
+	
+	float4 Cull : SV_CullDistance; //x : left, y:right, z : near, w : far 
+	float4 Clip : SV_ClipDistance;
 };
 
 struct MeshGeometryOutput

@@ -28,6 +28,12 @@
     <Filter Include="Environment\Sky">
       <UniqueIdentifier>{6b7ce78d-ef57-4495-be95-a89c5e0c8de4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Environment\Wheather">
+      <UniqueIdentifier>{d7a3e3d6-b709-4475-b5b0-c0122faf2dcd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Environment\Water">
+      <UniqueIdentifier>{3d10aeea-d0a1-4d2f-82b0-2f24567330e5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Renders\Context.cpp">
@@ -102,9 +108,6 @@
     </ClCompile>
     <ClCompile Include="Renders\Renderer.cpp">
       <Filter>Renders</Filter>
-    </ClCompile>
-    <ClCompile Include="Environment\SkyCube.cpp">
-      <Filter>Environment</Filter>
     </ClCompile>
     <ClCompile Include="Model\Model.cpp">
       <Filter>Model</Filter>
@@ -202,6 +205,12 @@
     <ClCompile Include="Environment\Sky\Cloud.cpp">
       <Filter>Environment\Sky</Filter>
     </ClCompile>
+    <ClCompile Include="Environment\SkyCube.cpp">
+      <Filter>Environment\Sky</Filter>
+    </ClCompile>
+    <ClCompile Include="Environment\Water.cpp">
+      <Filter>Environment\Water</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Renders\Context.h">
@@ -298,9 +307,6 @@
     <ClInclude Include="Renders\Renderer.h">
       <Filter>Renders</Filter>
     </ClInclude>
-    <ClInclude Include="Environment\SkyCube.h">
-      <Filter>Environment</Filter>
-    </ClInclude>
     <ClInclude Include="Model\Model.h">
       <Filter>Model</Filter>
     </ClInclude>
@@ -381,6 +387,12 @@
     </ClInclude>
     <ClInclude Include="Environment\Sky\Cloud.h">
       <Filter>Environment\Sky</Filter>
+    </ClInclude>
+    <ClInclude Include="Environment\SkyCube.h">
+      <Filter>Environment\Sky</Filter>
+    </ClInclude>
+    <ClInclude Include="Environment\Water.h">
+      <Filter>Environment\Water</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -43,7 +43,17 @@ output.Uv = input.Uv; \
 \
 output.sPosition = WorldPostion(input.Position); \
 output.sPosition = mul(output.sPosition, ShadowView); \
-output.sPosition = mul(output.sPosition, ShadowProjection);
+output.sPosition = mul(output.sPosition, ShadowProjection);\
+\
+output.Cull.x = dot(float4(output.wPosition, 1), Culling[0]);\
+output.Cull.y = dot(float4(output.wPosition, 1), Culling[1]);\
+output.Cull.z = dot(float4(output.wPosition, 1), Culling[2]);\
+output.Cull.w = dot(float4(output.wPosition, 1), Culling[3]);\
+\
+output.Clip.x = dot(float4(output.wPosition, 1), Clipping);\
+output.Clip.y = 0.0f;\
+output.Clip.z = 0.0f;\
+output.Clip.w = 0.0f;
 
 //VS Depth GENERATE
 //-----------------------------------------------

@@ -18,6 +18,10 @@ PerFrame::PerFrame(Shader * shader)
 
 	fogBuffer = new ConstantBuffer(&fogDesc, sizeof(FogDesc));
 	sFogBuffer = shader->AsConstantBuffer("CB_Fog");
+
+	ZeroMemory(bufferDesc.Culling, sizeof(Plane) * 4);
+	ZeroMemory(bufferDesc.Clipping, sizeof(Plane));
+
 }
 
 PerFrame::~PerFrame()
