@@ -9,10 +9,18 @@ QuadTree::QuadTree(Shader* shader,Frustum* frustum)
 QuadTree::~QuadTree()
 {
 	SafeDelete(parentNode);
+	SafeDelete(heightMap);
+	SafeDelete(baseMap);
 }
 
 void QuadTree::Init(Terrain* terrain)
 {
+	baseMap = terrain->GetBaseMap();
+	sBaseMap = shader->AsSRV("BaseMap");
+	heightMap = terrain->GetHeightMap();
+	
+
+
 	float centerX =  0.0f;
 	float centerZ = 0.0f;
 	float width = 0.0f;
@@ -53,6 +61,8 @@ void QuadTree::Render()
 {
 	Super::Render();
 	search(parentNode, 1);
+	if (baseMap != NULL)
+		sBaseMap->SetResource(baseMap->SRV());
 	// 이 프레임에 대해 그려지는 삼각형의 수를 초기화합니다.
 	drawCount = 0;
 	// 부모 노드에서 시작하여 트리 아래로 이동하여 보이는 각 노드를 렌더링합니다.
@@ -374,23 +384,8 @@ void QuadTree::RenderNode(NodeType* node)
 	{
 		result[3] = false;
 	}
+
 	int cnt = 0;
-	if (result[0])
-	{
-		int a;
-	}
-	if (result[1])
-	{
-		int a;
-	}
-	if (result[2])
-	{
-		int a;
-	}
-	if (result[3])
-	{
-		int a;
-	}
 	// If it can be seen then check all four child nodes to see if they can also be seen.
 	for (int i = 0; i < 4; i++)
 	{
@@ -432,7 +427,7 @@ void QuadTree::RenderNode(NodeType* node)
 	indexCount = node->TriangleCount * 3;
 
 	// Call the terrain shader to render the polygons in this node.
-	shader->DrawIndexed(0,1,indexCount);
+	shader->DrawIndexed(0,0,indexCount);
 
 	// Increase the count of the number of polygons that have been rendered during this frame.
 	drawCount += node->TriangleCount;

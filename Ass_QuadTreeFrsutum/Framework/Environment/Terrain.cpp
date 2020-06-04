@@ -205,6 +205,17 @@ Vector3 Terrain::GetPickedPosition()
 	return Vector3(-1, FLT_MIN, -1);
 }
 
+Texture* Terrain::GetHeightMap()
+{
+	return heightMap;
+}
+
+Texture* Terrain::GetBaseMap()
+{
+	if (baseMap != NULL)
+		return baseMap;
+}
+
 int Terrain::GetVertexCount()
 {
 	return vertexCount;

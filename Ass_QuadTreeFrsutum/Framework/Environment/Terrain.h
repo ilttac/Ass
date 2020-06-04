@@ -18,7 +18,8 @@ public:
 	float GetHeight(Vector3& position);
 	float GetHeightPick(Vector3& position);
 	Vector3 GetPickedPosition();
-	
+	Texture* GetHeightMap();
+	Texture* GetBaseMap();
 	int GetVertexCount();
 	void CopyVertexArray(void* vertexList);
 

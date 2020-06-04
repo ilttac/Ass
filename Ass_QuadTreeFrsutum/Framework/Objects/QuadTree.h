@@ -43,5 +43,11 @@ private:
 	NodeType* parentNode = nullptr;
 	Transform* transform = nullptr;
 	Frustum* frustum = nullptr;
+
+	Texture* heightMap;
+	Texture* baseMap = NULL;
+	ID3DX11EffectShaderResourceVariable* sBaseMap;
+
+
 	//Shader* shader = nullptr;
 };
