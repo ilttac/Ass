@@ -26,7 +26,7 @@ Sky::Sky(Shader * shader)
 	cloud = new Cloud(shader);
 	cloudBuffer = new ConstantBuffer(&cloudDesc, sizeof(CloudDesc));
 	sCloudBuffer = shader->AsConstantBuffer("CB_Cloud");
-
+		
 	sRayleighMap = shader->AsSRV("RayleighMap");
 	sMieMap = shader->AsSRV("MieMap");
 }
@@ -35,42 +35,42 @@ Sky::~Sky()
 {
 	SafeDelete(scattering);
 	SafeDelete(scatterBuffer);
+
 	SafeDelete(dome);
 	SafeDelete(moon);
+
 	SafeDelete(cloud);
 	SafeDelete(cloudBuffer);
+	
 }
 
-void Sky::Pass(UINT domePass,UINT moonPass,UINT cloudPass)
-{
-	
-	dome->Pass(domePass);
-	moon->Pass(moonPass);
-	cloud->Pass(cloudPass);
-}
 void Sky::ScatteringPass(UINT val)
 {
 	scattering->Pass(val);
 }
+
+void Sky::Pass(UINT domePass, UINT moonPass, UINT cloudPass)
+{	
+	dome->Pass(domePass);
+	moon->Pass(moonPass);
+	cloud->Pass(cloudPass);
+}
+
 void Sky::Update()
 {
-	
-	//Auto
-	if (bRealTime == true)
+	if(bRealTime == true)
 	{
 		theta += Time::Delta() * timeFactor;
 
 		if (theta > Math::PI)
-		{
 			theta -= Math::PI * 2.0f;
-		}
+
 		float x = sinf(theta);
 		float y = cosf(theta);
 
 		Context::Get()->Direction() = Vector3(x, y, 0.0f);
 	}
 
-	//Manual
 	else
 	{
 		ImGui::SliderFloat("Theta", &theta, -Math::PI, Math::PI);
@@ -81,7 +81,8 @@ void Sky::Update()
 		Context::Get()->Direction() = Vector3(x, y, 0.0f);
 	}
 
-	scattering->Update();
+	
+	scattering->Update();	
 	dome->Update();
 	moon->Update();
 	cloud->Update();
@@ -89,25 +90,25 @@ void Sky::Update()
 
 void Sky::PreRender()
 {
-
 	scatterBuffer->Apply();
 	sScatterBuffer->SetConstantBuffer(scatterBuffer->Buffer());
-
+		
 	scattering->PreRender();
 }
 
 void Sky::Render()
 {
-	Vector3 position;
+	Vector3 position(0, 0, 0);
 	Context::Get()->GetCamera()->Position(&position);
 
 	//Dome
 	{
 		sRayleighMap->SetResource(scattering->RayleighRTV()->SRV());
 		sMieMap->SetResource(scattering->MieRTV()->SRV());
-		
+
 		dome->Render();
 	}
+
 	//Moon
 	{
 		moon->Render(theta);

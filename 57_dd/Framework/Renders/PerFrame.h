@@ -9,7 +9,6 @@ public:
 public:
 	void Clipping(Plane& plane) { bufferDesc.Clipping = plane; }
 
-	
 	void Update();
 	void Render();
 
@@ -27,9 +26,9 @@ private:
 
 		float Time;
 		float Padding[3];
+
 	}bufferDesc;
-
-
+	
 
 	struct LightDesc
 	{
@@ -64,7 +63,8 @@ private:
 		Vector2 FogDistance;
 		float FogDensity;
 		UINT FogType;
-	}fogDesc;
+	} fogDesc;
+
 private:
 	Shader * shader;
 
@@ -82,5 +82,4 @@ private:
 
 	ConstantBuffer* fogBuffer;
 	ID3DX11EffectConstantBuffer* sFogBuffer;
-
 };

@@ -6,37 +6,38 @@ public:
 	Sky(Shader* shader);
 	~Sky();
 
-	void Pass(UINT domePass,UINT moonPass,UINT cloudPass);
 	void ScatteringPass(UINT val);
+	void Pass(UINT domePass, UINT moonPass, UINT cloudPass);
+
 	void Update();
 	void PreRender();
 	void Render();
 	void PostRender();
 
-	void Theta(float val) { theta = val; }
+	void Theata(float val) { theta = val; }
 
-	void RealTime(bool val,float theta,float timeFactor=1.0f);
+	void RealTime(bool val, float theta, float timeFactor = 1.0f);
+
 private:
 	struct ScatterDesc
 	{
-		Vector3 WaveLength = Vector3(0.65f, 0.57f, .475f);
-		float padding;
+		Vector3 WaveLength = Vector3(0.65f, 0.57f, 0.475f);
+		float Padding;
 
 		Vector3 InvWaveLength;
-		int SampleCount =8;
+		int SamepleCount = 8;
 
 		Vector3 WaveLengthMie;
-		float padding2;
-	} scatterDesc;
-
+		float Padding2;
+	} scatterDesc;	
 
 	struct CloudDesc
 	{
-		float Tile = 1.5f; //노이즈 사이의 간격
+		float Tile = 1.5f;
 		float Cover = 0.005f;
-		float Sharpness = 0.405;
+		float Sharpness = 0.405f;
 		float Speed = 0.05f;
-	}cloudDesc;
+	} cloudDesc;
 
 private:
 	Shader* shader;
@@ -49,10 +50,8 @@ private:
 	ConstantBuffer* scatterBuffer;
 	ID3DX11EffectConstantBuffer* sScatterBuffer;
 
-
 	ID3DX11EffectShaderResourceVariable* sRayleighMap;
 	ID3DX11EffectShaderResourceVariable* sMieMap;
-	
 
 	class Dome* dome;
 	class Moon* moon;

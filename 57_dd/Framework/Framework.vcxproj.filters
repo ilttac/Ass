@@ -28,11 +28,11 @@
     <Filter Include="Environment\Sky">
       <UniqueIdentifier>{6b7ce78d-ef57-4495-be95-a89c5e0c8de4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Environment\Wheather">
-      <UniqueIdentifier>{d7a3e3d6-b709-4475-b5b0-c0122faf2dcd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Environment\Water">
-      <UniqueIdentifier>{3d10aeea-d0a1-4d2f-82b0-2f24567330e5}</UniqueIdentifier>
+      <UniqueIdentifier>{f0c44dde-9e84-4225-add7-34c04a526dd3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Environment\Weather">
+      <UniqueIdentifier>{148d033d-f843-441d-a27e-137170f302f0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -136,12 +136,6 @@
     <ClCompile Include="Environment\Billboard.cpp">
       <Filter>Environment</Filter>
     </ClCompile>
-    <ClCompile Include="Environment\Rain.cpp">
-      <Filter>Environment</Filter>
-    </ClCompile>
-    <ClCompile Include="Environment\Snow.cpp">
-      <Filter>Environment</Filter>
-    </ClCompile>
     <ClCompile Include="Meshes\MeshRender.cpp">
       <Filter>Meshes</Filter>
     </ClCompile>
@@ -204,6 +198,12 @@
     </ClCompile>
     <ClCompile Include="Environment\Sky\Cloud.cpp">
       <Filter>Environment\Sky</Filter>
+    </ClCompile>
+    <ClCompile Include="Environment\Rain.cpp">
+      <Filter>Environment\Weather</Filter>
+    </ClCompile>
+    <ClCompile Include="Environment\Snow.cpp">
+      <Filter>Environment\Weather</Filter>
     </ClCompile>
     <ClCompile Include="Environment\SkyCube.cpp">
       <Filter>Environment\Sky</Filter>
@@ -334,12 +334,6 @@
     <ClInclude Include="Environment\Billboard.h">
       <Filter>Environment</Filter>
     </ClInclude>
-    <ClInclude Include="Environment\Rain.h">
-      <Filter>Environment</Filter>
-    </ClInclude>
-    <ClInclude Include="Environment\Snow.h">
-      <Filter>Environment</Filter>
-    </ClInclude>
     <ClInclude Include="Meshes\MeshRender.h">
       <Filter>Meshes</Filter>
     </ClInclude>
@@ -387,6 +381,12 @@
     </ClInclude>
     <ClInclude Include="Environment\Sky\Cloud.h">
       <Filter>Environment\Sky</Filter>
+    </ClInclude>
+    <ClInclude Include="Environment\Rain.h">
+      <Filter>Environment\Weather</Filter>
+    </ClInclude>
+    <ClInclude Include="Environment\Snow.h">
+      <Filter>Environment\Weather</Filter>
     </ClInclude>
     <ClInclude Include="Environment\SkyCube.h">
       <Filter>Environment\Sky</Filter>

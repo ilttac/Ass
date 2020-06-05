@@ -8,12 +8,12 @@ public:
 
 	void Update();
 	void Render(float theta);
+
 private:
-	float GetAlpha(float theta);// 투명도 조절
+	float GetAlpha(float theta);
 	
 	Matrix GetTransform(float theta);
 	Matrix GetGlowTransform(float theta);
-
 
 private:
 	float distance, glowDistance;

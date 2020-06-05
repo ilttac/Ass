@@ -26,7 +26,7 @@ private:
 private:
 	Shader * shader;
 
-	Shadow* shadow;
+	Shadow* shadow;	
 	Water* water;
 
 	Sky* sky;

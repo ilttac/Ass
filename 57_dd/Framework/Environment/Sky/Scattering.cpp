@@ -53,10 +53,6 @@ void Scattering::PreRender()
 	shader->Draw(0, pass, 6);
 }
 
-void Scattering::Render()
-{
-	
-}
 
 void Scattering::PostRender()
 {

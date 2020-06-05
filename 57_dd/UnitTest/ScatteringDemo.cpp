@@ -3,8 +3,8 @@
 
 void ScatteringDemo::Initialize()
 {
-	Context::Get()->GetCamera()->RotationDegree(23, 0, 0);
-	Context::Get()->GetCamera()->Position(0, 32, -67);
+	Context::Get()->GetCamera()->RotationDegree(10, 0, 0);
+	Context::Get()->GetCamera()->Position(0, 18, -78);
 	((Freedom *)Context::Get()->GetCamera())->Speed(20, 2);
 
 	shader = new Shader(L"53_DefferedShadow.fxo");
@@ -13,10 +13,11 @@ void ScatteringDemo::Initialize()
 	gBuffer = new GBuffer(shader);
 
 	sky = new Sky(shader);
-	sky->ScatteringPass(3);
-	sky->Theta(Math::PI - 1e-6f);
-	//sky->RealTime(true, Math::PI - 1e-6f,0.4f);
-	
+	sky->ScatteringPass(11);
+	sky->Pass(12, 13, 14);
+	sky->Theata(Math::PI - 1e-6f);
+	sky->RealTime(true, Math::PI - 1e-6f, 0.3f);
+
 	snow = new Snow(Vector3(300, 100, 500), 1000, L"Environment/Snow.png");
 
 	Mesh();
@@ -43,14 +44,12 @@ void ScatteringDemo::Update()
 	UINT& type = Context::Get()->FogType();
 	ImGui::InputInt("FogType", (int*)&type);
 	type %= 3;
-	shader->AsScalar("Fogtype")->SetInt(type);
-
+	
 	ImGui::ColorEdit3("FogColor", Context::Get()->FogColor());
-	ImGui::SliderFloat("FogMin", &Context::Get()->FogDistance().x,0.0f,10.0f);
+	ImGui::SliderFloat("FogMin", &Context::Get()->FogDistance().x, 0.0f, 10.0f);
 	ImGui::SliderFloat("FogMax", &Context::Get()->FogDistance().y, 0.0f, 300.0f);
 	ImGui::SliderFloat("FogDensity", &Context::Get()->FogDensity(), 0.0f, 300.0f);
-
-
+	
 
 	sphere->Update();	
 	cylinder->Update();
@@ -67,6 +66,8 @@ void ScatteringDemo::Update()
 		colliders[i].Collider->Update();
 	}*/
 
+	
+	
 	sky->Update();
 	snow->Udpate();
 
@@ -74,7 +75,6 @@ void ScatteringDemo::Update()
 
 void ScatteringDemo::PreRender()
 {
-	
 	//Depth
 	{
 		shadow->Set();
@@ -99,7 +99,7 @@ void ScatteringDemo::PreRender()
 		airplane->Render();
 		kachujin->Render();
 	}
-	
+
 	//GBuffer
 	{
 		gBuffer->PackGBuffer();
@@ -124,16 +124,16 @@ void ScatteringDemo::PreRender()
 		airplane->Render();
 		kachujin->Render();
 	}
+
 	sky->PreRender();
-	
 
 }
 
 void ScatteringDemo::Render()
 {
-	gBuffer->Render();
+	gBuffer->Render();	
 	sky->Render();
-	
+
 	snow->Render();
 }
 
@@ -168,7 +168,7 @@ void ScatteringDemo::Mesh()
 		brick->DiffuseMap("Bricks.png");
 		brick->SpecularMap("Bricks_Specular.png");
 		brick->NormalMap("Bricks_Normal.png");
-		brick->Specular(1, 0.3f, 0.3f, 20.0f);
+		brick->Specular(0.3f, 0.3f, 0.3f, 20.0f);
 		brick->Emissive(0.2f, 0.2f, 0.2f, 0.3f);
 
 		//±¸
@@ -176,7 +176,7 @@ void ScatteringDemo::Mesh()
 		wall->DiffuseMap("Wall.png");
 		wall->SpecularMap("Wall_Specular.png");
 		wall->NormalMap("Wall_Normal.png");
-		wall->Specular(1, 1, 1, 20.0f);
+		wall->Specular(1, 1, 1, 20);
 		wall->Emissive(0.2f, 1.0f, 0.2f, 0.5f);
 
 	}

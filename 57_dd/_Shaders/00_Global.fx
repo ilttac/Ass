@@ -8,28 +8,28 @@ cbuffer CB_PerFrame
     matrix ProjectionInverse;
     matrix VP;
 
-	float4 Culling[4];
-	float4 Clipping;
+    float4 Culling[4];
+    float4 Clipping;
 
-    float Time;
+    float Time;   
 };
 
 cbuffer CB_Fog
 {
-	float4 FogColor;
-	float2 FogDistance;
-	float FogDensity;
-	uint FogType;
-}
+    float4 FogColor;
+    float2 FogDistance;
+    float FogDensity;
+    uint FogType;
+};
 
 cbuffer CB_World
 {
     matrix World;
 };
 
-cbuffer CB_Reflection //반사카메라
+cbuffer CB_Reflection
 {
-	matrix Reflection;
+    matrix Reflection;
 };
 
 Texture2D DiffuseMap;
@@ -85,43 +85,29 @@ float3 ViewPosition()
 
 float4 LinearFogBlend(float4 color, float3 wPosition)
 {
-	float dist = saturate((distance(wPosition, ViewPosition()) - FogDistance.x) / (FogDistance.y + FogDistance.x));
+    float dist = saturate((distance(wPosition, ViewPosition()) - FogDistance.x) / (FogDistance.y + FogDistance.x));
 
-	return float4(lerp(color.rgb, FogColor.rgb, dist), 1); //color:mesh color
-
+    return float4(lerp(color.rgb, FogColor.rgb, dist), 1);
 }
 
 float4 ExpFogBlend(float4 color, float3 wPosition)
 {
-	float dist = distance(wPosition, ViewPosition());
-	
-	dist = dist / FogDistance.y * FogDistance.x;
-	
-	float factor = exp(-dist * FogDensity);
-	return float4(lerp(FogColor.rgb, color.rgb, factor), 1);
+    float dist = distance(wPosition, ViewPosition());
+    dist = dist / FogDistance.y * FogDistance.x;
+
+    float factor = exp(-dist * FogDensity);
+    return float4(lerp(FogColor.rgb, color.rgb, factor), 1);
 }
 
 float4 Exp2FogBlend(float4 color, float3 wPosition)
 {
-	float dist = distance(wPosition, ViewPosition());
-	
-	dist = dist / FogDistance.y * FogDistance.x;
-	
-	float factor = exp(-(dist * FogDensity) * (dist * FogDensity));
-	return float4(lerp(FogColor.rgb, color.rgb, factor), 1);
+    float dist = distance(wPosition, ViewPosition());
+    dist = dist / FogDistance.y * FogDistance.x;
+
+    float factor = exp(-(dist * FogDensity) * (dist * FogDensity));
+    return float4(lerp(FogColor.rgb, color.rgb, factor), 1);
 }
 
-float4 calculateFogColor(float4 color,float3 wPosition)
-{
-	if (FogType == 0)
-		color = LinearFogBlend(color, wPosition);
-	else if (FogType == 1)
-		color = ExpFogBlend(color, wPosition);
-	else if (FogType == 2)
-		color = Exp2FogBlend(color, wPosition);
-	
-	return color;
-}
 //Mesh
 //-----------------------------------------------
 struct MeshOutput
@@ -137,9 +123,9 @@ struct MeshOutput
     float2 Uv : Uv0;
     float3 Normal : Normal0;
     float3 Tangent : Tangent0;
-	
-	float4 Cull : SV_CullDistance; //x : left, y:right, z : near, w : far 
-	float4 Clip : SV_ClipDistance;
+
+    float4 Cull : SV_CullDistance; //x : left, y : right, z : near, w : far
+    float4 Clip : SV_ClipDistance;
 };
 
 struct MeshGeometryOutput
@@ -241,7 +227,7 @@ BlendState AlphaBlend
     SrcBlendAlpha[0] = Zero;
     DestBlendAlpha[0] = Zero;
     BlendOpAlpha[0] = Add;
-
+    
     RenderTargetWriteMask[0] = 15;
 };
 

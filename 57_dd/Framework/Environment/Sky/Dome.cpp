@@ -1,8 +1,8 @@
 #include "Framework.h"
 #include "Dome.h"
 
-Dome::Dome(Shader* shader, Vector3 position, Vector3 scale, UINT drawCount)
-	:Renderer(shader),drawCount(drawCount)
+Dome::Dome(Shader * shader, Vector3 position, Vector3 scale, UINT drawCount)
+	: Renderer(shader), drawCount(drawCount)
 {
 	starMap = new Texture(L"Environment/Starfield.png");
 	sStarMap = shader->AsSRV("StarMap");
@@ -16,7 +16,7 @@ Dome::Dome(Shader* shader, Vector3 position, Vector3 scale, UINT drawCount)
 	vertexCount = longitude * latitude * 2;
 	indexCount = (longitude - 1) * (latitude - 1) * 2 * 8;
 
-	VertexTexture * vertices = new VertexTexture[vertexCount];
+	VertexTexture* vertices = new VertexTexture[vertexCount];
 
 	UINT index = 0;
 	for (UINT i = 0; i < longitude; i++)
@@ -112,3 +112,4 @@ void Dome::Render()
 	sStarMap->SetResource(starMap->SRV());
 	shader->DrawIndexed(0, Pass(), indexCount);
 }
+

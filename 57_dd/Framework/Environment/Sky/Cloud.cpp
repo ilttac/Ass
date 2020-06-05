@@ -1,15 +1,14 @@
 #include "Framework.h"
 #include "Cloud.h"
 
-Cloud::Cloud(Shader* shader)
+Cloud::Cloud(Shader * shader)
 	: Renderer(shader)
 {
 	sSRV = shader->AsSRV("CloudMap");
 
 	render2D = new Render2D();
-	render2D->GetTransform()->Position(400+100,D3D::Height()-100,0);
+	render2D->GetTransform()->Position(400 + 100, D3D::Height() - 100, 0);
 	render2D->GetTransform()->Scale(200, 200, 1);
-
 
 	VertexTexture vertices[6];
 	vertices[0].Position = Vector3(-1.0f, -1.0f, 0.0f);
@@ -27,6 +26,7 @@ Cloud::Cloud(Shader* shader)
 	vertices[5].Uv = Vector2(1, 0);
 
 	vertexBuffer = new VertexBuffer(vertices, 6, sizeof(VertexTexture));
+
 	CreateTexture();
 }
 
@@ -42,24 +42,27 @@ void Cloud::Update()
 {
 	Super::Update();
 
-	Vector3 position;
-	Context::Get()->GetCamera()->Position(&position);
+	Vector3 position(0, 0, 0);
+	//Context::Get()->GetCamera()->Position(&position);
 
 	transform->Scale(1000, 500, 1);
-	transform->Rotation(-Math::PI*0.5f,0,0);
+	transform->Rotation(-Math::PI * 0.5f, 0, 0);
 	transform->Position(position.x + 95, position.y + 100.0f, position.z + 300.0f);
-
 }
 
 void Cloud::Render()
 {
 	Super::Render();
 
+	/*UINT stride = sizeof(VertexTexture);
+	UINT offset = 0;*/
+
 	vertexBuffer->Render();
 	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	sSRV->SetResource(srv);
 	shader->Draw(0, Pass(), 6);
+
 }
 
 void Cloud::PostRender()
@@ -107,6 +110,7 @@ void Cloud::CreateTexture()
 	desc.Usage = D3D11_USAGE_IMMUTABLE;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 
+
 	Color* pixels = new Color[256 * 256];
 	for (int y = 0; y < 256; y++)
 	{
@@ -124,31 +128,29 @@ void Cloud::CreateTexture()
 			pixels[index] = color;
 		}
 	}
-		D3D11_SUBRESOURCE_DATA subResource = { 0 };
-		subResource.pSysMem = pixels;
-		subResource.SysMemPitch = 256 * 4;
 
-		Check(D3D::GetDevice()->CreateTexture2D(&desc, &subResource, &texture));
+	D3D11_SUBRESOURCE_DATA subResource = { 0 };
+	subResource.pSysMem = pixels;
+	subResource.SysMemPitch = 256 * 4;
 
-		//D3DX11SaveTextureToFile(D3D::GetDC(), texture, D3DX11_IFF_PNG, L"Noise.png");
-		//무기스왑
+	Check(D3D::GetDevice()->CreateTexture2D(&desc, &subResource, &texture));
 
-		//Create SRV
-		{
-			D3D11_TEXTURE2D_DESC desc;
-			texture->GetDesc(&desc);
+	//D3DX11SaveTextureToFile(D3D::GetDC(), texture, D3DX11_IFF_PNG, L"Noise.png");
 
-			D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-			ZeroMemory(&srvDesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
-			srvDesc.Format = desc.Format;
-			srvDesc.Texture2D.MostDetailedMip = 0;
-			srvDesc.Texture2D.MipLevels = 1;
-			srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	//Create SRV
+	{
+		D3D11_TEXTURE2D_DESC desc;
+		texture->GetDesc(&desc);
 
-			Check(D3D::GetDevice()->CreateShaderResourceView(texture, &srvDesc, &srv));
-		}
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+		ZeroMemory(&srvDesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+		srvDesc.Format = desc.Format;
+		srvDesc.Texture2D.MostDetailedMip = 0;
+		srvDesc.Texture2D.MipLevels = 1;
+		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 
-		SafeDeleteArray(pixels);
+		Check(D3D::GetDevice()->CreateShaderResourceView(texture, &srvDesc, &srv));
+	}
 	
-
+	SafeDeleteArray(pixels);
 }

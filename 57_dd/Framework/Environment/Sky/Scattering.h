@@ -9,7 +9,6 @@ public:
 	void Update();
 
 	void PreRender();
-	void Render();
 	void PostRender();
 
 	void Pass(UINT val) { pass = val; }
@@ -17,8 +16,10 @@ public:
 
 	RenderTarget* RayleighRTV() { return rayleighTarget; }
 	RenderTarget* MieRTV() { return mieTarget; }
+
 private:
 	void CreateQuad();
+	void CreateDome();
 
 private:
 	bool bDebug = false;
@@ -34,4 +35,5 @@ private:
 	Viewport* viewport;
 
 	VertexBuffer* vertexBuffer;
+
 };

@@ -21,7 +21,6 @@ PerFrame::PerFrame(Shader * shader)
 
 	ZeroMemory(bufferDesc.Culling, sizeof(Plane) * 4);
 	ZeroMemory(bufferDesc.Clipping, sizeof(Plane));
-
 }
 
 PerFrame::~PerFrame()
@@ -35,7 +34,6 @@ PerFrame::~PerFrame()
 
 void PerFrame::Update()
 {
-
 	bufferDesc.Time = Time::Get()->Running();
 
 	lightDesc.Ambient = Context::Get()->Ambient();

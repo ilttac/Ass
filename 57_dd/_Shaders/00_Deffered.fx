@@ -146,6 +146,7 @@ void ComputeLight_Deffered(out MaterialDesc output, MaterialDesc material, float
     }
 }
 
+
 float4 PS_Directional(VertexOutput_Directional input) : SV_Target
 {
     float4 position = input.Position;
@@ -167,15 +168,16 @@ float4 PS_Directional(VertexOutput_Directional input) : SV_Target
         color = PS_Shadow_PCSS(sPosition, color);
     else
         color = PS_Shadow(sPosition, color);
-	
-	if (FogType ==0)
-		color = LinearFogBlend(color, position);
-	else if (FogType ==1)
-		color = ExpFogBlend(color, position);
-	else if (FogType == 2)
-		color = Exp2FogBlend(color, position);
-	
-	return color;
+
+    if(FogType == 0)
+        color = LinearFogBlend(color, position);
+    else if (FogType == 1)
+        color = ExpFogBlend(color, position);
+    else if (FogType == 2)
+        color = Exp2FogBlend(color, position);
+   
+    return color;
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////

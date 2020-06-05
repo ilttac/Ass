@@ -7,26 +7,27 @@ public:
 	~Water();
 
 	void RestartClipPlane();
+
 	void Update() override;
 
 	void PreRender_Reflection();
-	void PreRender_Refraction();
 	void Render() override;
 
 private:
 	struct Desc
 	{
-		Color RefractionColor = Color(0.2f,0.3f,0.1f,1.0f);
-
-		Vector2 NormalMapTile = Vector2(0.1f,0.2f); //쪼개서 만들어서 물이 계속 반복하게 만듬.
-		float WaveTranlation =0.0f;
+		Color RefractionColor = Color(0.2f, 0.3f, 0.1f, 1.0f);
+		
+		Vector2 NormalMapTile = Vector2(0.1f, 0.2f);
+		float WaveTranslation = 0.0f;
 		float WaveScale = 0.05f;
-
+		
 		float WaterShiness = 30.0f;
 		float WaterAlpha = 0.5f;
-		float Padding[2];
-	}desc;
 
+		float Padding[2];
+	} desc;
+	
 private:
 	float radius;
 	UINT width, height;
@@ -48,4 +49,5 @@ private:
 
 	ID3DX11EffectShaderResourceVariable* sReflectionMap;
 	ID3DX11EffectShaderResourceVariable* sRefractionMap;
+
 };

@@ -45,6 +45,4 @@ private:
 		D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 	UINT pass = 0;
-
-
 };

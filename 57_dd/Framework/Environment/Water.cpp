@@ -2,7 +2,7 @@
 #include "Water.h"
 #include "Viewer/Fixity.h"
 
-Water::Water(Shader* shader, float radius, UINT width, UINT height)
+Water::Water(Shader * shader, float radius, UINT width, UINT height)
 	: Renderer(shader)
 	, radius(radius), width(width), height(height)
 {
@@ -20,14 +20,15 @@ Water::Water(Shader* shader, float radius, UINT width, UINT height)
 	vertices[2].Uv = Vector2(1, 1);
 	vertices[3].Uv = Vector2(1, 0);
 
-	UINT indices[6] = { 0,1,2,2,1,3 };
+	UINT indices[6] = { 0, 1, 2, 2, 1, 3 };
+
 	vertexBuffer = new VertexBuffer(vertices, vertexCount, sizeof(VertexTexture));
 	indexBuffer = new IndexBuffer(indices, indexCount);
 
 	buffer = new ConstantBuffer(&desc, sizeof(Desc));
 	sBuffer = shader->AsConstantBuffer("CB_Water");
 
-	normalMap = new Texture(L"Environment/Wave.dds");
+	normalMap = new Texture(L"Environment/Wave1.dds");
 	sNormalMap = shader->AsSRV("NormalMap");
 
 	this->width = width > 0 ? width : (UINT)D3D::Width();
@@ -39,7 +40,7 @@ Water::Water(Shader* shader, float radius, UINT width, UINT height)
 	depthStencil = new DepthStencil(this->width, this->height);
 	viewport = new Viewport((float)this->width, (float)this->height);
 
-	sReflection = shader->AsMatrix("CB_Reflection");
+	sReflection = shader->AsMatrix("Reflection");
 
 	sReflectionMap = shader->AsSRV("ReflectionMap");
 	sRefractionMap = shader->AsSRV("RefractionMap");
@@ -55,8 +56,6 @@ Water::~Water()
 	SafeDelete(refraction);
 	SafeDelete(depthStencil);
 	SafeDelete(viewport);
-
-
 }
 
 void Water::RestartClipPlane()
@@ -68,10 +67,10 @@ void Water::RestartClipPlane()
 void Water::Update()
 {
 	Super::Update();
-	desc.WaveTranlation += waveSpeed * Time::Delta();
 
-	if (desc.WaveTranlation > 1.0f)
-		desc.WaveTranlation -= 1.0f;
+	desc.WaveTranslation += waveSpeed * Time::Delta();
+	if (desc.WaveTranslation > 1.0f)
+		desc.WaveTranslation -= 1.0f;
 
 	ImGui::SliderFloat("Shiness", &desc.WaterShiness, 1, 100);
 
@@ -83,8 +82,8 @@ void Water::Update()
 	camera->Rotation(R);
 
 	Vector3 position;
-	GetTransform()->Position(&position);//수면의위치
-	T.y = (position.y * 2.0f) - T.y; //clip할떄 문제되어서 2.0f
+	GetTransform()->Position(&position);
+	T.y = (position.y * 2.0f) - T.y;
 	camera->Position(T);
 
 	Matrix reflection;
@@ -101,18 +100,6 @@ void Water::PreRender_Reflection()
 	perFrame->Clipping(plane);
 
 	reflection->Set(depthStencil);
-	viewport->RSSetViewport();
-}
-
-void Water::PreRender_Refraction()
-{
-	Vector3 position;
-	GetTransform()->Position(&position);
-
-	Plane plane = Plane(0, -1, 0, position.y + 0.1f);
-	perFrame->Clipping(plane);
-
-	refraction->Set(depthStencil);
 	viewport->RSSetViewport();
 }
 
