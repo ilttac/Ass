@@ -1,8 +1,8 @@
 #include "Framework.h"
 #include "QuadTree.h"
 
-QuadTree::QuadTree(Shader* shader,Frustum* frustum)
-	:Renderer(shader),frustum(frustum)
+QuadTree::QuadTree(Shader* shader, Frustum* frustum)
+	:Renderer(shader), frustum(frustum)
 {
 }
 
@@ -18,34 +18,35 @@ void QuadTree::Init(Terrain* terrain)
 	baseMap = terrain->GetBaseMap();
 	sBaseMap = shader->AsSRV("BaseMap");
 	heightMap = terrain->GetHeightMap();
-	
 
-
-	float centerX =  0.0f;
+	float centerX = 0.0f;
 	float centerZ = 0.0f;
 	float width = 0.0f;
 
 	Shader* test = shader;
 
+	int indexCount = terrain->GetIndexCount();
+	// 정점리스트의 총 삼각형 수를 저장합니다.
 	int vertexCount = terrain->GetVertexCount();
 
-	// 정점리스트의 총 삼각형 수를 저장합니다.
-	triangleCount = vertexCount / 3;
+	triangleCount = indexCount / 3;
 
-	vertexList = new VertexType[vertexCount];
-
+	vertexList = new VertexType[indexCount];
+	indexList = new UINT[indexCount];
 	if (!vertexList)
 	{
 		return;
 	}
 
 	terrain->CopyVertexArray((void*)vertexList);
+	terrain->CopyIndicesArray((void*)indexList);
+
 	CalculateMeshDimensions(vertexCount, centerX, centerZ, width);
 
 	parentNode = new NodeType;
 	if (!parentNode)
 	{
-		return ;
+		return;
 	}
 
 	// 정점 목록 데이터와 메쉬 차원을 기반으로 쿼드 트리를 재귀 적으로 빌드합니다.
@@ -87,6 +88,7 @@ int QuadTree::CountTriangles(float positionX, float positionZ, float width)
 
 	return count;
 }
+
 void QuadTree::CalculateMeshDimensions(int vertexCount, float& centerX, float& centerZ, float& meshWidth)
 {
 	// 메쉬의 중심 위치를 0으로 초기화합니다.
@@ -130,7 +132,7 @@ void QuadTree::CalculateMeshDimensions(int vertexCount, float& centerX, float& c
 	// 메쉬의 최대 직경을 계산합니다.
 	meshWidth = max(maxX, maxZ) * 2.0f;
 }
-void QuadTree::CreateTreeNode(NodeType* node, float positionX, float positionZ, float width, ID3D11Device* device)
+void QuadTree::CreateTreeNode(NodeType * node, float positionX, float positionZ, float width, ID3D11Device * device)
 {
 	// 노드의 위치와 크기를 저장한다.
 	node->PositionX = positionX;
@@ -149,18 +151,11 @@ void QuadTree::CreateTreeNode(NodeType* node, float positionX, float positionZ, 
 	node->Nodes[1] = 0;
 	node->Nodes[2] = 0;
 	node->Nodes[3] = 0;
-	
-	// 이 노드 안에 있는 삼각형 수를 센다.
-	int numTriangles = CountTriangles(positionX, positionZ, width);
 
-	// 사례 1: 이 노드에 삼각형이 없으면 비어있는 상태로 돌아가서 처리할 필요가 없습니다.
-	if (numTriangles == 0)
-	{
-		return;
-	}
+	// 이 노드 안에 있는 삼각형 수를 센다
 
 	// 사례 2: 이 노드에 너무 많은 삼각형이 있는 경우 4 개의 동일한 크기의 더 작은 트리 노드로 분할합니다.
-	if (width > 31)
+	if (width > 63)
 	{
 		for (int i = 0; i < 4; i++)
 		{
@@ -176,7 +171,7 @@ void QuadTree::CreateTreeNode(NodeType* node, float positionX, float positionZ, 
 				node->Nodes[i] = new NodeType;
 				node->transform = new Transform();
 				node->transform->Position(positionX, 0, positionZ);
-				node->transform->Scale(width, width/2, width);
+				node->transform->Scale(width, width / 2, width);
 				node->collider = new Collider(node->transform);
 				// 이제이 새 자식 노드에서 시작하는 트리를 확장합니다.
 				CreateTreeNode(node->Nodes[i], (positionX + offsetX), (positionZ + offsetZ), (width / 2.0f), device);
@@ -187,88 +182,53 @@ void QuadTree::CreateTreeNode(NodeType* node, float positionX, float positionZ, 
 
 	// 사례 3: 이 노드가 비어 있지않고 그 노드의 삼각형 수가 최대 값보다 작으면 
 	// 이 노드는 트리의 맨 아래에 있으므로 저장할 삼각형 목록을 만듭니다.
-	node->TriangleCount = numTriangles;
 
 	// 정점의 수를 계산합니다.
-	int vertexCount = numTriangles * 3;
-
+	int indexCount = int(width) * int(width) * 6;
+	int vertexCount = int(width + 1) * int(width + 1);
 	// 정점 배열을 만듭니다.
-	VertexType* vertices = new VertexType[vertexCount];
+	VertexType * vertices = new VertexType[vertexCount];
 
 	// 인덱스 배열을 만듭니다.
-	unsigned long* indices = new unsigned long[vertexCount];
+	unsigned long* indices = new unsigned long[indexCount];
 
 	// 이 새로운 정점 및 인덱스 배열의 인덱스를 초기화합니다.
 	int index = 0;
+	int index2 = 0;
 	int vertexIndex = 0;
+	int indexNum = 0;
+	int count1 = (eTerrainSize);
+	int count2 = (eTerrainSize);
 
-	// 정점 목록의 모든 삼각형을 살펴 봅니다.
-	for (int i = 0; i < triangleCount; i++)
+	//정점 목록의 모든 삼각형을 살펴 봅니다.
+	for (UINT i = 0; i < count1; i++)
 	{
-		// 삼각형이이 노드 안에 있으면 꼭지점 배열에 추가합니다.
-		if (IsTriangleContained(i, positionX, positionZ, width) == true)
+		for (UINT j = 0; j < count2; j++)
 		{
-			// 지형 버텍스 목록에 인덱스를 계산합니다.
-			vertexIndex = i * 3;
+			// 삼각형이이 노드 안에 있으면 꼭지점 배열에 추가합니다.
+			if (IsTriangleContained((i * (count1)) + (j), positionX, positionZ, width) == true)
+			{
+				vertices[index].Position = vertexList[i * (count1)+j].Position;
+				vertices[index].Uv = vertexList[i * (count1)+j].Uv;
+				vertices[index].Normal = vertexList[i * (count1)+j].Normal;
+				if (i != (count1 - 1) && j != (count2 - 1))
+				{
+					indices[index2 + 0] = count1 * i + j;
+					indices[index2 + 1] = count1 * (i + 1) + j;
+					indices[index2 + 2] = count1 * i + (j + 1);
+					indices[index2 + 3] = count1 * i + (j + 1);
+					indices[index2 + 4] = count1 * (i + 1) + j;
+					indices[index2 + 5] = count1 * (i + 1) + (j + 1);
+				}
+				index2 += 6;
+				index++;
+			}
 
-			// 정점 목록에서 이 삼각형의 세 꼭지점을 가져옵니다.
-			vertices[index].Position = vertexList[vertexIndex].Position;
-			vertices[index].Uv = vertexList[vertexIndex].Uv;
-			vertices[index].Normal = vertexList[vertexIndex].Normal;
-			indices[index] = index;
-			index++;
-
-			vertexIndex++;
-			vertices[index].Position = vertexList[vertexIndex].Position;
-			vertices[index].Uv = vertexList[vertexIndex].Uv;
-			vertices[index].Normal = vertexList[vertexIndex].Normal;
-			indices[index] = index;
-			index++;
-
-			vertexIndex++;
-			vertices[index].Position = vertexList[vertexIndex].Position;
-			vertices[index].Uv = vertexList[vertexIndex].Uv;
-			vertices[index].Normal = vertexList[vertexIndex].Normal;
-			indices[index] = index;
-			index++;
 		}
 	}
 
-	// 정점 버퍼의 구조체를 설정합니다.
-	D3D11_BUFFER_DESC vertexBufferDesc;
-	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	vertexBufferDesc.ByteWidth = sizeof(VertexType) * vertexCount;
-	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vertexBufferDesc.CPUAccessFlags = 0;
-	vertexBufferDesc.MiscFlags = 0;
-	vertexBufferDesc.StructureByteStride = 0;
-
-	// subresource 구조에 정점 데이터에 대한 포인터를 제공합니다.
-	D3D11_SUBRESOURCE_DATA vertexData;
-	vertexData.pSysMem = vertices;
-	vertexData.SysMemPitch = 0;
-	vertexData.SysMemSlicePitch = 0;
-
-	// 이제 마침내 정점 버퍼를 만듭니다.
-	device->CreateBuffer(&vertexBufferDesc, &vertexData, &node->VertexBuffer);
-
-	// 인덱스 버퍼의 설명을 설정합니다.
-	D3D11_BUFFER_DESC indexBufferDesc;
-	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	indexBufferDesc.ByteWidth = sizeof(unsigned long) * vertexCount;
-	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	indexBufferDesc.CPUAccessFlags = 0;
-	indexBufferDesc.MiscFlags = 0;
-	indexBufferDesc.StructureByteStride = 0;
-
-	// 하위 리소스 구조에 인덱스 데이터에 대한 포인터를 제공합니다.
-	D3D11_SUBRESOURCE_DATA indexData;
-	indexData.pSysMem = indices;
-	indexData.SysMemPitch = 0;
-	indexData.SysMemSlicePitch = 0;
-
-	// 인덱스 버퍼를 만듭니다.
-	device->CreateBuffer(&indexBufferDesc, &indexData, &node->IndexBuffer);
+	node->VertexBuffer = new VertexBuffer(vertices, vertexCount, sizeof(VertexType) * vertexCount, 0, true);
+	node->IndexBuffer = new IndexBuffer(indices, indexCount);
 
 	// 이제 노드의 버퍼에 데이터가 저장되므로 꼭지점과 인덱스 배열을 해제합니다.
 	delete[] vertices;
@@ -280,23 +240,48 @@ void QuadTree::CreateTreeNode(NodeType* node, float positionX, float positionZ, 
 
 bool QuadTree::IsTriangleContained(int index, float positionX, float positionZ, float width)
 {
+	if (index > 256 * 255)
+	{
+		return true;
+	}
 	// 이 노드의 반경을 계산합니다.
 	float radius = width / 2.0f;
 
 	// 인덱스를 정점 목록으로 가져옵니다.
-	int vertexIndex = index * 3;
+	// vertexIndex
+	int vertexIndex = index % 2;
+
+	float x1 = 0.0f;
+	float z1 = 0.0f;
+	float x2 = 0.0f;
+	float z2 = 0.0f;
+	float x3 = 0.0f;
+	float z3 = 0.0f;
 
 	// 정점 목록에서 이 삼각형의 세 꼭지점을 가져옵니다.
-	float x1 = vertexList[vertexIndex].Position.x;
-	float z1 = vertexList[vertexIndex].Position.z;
-	vertexIndex++;
+	if (vertexIndex == 0)
+	{
+		x1 = vertexList[index].Position.x;
+		z1 = vertexList[index].Position.z;
 
-	float x2 = vertexList[vertexIndex].Position.x;
-	float z2 = vertexList[vertexIndex].Position.z;
-	vertexIndex++;
+		x2 = vertexList[index + 255 + 1].Position.x;
+		z2 = vertexList[index + 255 + 1].Position.z;
 
-	float x3 = vertexList[vertexIndex].Position.x;
-	float z3 = vertexList[vertexIndex].Position.z;
+		x3 = vertexList[index + 1].Position.x;
+		z3 = vertexList[index + 1].Position.z;
+	}
+	if (vertexIndex == 1)
+	{
+
+		x1 = vertexList[index].Position.x;
+		z1 = vertexList[index].Position.z;
+
+		x2 = vertexList[index + 255].Position.x;
+		z2 = vertexList[index + 255].Position.z;
+
+		x3 = vertexList[index + 255 + 1].Position.x;
+		z3 = vertexList[index + 255 + 1].Position.z;
+	}
 
 	// 삼각형의 x 좌표의 최소값이 노드 안에 있는지 확인하십시오.
 	float minimumX = min(x1, min(x2, x3));
@@ -328,14 +313,14 @@ bool QuadTree::IsTriangleContained(int index, float positionX, float positionZ, 
 	return true;
 }
 
-void QuadTree::search(NodeType* parent,float count)
+void QuadTree::search(NodeType * parent, float count)
 {
 	if (count > 4) return;
 
-	if (parent->Nodes[0]->Width > 31) 
-	{ 
-		parent->Nodes[0]->collider->Render(Color(count/3, count / 3, count / 3, 1));
-		search(parent->Nodes[0],count +1);
+	if (parent->Nodes[0]->Width > 31)
+	{
+		parent->Nodes[0]->collider->Render(Color(count / 3, count / 3, count / 3, 1));
+		search(parent->Nodes[0], count + 1);
 	}
 	if (parent->Nodes[1]->Width > 31)
 	{
@@ -354,21 +339,21 @@ void QuadTree::search(NodeType* parent,float count)
 	}
 }
 
-void QuadTree::RenderNode(NodeType* node)
+void QuadTree::RenderNode(NodeType * node)
 {
 
-	 int indexCount;
+	int indexCount;
 	unsigned int stride, offset;
 
 
 	// Check to see if the node can be viewed, height doesn't matter in a quad tree.
-	
+
 
 
 	// If it can't be seen then none of its children can either so don't continue down the tree, this is where the speed is gained.
 	bool result[4] = { true,true,true,true };
 	//왼쪽위
-    if (!frustum->CheckPoint(Vector3(node->PositionX - (node->Width / 2), 0, node->PositionZ + (node->Width / 2))))
+	if (!frustum->CheckPoint(Vector3(node->PositionX - (node->Width / 2), 0, node->PositionZ + (node->Width / 2))))
 	{
 		result[0] = false;
 	}
@@ -401,12 +386,12 @@ void QuadTree::RenderNode(NodeType* node)
 
 
 
-	if (cnt != 0)
-	{
-		return;
-	}
+	//if (cnt != 0)
+	//{
+	//	return;
+	//}
 	// If there were any children nodes then there is no need to continue as parent nodes won't contain any triangles to render.
-	
+
 
 	// Otherwise if this node can be seen and has triangles in it then render these triangles.
 
@@ -414,11 +399,6 @@ void QuadTree::RenderNode(NodeType* node)
 	stride = sizeof(VertexType);
 	offset = 0;
 
-	// Set the vertex buffer to active in the input assembler so it can be rendered.
-	D3D::GetDC()->IASetVertexBuffers(0, 1, &node->VertexBuffer, &stride, &offset);
-
-	// Set the index buffer to active in the input assembler so it can be rendered.
-	D3D::GetDC()->IASetIndexBuffer(node->IndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
 	// Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
 	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -427,7 +407,7 @@ void QuadTree::RenderNode(NodeType* node)
 	indexCount = node->TriangleCount * 3;
 
 	// Call the terrain shader to render the polygons in this node.
-	shader->DrawIndexed(0,0,indexCount);
+	shader->DrawIndexed(0, 1, indexCount);
 
 	// Increase the count of the number of polygons that have been rendered during this frame.
 	drawCount += node->TriangleCount;

@@ -1,5 +1,6 @@
 #pragma once
 
+
 class QuadTree : public Renderer
 {
 public:
@@ -20,9 +21,13 @@ private:
 		int TriangleCount;
 		Transform* transform;
 		Collider* collider;
-		ID3D11Buffer* VertexBuffer, * IndexBuffer;
+		VertexBuffer* VertexBuffer;
+		IndexBuffer* IndexBuffer;
 		NodeType* Nodes[4];
 	}nodeType;
+
+private:
+	enum {eTerrainSize =256};
 
 public:
 	void Init(class Terrain* terrain);
@@ -37,9 +42,11 @@ private:
 	bool IsTriangleContained(int index, float positionX, float positionZ, float width);
 	void search(NodeType* parent,float count);
 	void RenderNode(NodeType* node);
+
 private:
 	int triangleCount, drawCount;
 	VertexType* vertexList = nullptr;
+	UINT* indexList = nullptr;
 	NodeType* parentNode = nullptr;
 	Transform* transform = nullptr;
 	Frustum* frustum = nullptr;
@@ -48,6 +55,4 @@ private:
 	Texture* baseMap = NULL;
 	ID3DX11EffectShaderResourceVariable* sBaseMap;
 
-
-	//Shader* shader = nullptr;
 };

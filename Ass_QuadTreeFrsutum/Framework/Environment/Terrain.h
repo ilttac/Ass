@@ -20,6 +20,9 @@ public:
 	Vector3 GetPickedPosition();
 	Texture* GetHeightMap();
 	Texture* GetBaseMap();
+	void CopyIndicesArray(void* indicesList);
+	
+	int GetIndexCount();
 	int GetVertexCount();
 	void CopyVertexArray(void* vertexList);
 

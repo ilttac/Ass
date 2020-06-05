@@ -216,11 +216,19 @@ Texture* Terrain::GetBaseMap()
 		return baseMap;
 }
 
+void Terrain::CopyIndicesArray(void* indicesList)
+{
+	memcpy(indicesList, indices, sizeof(TerrainVertex) * indexCount);
+}
+
 int Terrain::GetVertexCount()
 {
 	return vertexCount;
 }
-
+int Terrain::GetIndexCount()
+{
+	return indexCount;
+}
 void Terrain::CopyVertexArray(void* vertexList)
 {
 	memcpy(vertexList, vertices, sizeof(TerrainVertex) * vertexCount);
