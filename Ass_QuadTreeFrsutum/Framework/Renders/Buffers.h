@@ -13,7 +13,7 @@ public:
 	void Render();
 
 private:
-	ID3D11Buffer * buffer;
+	ID3D11Buffer * buffer ;
 
 	void* data;
 	UINT count;

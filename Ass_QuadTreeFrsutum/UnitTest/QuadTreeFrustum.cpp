@@ -5,11 +5,9 @@
 void QuadTreeFrustum::Initialize()
 {
 	Context::Get()->GetCamera()->RotationDegree(11, 0, 0);
-	Context::Get()->GetCamera()->Position(0, 20, -70);
-	((Freedom*)Context::Get()->GetCamera())->Speed(20, 2);
+	Context::Get()->GetCamera()->Position(103, 136, -89);
+	((Freedom*)Context::Get()->GetCamera())->Speed(60, 2);
 
-	gridShader = new Shader(L"31_Mesh.fxo");
-	
 
 	terrainShader = new Shader(L"21_Terrain_Brush.fxo");
 	terrain = new Terrain(terrainShader, L"Terrain/Gray256.png");
@@ -20,20 +18,9 @@ void QuadTreeFrustum::Initialize()
     //texture, vs,ps sha
 
 
-	floor = new Material(gridShader);
-	floor->DiffuseMap(L"White.png");
-
-	grid = new MeshRender(gridShader, new MeshGrid());
-	grid->AddTransform()->Scale(10, 10, 10);
-	grid->UpdateTransforms();
-
 	camera = new Fixity();
 	camera->Position(100, 0, 0);
 	perspective = new Perspective(1024, 768, 1, zFar, Math::PI * fov);
-	
-	t = new Transform();
-	t->Position(0, 0, -50);
-	frustumCamera = new FrustumCamera(t);
 	
 	frustum = new Frustum(camera, perspective);
 
@@ -43,66 +30,24 @@ void QuadTreeFrustum::Initialize()
 	shader = new Shader(L"47_CpuFrustum.fxo");
 	perFrame = new PerFrame(shader);
 
-	red = new Material(shader);
-	red->DiffuseMap("Red.png");
-
-	for (float z = -50.0f; z < 50.0f; z += 10)
-	{
-		for (float y = -50.0f; y < 50.0f; y += 10)
-		{
-			for (float x = -50.0f; x < 50.0f; x += 10)
-			{
-				Transform* transform = new Transform(shader);
-				transform->Position(x, y, z);
-
-				transforms.push_back(transform);
-			}
-		}
-	}
-
-	CreateMeshData();
 	GuiSet();
-
-	modelShader = new Shader(L"47_GpuFrustum.fxo");
-	model = new ModelRender(modelShader);
-	model->ReadMaterial(L"B787/Airplane");
-	model->ReadMesh(L"B787/Airplane");
-	
-	for (float z = -100; z < 100; z += 30)
-	{
-		for (float y = -100; y < 100; y += 30)
-		{
-			for (float x = -100; x < 100; x += 30)
-			{
-				Transform* transform = model->AddTransform();
-				transform->Position(x, y, z);
-				transform->Scale(0.004f, 0.004f, 0.004f);
-				transform->Rotation(0, Math::PI * 0.25f, 0);
-			}
-		}
-	}
-	model->UpdateTransforms();
 
 }
 
 void QuadTreeFrustum::Destroy()
 {
-	SafeDelete(gridShader);
+
 	SafeDelete(shader);
 	SafeDelete(perFrame);
 
 	SafeDelete(terrainShader);
 	SafeDelete(terrain);
 
-	SafeDelete(red);
-	SafeDelete(floor);
-
 	SafeDelete(camera);
 	SafeDelete(perspective);
 	SafeDelete(frustum);
 
-	SafeDelete(modelShader);
-	SafeDelete(model);
+
 }
 
 void QuadTreeFrustum::Update()
@@ -110,43 +55,49 @@ void QuadTreeFrustum::Update()
 	static float cameraX = camera->GetPosition().x;
 	static float cameraY = camera->GetPosition().y;
 	static float cameraZ = camera->GetPosition().z;
+	
+	static Vector3 rotation = camera->GetRotation();
 
 	ImGui::Begin("Debug");
 	{
-		ImGui::TextColored(ImVec4(0,0,1,1), "Frustum");
+		ImGui::TextColored(ImVec4(0,0,9,1), "Frustum");
 		ImGui::SliderFloat("zFar", &zFar, 1.0f,500.0f);
 		ImGui::SliderFloat("FOV", &fov, 1e-3f,1.0f);
 		ImGui::SliderFloat("width", &width, 1.0f,2000.0f);
 		ImGui::SliderFloat("height", &height, 1.0f, 1000.0f);
-		ImGui::TextColored(ImVec4(0, 0, 1, 1), "Position");
-		ImGui::PushItemWidth(50);
-		ImGui::SliderFloat("x", &cameraX, -100.0f, 100.0f);
+		ImGui::TextColored(ImVec4(0, 0, 9, 1), "Position");
+		ImGui::PushItemWidth(100);
+		ImGui::SliderFloat("x", &cameraX, -300.0f, 300.0f);
 		ImGui::SameLine();				   
-		ImGui::SliderFloat("y", &cameraY, -100.0f, 100.0f);
+		ImGui::SliderFloat("y", &cameraY, -300.0f, 300.0f);
 		ImGui::SameLine();				   
-		ImGui::SliderFloat("z", &cameraZ, -100.0f, 100.0f);
+		ImGui::SliderFloat("z", &cameraZ, -300.0f, 300.0f);
+		ImGui::NewLine();
+		ImGui::TextColored(ImVec4(0, 0, 9, 1), "Rotation");
+		ImGui::SliderFloat("xAxis", &rotation.x, -180.0f+ 1e-6f, 180.0f - 1e-6f);
+		ImGui::SameLine();
+		ImGui::SliderFloat("yAxis", &rotation.y, -180.0f + 1e-6f, 180.0f - 1e-6f);
+		ImGui::SameLine();
+		ImGui::SliderFloat("zAxis", &rotation.z, -180.0f + 1e-6f, 180.0f - 1e-6f);
 	}
 	ImGui::End();
 	camera->Position(cameraX, cameraY, cameraZ);
-	//float diag = sqrt((height * height) + (width * width));
-	//fov = 2 * atan((width) / (2 * zFar))*(180/Math::PI);
+	camera->RotationDegree(rotation);
+	
 	perspective->Set(width, height, 1, zFar, Math::PI * fov);
 	
-	frustumCamera->Update();
 	frustum->Update();
 	perFrame->Update();
-	grid->Update();
 
 	terrain->Update();
 	quadTree->Update();
 	camera->Update();
-	model->Update();
 }
 
 void QuadTreeFrustum::Render()
 {
-	floor->Render();
-	grid->Render();
+	//floor->Render();
+	//grid->Render();
 	frustum->Render();
 	//wireFrame mode // ImGui 
 	//terrain->Pass(1);
@@ -156,10 +107,10 @@ void QuadTreeFrustum::Render()
 	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	perFrame->Render();
-	vertexBuffer->Render();
-	indexBuffer->Render();
+	//vertexBuffer->Render();
+	//indexBuffer->Render();
 
-	red->Render();
+
 
 	UINT drawCount = 0;
 	Vector3 position;
@@ -178,85 +129,11 @@ void QuadTreeFrustum::Render()
 		}
 	}
 
-	string str = "Draw : " + to_string(drawCount) + ", Toal : " + to_string(transforms.size());
+	string str = "TriangleCount : " + to_string(quadTree->GetDrawCount());
 	Gui::Get()->RenderText(10, 60, 0, 1, 1, str);
 
 	Plane planes[6];
 	frustum->Planes(planes);
-	modelShader->AsVector("Planes")->SetFloatVectorArray((float*)planes, 0, 6);
-
-	model->Pass(1);
-	model->Render();
-}
-
-void QuadTreeFrustum::CreateMeshData()
-{
-	vector<Mesh::MeshVertex> v;
-
-	float w, h, d;
-	w = h = d = 0.5f;
-
-	//Front
-	v.push_back(Mesh::MeshVertex(-w, -h, -d, 0, 1, 0, 0, -1, 1, 0, 0));
-	v.push_back(Mesh::MeshVertex(-w, +h, -d, 0, 0, 0, 0, -1, 1, 0, 0));
-	v.push_back(Mesh::MeshVertex(+w, +h, -d, 1, 0, 0, 0, -1, 1, 0, 0));
-	v.push_back(Mesh::MeshVertex(+w, -h, -d, 1, 1, 0, 0, -1, 1, 0, 0));
-
-	//Back
-	v.push_back(Mesh::MeshVertex(-w, -h, +d, 1, 1, 0, 0, 1, -1, 0, 0));
-	v.push_back(Mesh::MeshVertex(+w, -h, +d, 0, 1, 0, 0, 1, -1, 0, 0));
-	v.push_back(Mesh::MeshVertex(+w, +h, +d, 0, 0, 0, 0, 1, -1, 0, 0));
-	v.push_back(Mesh::MeshVertex(-w, +h, +d, 1, 0, 0, 0, 1, -1, 0, 0));
-
-	//Top
-	v.push_back(Mesh::MeshVertex(-w, +h, -d, 0, 1, 0, 1, 0, 1, 0, 0));
-	v.push_back(Mesh::MeshVertex(-w, +h, +d, 0, 0, 0, 1, 0, 1, 0, 0));
-	v.push_back(Mesh::MeshVertex(+w, +h, +d, 1, 0, 0, 1, 0, 1, 0, 0));
-	v.push_back(Mesh::MeshVertex(+w, +h, -d, 1, 1, 0, 1, 0, 1, 0, 0));
-
-	//Bottom
-	v.push_back(Mesh::MeshVertex(-w, -h, -d, 1, 1, 0, -1, 0, -1, 0, 0));
-	v.push_back(Mesh::MeshVertex(+w, -h, -d, 0, 1, 0, -1, 0, -1, 0, 0));
-	v.push_back(Mesh::MeshVertex(+w, -h, +d, 0, 0, 0, -1, 0, -1, 0, 0));
-	v.push_back(Mesh::MeshVertex(-w, -h, +d, 1, 0, 0, -1, 0, -1, 0, 0));
-
-	//Left
-	v.push_back(Mesh::MeshVertex(-w, -h, +d, 0, 1, -1, 0, 0, 0, 0, -1));
-	v.push_back(Mesh::MeshVertex(-w, +h, +d, 0, 0, -1, 0, 0, 0, 0, -1));
-	v.push_back(Mesh::MeshVertex(-w, +h, -d, 1, 0, -1, 0, 0, 0, 0, -1));
-	v.push_back(Mesh::MeshVertex(-w, -h, -d, 1, 1, -1, 0, 0, 0, 0, -1));
-
-	//Right
-	v.push_back(Mesh::MeshVertex(+w, -h, -d, 0, 1, 1, 0, 0, 0, 0, 1));
-	v.push_back(Mesh::MeshVertex(+w, +h, -d, 0, 0, 1, 0, 0, 0, 0, 1));
-	v.push_back(Mesh::MeshVertex(+w, +h, +d, 1, 0, 1, 0, 0, 0, 0, 1));
-	v.push_back(Mesh::MeshVertex(+w, -h, +d, 1, 1, 1, 0, 0, 0, 0, 1));
-
-	Mesh::MeshVertex* vertices = new Mesh::MeshVertex[v.size()];
-	UINT vertexCount = v.size();
-
-	copy
-	(
-		v.begin(), v.end(),
-		stdext::checked_array_iterator<Mesh::MeshVertex*>(vertices, vertexCount)
-	);
-
-	UINT indexCount = 36;
-	UINT* indices = new UINT[indexCount]
-	{
-		0, 1, 2, 0, 2, 3,
-		4, 5, 6, 4, 6, 7,
-		8, 9, 10, 8, 10, 11,
-		12, 13, 14, 12, 14, 15,
-		16, 17, 18, 16, 18, 19,
-		20, 21, 22, 20, 22, 23
-	};
-
-	vertexBuffer = new VertexBuffer(vertices, vertexCount, sizeof(Mesh::MeshVertex));
-	indexBuffer = new IndexBuffer(indices, indexCount);
-
-	SafeDeleteArray(vertices);
-	SafeDeleteArray(indices);
 }
 
 void QuadTreeFrustum::GuiSet()

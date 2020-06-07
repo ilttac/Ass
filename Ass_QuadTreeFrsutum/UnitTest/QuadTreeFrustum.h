@@ -15,27 +15,21 @@ public:
 	virtual void ResizeScreen() override {};
 
 private:
-	void CreateMeshData();
 	void GuiSet();
 
 private:
-	Material * red;
+
 	Shader* shader;
 	VertexBuffer* vertexBuffer;
 	IndexBuffer* indexBuffer;
 	PerFrame* perFrame;
-
-	FrustumCamera* frustumCamera;
 
 	Shader* terrainShader;
 	vector<Transform*> transforms;
 	
 	Transform* t;
 
-	Material* floor;
-	Shader* gridShader;
-	MeshRender* grid;
-	
+
 	float fov = 0.25f;
 	float zFar = 100.0f;
 
@@ -47,8 +41,7 @@ private:
 	Frustum* frustum;
 	QuadTree* quadTree;
 
-	Shader* modelShader;
-	ModelRender* model;
+
 
 	class Terrain* terrain;
 };

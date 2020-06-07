@@ -10,7 +10,7 @@ public:
 
 public:
 	Vector3 GetPosition();
-
+	Vector3 GetRotation() { return rotation; }
 	void Position(float x, float y, float z);
 	void Position(Vector3& vec);
 	void Position(Vector3* vec);

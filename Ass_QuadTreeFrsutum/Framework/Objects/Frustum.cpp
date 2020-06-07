@@ -69,48 +69,28 @@ void Frustum::Render()
 
 	float height = perspective->GetHeight();
 	float width = perspective->GetWidth();
-	float zn = perspective->GetZn();
 	float zf = perspective->GetZf();
 	float fov = perspective->GetFov();
 	float aspect = width / height;
 
-	Matrix temp;
-	Matrix temp2;
 	//Camera
-	Vector3 front = camera->Foward() * zf ;
 	Vector3 Up = camera->Up();
 	Vector3 Right = camera->Right();
-	Vector3 Down = -Up;
-	Vector3 Left = -Right;
 
-	float len = D3DXVec3Length(&front) / cos(fov / Math::PI * 2);
-	Vector3 leftSide = front;
-	Vector3 rightSide = front;
+	float hFar = 2 * tan(fov / 2) * zf;
+	float wFar = aspect * hFar;
+	Vector3 cFar = position + camera->Foward() * zf;
 
-	D3DXMatrixRotationY(&temp,- fov/Math::PI * 2);
-	D3DXVec3TransformCoord(&leftSide, &leftSide, &temp);
-
-	D3DXMatrixRotationY(&temp2,fov / Math::PI * 2);
-	D3DXVec3TransformCoord(&rightSide, &rightSide, &temp2);
-
-	leftSide *= (len / zf);
-	rightSide *= (len / zf);
-	float widthHalf = sqrt(pow(len, 2) - pow(zf, 2));
-	float heightHalf = (height / width) * widthHalf;
-
-	//camera zn
 	dest[0] = position;
-	//왼쪽 위
-	dest[1] = front +(Left* widthHalf)+ (Up * heightHalf) + position;
-	//오른쪽 위
-	dest[2] = front + (Right * widthHalf) + (Up * heightHalf) + position;
-	//dest[2] = rightSide + (Up * heightHalf) + position;
-	//오른쪽 아래
-	dest[3] = front + (Right * widthHalf) + (Down * heightHalf) + position;
-	/*dest[3] = rightSide + (Down * heightHalf) + position;*/
-	//왼쪽 아래
-	dest[4] = front + (Left * widthHalf) + (Down * heightHalf) + position;
-	/*dest[4] = leftSide + (Down * heightHalf) + position;*/
+
+	dest[1] = cFar + (Up * (hFar / 2)) - (Right * wFar / 2);
+
+	dest[2] = cFar + (Up * (hFar / 2)) + (Right * wFar / 2);
+
+	dest[3] = cFar - (Up * (hFar / 2)) + (Right * wFar / 2);
+
+	dest[4] = cFar - (Up * (hFar / 2)) - (Right * wFar / 2);
+
 
 	Color color = Color(1, 0, 0, 1);
 	DebugLine::Get()->RenderLine(dest[0], dest[1], color);

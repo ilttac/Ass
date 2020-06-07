@@ -21,24 +21,27 @@ private:
 		int TriangleCount;
 		Transform* transform;
 		Collider* collider;
-		VertexBuffer* VertexBuffer;
-		IndexBuffer* IndexBuffer;
+		UINT vertexCnt = 0;
+		UINT indexCnt = 0;
+		VertexBuffer* VertexBuffer = NULL;
+		IndexBuffer* IndexBuffer = NULL;
 		NodeType* Nodes[4];
 	}nodeType;
 
 private:
 	enum {eTerrainSize =256};
+	int renderMode = 0;
 
 public:
 	void Init(class Terrain* terrain);
 	void Update();
 	void Render();
 	Transform* GetTransform() { return transform; }
-
+	int GetDrawCount() { return drawCount; }
 private:
 	int CountTriangles(float positionX, float positionZ, float width);
 	void CalculateMeshDimensions(int vertexCount, float& centerX, float& centerZ, float& meshWidth);
-	void CreateTreeNode(NodeType* node, float positionX, float positionZ, float width, ID3D11Device* device);
+	void CreateTreeNode(NodeType* node, float positionX, float positionZ, float width);
 	bool IsTriangleContained(int index, float positionX, float positionZ, float width);
 	void search(NodeType* parent,float count);
 	void RenderNode(NodeType* node);

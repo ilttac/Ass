@@ -218,7 +218,7 @@ Texture* Terrain::GetBaseMap()
 
 void Terrain::CopyIndicesArray(void* indicesList)
 {
-	memcpy(indicesList, indices, sizeof(TerrainVertex) * indexCount);
+	memcpy(indicesList, indices, sizeof(UINT) * indexCount);
 }
 
 int Terrain::GetVertexCount()
