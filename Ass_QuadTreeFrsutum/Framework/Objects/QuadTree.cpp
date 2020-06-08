@@ -66,7 +66,6 @@ void QuadTree::Render()
 	search(parentNode, 1);
 	if (baseMap != NULL)
 		sBaseMap->SetResource(baseMap->SRV());
-	// 이 프레임에 대해 그려지는 삼각형의 수를 초기화합니다.
 	drawCount = 0;
 	// 부모 노드에서 시작하여 트리 아래로 이동하여 보이는 각 노드를 렌더링합니다.
 	RenderNode(parentNode);
@@ -285,9 +284,6 @@ void QuadTree::CreateTreeNode(NodeType * node, float positionX, float positionZ,
 		}
 		return;
 	}
-
-
-
 }
 
 bool QuadTree::IsTriangleContained(int index, float positionX, float positionZ, float width)
@@ -399,7 +395,7 @@ void QuadTree::RenderNode(NodeType * node)
 	int indexCount;
 	unsigned int stride, offset;
 
-
+	// ??? 판정이상함 
 	//bool result[4] = { true,true,true,true };
 	////왼쪽위
 	//if (!frustum->CheckPoint(Vector3(node->PositionX - (node->Width / 2), 0, node->PositionZ + (node->Width / 2))))

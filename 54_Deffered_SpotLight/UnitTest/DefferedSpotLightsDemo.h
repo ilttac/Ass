@@ -19,7 +19,7 @@ private:
 	void Kachujin();
 	
 	void Pass(UINT mesh, UINT model, UINT anim);
-
+	void GuiSet();
 	void AddPointLights();
 	void AddSpotLights();
 

@@ -48,7 +48,12 @@ private:
 
 private:
 	bool bDebug = false;
+	bool bcheck[MAX_POINT_LIGHT];
+	int index = 0;
+	float intensity[MAX_POINT_LIGHT] = { 0.0f ,};
+	float firstRange[MAX_POINT_LIGHT];
 
+	float time = 0.0f;
 private:
 	Shader* shader;
 	UINT width, height;

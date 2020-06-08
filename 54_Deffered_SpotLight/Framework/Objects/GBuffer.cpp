@@ -48,6 +48,10 @@ GBuffer::GBuffer(Shader* shader, UINT width, UINT height)
 	debug2D[5]->SRV(depthStencil->SRV());
 
 
+	for (UINT i = 0; i < MAX_POINT_LIGHT; i++)
+	{
+		bcheck[i] = true;
+	}
 
 }
 
@@ -118,7 +122,7 @@ void GBuffer::Lighting()
 
 	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_1_CONTROL_POINT_PATCHLIST);
 
-	//RenderPointLights();
+	RenderPointLights();
 	RenderSpotLights();
 }
 
@@ -219,15 +223,64 @@ void GBuffer::CalcPointLights(UINT count)
 void GBuffer::RenderPointLights()
 {
 	ImGui::InputFloat("PointLight Factor", &pointLightDesc.TessFator, 1.0f);
-	sPointLightBuffer->SetConstantBuffer(pointLightBuffer->Buffer());
+	ImGui::InputInt("Index", &index);
+	index %= MAX_POINT_LIGHT;
+	time += 1.0f * Time::Delta();
 
+	ImGui::Checkbox("On/Off", &bcheck[index]);
+
+	for (UINT i = 0; i < MAX_POINT_LIGHT; i++)
+	{
+		float& range = Context::Get()->GetPointLight(i).Range;
+		if (range < 0.0f + 1e-6)
+		{
+			continue;
+		}
+		if (int(time) % 2 == 0)
+		{
+			range += 3.0f* Time::Delta();
+		}
+		else
+		{
+			range -= 3.0f * Time::Delta();
+		}
+	}
+	float& range = Context::Get()->GetPointLight(index).Range;
+	if (bcheck[index] == false)
+	{
+		range = 0.0f;
+	}
+	else
+	{
+		if (range < 0.0f + 1e-6)
+		{
+			range = (float)(rand()%20);
+		}
+	}
+
+	
+	float& x = Context::Get()->GetPointLight(index).Position.x;
+	float& y= Context::Get()->GetPointLight(index).Position.y;
+	float& z= Context::Get()->GetPointLight(index).Position.z;
+	ImGui::NewLine();
+
+	ImGui::TextColored(ImVec4(0, 0, 9, 1), "Position");
+	ImGui::PushItemWidth(80);
+	ImGui::SliderFloat("pX", &x, -100.0f,100.0f);
+	ImGui::SliderFloat("pY", &y, -100.0f,100.0f);
+	ImGui::SliderFloat("pZ", &z, -100.0f,100.0f);
+	ImGui::PopItemWidth();
+	ImGui::NewLine();
+
+
+	sPointLightBuffer->SetConstantBuffer(pointLightBuffer->Buffer());
 	//PointLight - Debug
 	{
 		if (bDebug == true)
 		{
 			sRSS->SetRasterizerState(0, debugRSS);
-
 			UINT count = Context::Get()->PointLights(pointLightDesc.PointLight);
+			
 			CalcPointLights(count);
 
 			pointLightBuffer->Apply();
