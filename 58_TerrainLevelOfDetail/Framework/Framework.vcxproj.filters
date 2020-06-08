@@ -34,6 +34,9 @@
     <Filter Include="Environment\Water">
       <UniqueIdentifier>{3d10aeea-d0a1-4d2f-82b0-2f24567330e5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Environment\Terrain">
+      <UniqueIdentifier>{c1c3b2ce-f627-4728-8ce1-255a34c656cd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Renders\Context.cpp">
@@ -87,9 +90,6 @@
     <ClCompile Include="Framework.cpp" />
     <ClCompile Include="Viewer\Camera.cpp">
       <Filter>Viewer</Filter>
-    </ClCompile>
-    <ClCompile Include="Environment\Terrain.cpp">
-      <Filter>Environment</Filter>
     </ClCompile>
     <ClCompile Include="Viewer\Freedom.cpp">
       <Filter>Viewer</Filter>
@@ -211,6 +211,12 @@
     <ClCompile Include="Environment\Water.cpp">
       <Filter>Environment\Water</Filter>
     </ClCompile>
+    <ClCompile Include="Environment\Terrain.cpp">
+      <Filter>Environment\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Environment\TerrainLod.cpp">
+      <Filter>Environment\Terrain</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Renders\Context.h">
@@ -273,9 +279,6 @@
     </ClInclude>
     <ClInclude Include="Viewer\Freedom.h">
       <Filter>Viewer</Filter>
-    </ClInclude>
-    <ClInclude Include="Environment\Terrain.h">
-      <Filter>Environment</Filter>
     </ClInclude>
     <ClInclude Include="Meshes\Mesh.h">
       <Filter>Meshes</Filter>
@@ -393,6 +396,12 @@
     </ClInclude>
     <ClInclude Include="Environment\Water.h">
       <Filter>Environment\Water</Filter>
+    </ClInclude>
+    <ClInclude Include="Environment\Terrain.h">
+      <Filter>Environment\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Environment\TerrainLod.h">
+      <Filter>Environment\Terrain</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

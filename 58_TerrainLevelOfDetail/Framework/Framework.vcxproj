@@ -29,6 +29,7 @@
     <ClCompile Include="Environment\Sky\Sky.cpp" />
     <ClCompile Include="Environment\Snow.cpp" />
     <ClCompile Include="Environment\Terrain.cpp" />
+    <ClCompile Include="Environment\TerrainLod.cpp" />
     <ClCompile Include="Environment\Water.cpp" />
     <ClCompile Include="Framework.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -92,6 +93,7 @@
     <ClInclude Include="Environment\Sky\Sky.h" />
     <ClInclude Include="Environment\Snow.h" />
     <ClInclude Include="Environment\Terrain.h" />
+    <ClInclude Include="Environment\TerrainLod.h" />
     <ClInclude Include="Environment\Water.h" />
     <ClInclude Include="Framework.h" />
     <ClInclude Include="Meshes\Mesh.h" />

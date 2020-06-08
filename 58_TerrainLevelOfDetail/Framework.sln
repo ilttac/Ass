@@ -88,6 +88,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "41-", "41-", "{B2E9AA27-69F
 		_Shaders\52_DefferedShadow.fx = _Shaders\52_DefferedShadow.fx
 		_Shaders\53_DefferedShadow.fx = _Shaders\53_DefferedShadow.fx
 		_Shaders\54_Water.fx = _Shaders\54_Water.fx
+		_Shaders\55_TerrainLod.fx = _Shaders\55_TerrainLod.fx
 	EndProjectSection
 EndProject
 Global
