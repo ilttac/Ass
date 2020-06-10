@@ -144,6 +144,9 @@
     <ClCompile Include="TerrainLodDemo.cpp">
       <Filter>Environment</Filter>
     </ClCompile>
+    <ClCompile Include="BillboardCrossQuadDemo.cpp">
+      <Filter>Environment</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Main.h" />
@@ -287,6 +290,9 @@
       <Filter>Environment</Filter>
     </ClInclude>
     <ClInclude Include="TerrainLodDemo.h">
+      <Filter>Environment</Filter>
+    </ClInclude>
+    <ClInclude Include="BillboardCrossQuadDemo.h">
       <Filter>Environment</Filter>
     </ClInclude>
   </ItemGroup>

@@ -3,7 +3,7 @@
 
 Moon::Moon(Shader * shader)
 	: Renderer(shader)
-	, distance(75) ,glowDistance(70)
+	, distance(79.5f) ,glowDistance(79.4f)
 {
 	moon = new Texture(L"Environment/Moon.png");
 	moonGlow = new Texture(L"Environment/MoonGlow.png");
@@ -50,10 +50,13 @@ void Moon::Render(float theta)
 
 	sAlpha->SetFloat(GetAlpha(theta));
 
+	float scale = 3.5f;
+
 	//Moon
 	{
 		Matrix W = GetTransform(theta);
 		transform->World(W);
+		transform->Scale(scale, scale, scale);
 
 		Super::Render();
 
@@ -65,6 +68,7 @@ void Moon::Render(float theta)
 	{
 		Matrix W = GetGlowTransform(theta);
 		transform->World(W);
+		transform->Scale(scale*2.5f, scale * 2.5f, scale * 2.5f);
 
 		Super::Render();
 
@@ -85,13 +89,13 @@ float Moon::GetAlpha(float theta)
 
 Matrix Moon::GetTransform(float theta)
 {
-	Vector3 position(0,0,0);
-	Context::Get()->GetCamera()->Position(&position);
+	/*Vector3 position(0,0,0);
+	Context::Get()->GetCamera()->Position(&position);*/
 
 	Matrix S, R, T, D;
 	D3DXMatrixScaling(&S, 5, 5, 1);
 	D3DXMatrixRotationYawPitchRoll(&R, Math::PI * 0.5f, theta - (Math::PI * 0.5f), 0);
-	D3DXMatrixTranslation(&T, position.x, position.y, position.z);
+	D3DXMatrixTranslation(&T, 0, -5, 0);
 
 	Vector3 direction = Context::Get()->Direction();
 	D3DXMatrixTranslation
@@ -107,13 +111,13 @@ Matrix Moon::GetTransform(float theta)
 
 Matrix Moon::GetGlowTransform(float theta)
 {
-	Vector3 position(0, 0, 0);
-	Context::Get()->GetCamera()->Position(&position);
+	//Vector3 position(0, 0, 0);
+	//Context::Get()->GetCamera()->Position(&position);
 
 	Matrix S, R, T, D;
 	D3DXMatrixScaling(&S, 10, 10, 1);
 	D3DXMatrixRotationYawPitchRoll(&R, Math::PI * 0.5f, theta - (Math::PI * 0.5f), 0);
-	D3DXMatrixTranslation(&T, position.x, position.y, position.z);
+	D3DXMatrixTranslation(&T,0, -5, 0);
 
 	Vector3 direction = Context::Get()->Direction();
 	D3DXMatrixTranslation

@@ -119,3 +119,4 @@ typedef D3DXPLANE Plane;
 #include "Environment/Sky/Sky.h"
 #include "Environment/Water.h"
 #include "Environment/TerrainLod.h"
+#include "Environment/Billboard.h"

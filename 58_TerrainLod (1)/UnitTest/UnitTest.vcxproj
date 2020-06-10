@@ -125,6 +125,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BillboardCrossQuadDemo.cpp" />
     <ClCompile Include="ByteAddressDemo.cpp" />
     <ClCompile Include="ColliderDemo.cpp" />
     <ClCompile Include="CpuBillboardDemo.cpp">
@@ -182,6 +183,7 @@
     <ClCompile Include="WorldDemo.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BillboardCrossQuadDemo.h" />
     <ClInclude Include="ByteAddressDemo.h" />
     <ClInclude Include="ColliderDemo.h" />
     <ClInclude Include="CpuBillboardDemo.h">

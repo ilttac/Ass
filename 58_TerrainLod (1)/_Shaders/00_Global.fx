@@ -213,6 +213,10 @@ RasterizerState FillMode_WireFrame
 {
     FillMode = WireFrame;
 };
+RasterizerState CullMode_None
+{
+	CullMode = None;
+};
 
 RasterizerState FrontCounterCloskwise_True
 {

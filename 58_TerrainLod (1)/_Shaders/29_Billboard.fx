@@ -63,6 +63,7 @@ void GS(point VertexOutput input[1], inout TriangleStream<GeometryOutput> stream
         float2(0, 1), float2(0, 0), float2(1, 1), float2(1, 0)
     };
 
+	
     GeometryOutput output;
 
     [unroll(4)]

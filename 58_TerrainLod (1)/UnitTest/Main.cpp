@@ -49,10 +49,11 @@
 #include "ScatteringDemo.h"
 #include "WaterDemo.h"
 #include "TerrainLodDemo.h"
+#include "BillboardCrossQuadDemo.h"
 
 void Main::Initialize()
 {
-	Push(new TerrainLodDemo());
+	Push(new BillboardCrossQuadDemo());
 }
 
 void Main::Ready()

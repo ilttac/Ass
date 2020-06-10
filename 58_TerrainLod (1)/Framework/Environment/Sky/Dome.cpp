@@ -7,7 +7,7 @@ Dome::Dome(Shader * shader, Vector3 position, Vector3 scale, UINT drawCount)
 	starMap = new Texture(L"Environment/Starfield.png");
 	sStarMap = shader->AsSRV("StarMap");
 
-	GetTransform()->Position(position);
+	GetTransform()->Position(position.x,position.y-5.0f, position.z);
 	GetTransform()->Scale(scale);
 
 	UINT latitude = drawCount / 2; //À§µµ

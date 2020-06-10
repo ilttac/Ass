@@ -29,15 +29,15 @@ void GeometryBillboardDemo::Initialize()
 	bb->AddTexture(L"Magenta.png");
 	bb->AddTexture(L"Yellow.png");
 
-	for (UINT i = 0; i < 1000; i++)
-	{
-		Vector2 scale = Math::RandomVec2(3.0f, 10.0f);		
+	//for (UINT i = 0; i < 1000; i++)
+	//{
+	//	Vector2 scale = Math::RandomVec2(3.0f, 10.0f);		
 
-		Vector3 position = Math::RandomVec3(0.0f, 255.0f);
-		position.y = terrain->GetHeight(position) + scale.y * 0.5f;
+	//	Vector3 position = Math::RandomVec3(0.0f, 255.0f);
+	//	position.y = terrain->GetHeight(position) + scale.y * 0.5f;
 
-		bb->Add(position, scale);
-	}
+	//	bb->Add(position, scale);
+	//}
 }
 
 void GeometryBillboardDemo::Destroy()

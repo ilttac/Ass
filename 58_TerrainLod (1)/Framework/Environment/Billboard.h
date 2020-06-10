@@ -6,7 +6,7 @@ public:
 	Billboard(Shader* shader);
 	~Billboard();
 
-	void Add(Vector3& position, Vector2& scale);
+	void Add(Vector3& position, Vector2& scale,UINT mapIndex);
 	void AddTexture(wstring file);
 
 	void Update();
@@ -17,6 +17,7 @@ private:
 	{
 		Vector3 Position;
 		Vector2 Scale;
+		UINT MapIndex;
 	};
 
 private:

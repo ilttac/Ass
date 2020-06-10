@@ -14,11 +14,12 @@ Billboard::~Billboard()
 	SafeDelete(textures);
 }
 
-void Billboard::Add(Vector3 & position, Vector2 & scale)
+void Billboard::Add(Vector3 & position, Vector2 & scale, UINT mapIndex)
 {
 	VertexScale vertex;
 	vertex.Position = position;
 	vertex.Scale = scale;
+	vertex.MapIndex = mapIndex;
 
 	vertices.push_back(vertex);
 }
@@ -38,6 +39,9 @@ void Billboard::Update()
 
 void Billboard::Render()
 {
+	if (textureFiles.size() > 0 && textures == NULL)
+		textures = new TextureArray(textureFiles);
+
 	if (vertices.size() != vertexCount)
 	{
 		vertexCount = vertices.size();
@@ -46,8 +50,6 @@ void Billboard::Render()
 		vertexBuffer = new VertexBuffer(&vertices[0], vertices.size(), sizeof(VertexScale));
 	}
 
-	if (textureFiles.size() > 0 && textures == NULL)
-		textures = new TextureArray(textureFiles);
 
 	Super::Render();
 
