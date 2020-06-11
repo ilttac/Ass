@@ -28,7 +28,6 @@ void Converter::ReadFile(wstring file)
 		| aiProcess_CalcTangentSpace
 	);
 	assert(scene != NULL);
-
 }
 
 void Converter::ExportMaterial(wstring savePath, bool bOverwirte)
@@ -77,7 +76,6 @@ void Converter::ReadMaterial()
 
 		materials.push_back(material);
 	}
-
 }
 
 void Converter::WriteMaterial(wstring savePath, bool bOverWrite)
@@ -157,7 +155,6 @@ void Converter::WriteMaterial(wstring savePath, bool bOverWrite)
 
 		SafeDelete(material);
 	}
-
 	document->SaveFile((folder + file).c_str());
 	SafeDelete(document);
 }

@@ -239,7 +239,7 @@ copy /Y "$(SolutionDir)Debug\Framework.pdb" "$(SolutionDir)UnitTest\"
 copy /Y "$(SolutionDir)Debug\Framework.lib" "$(SolutionDir)ModelConv\"
 copy /Y "$(SolutionDir)Debug\Framework.pdb" "$(SolutionDir)ModelConv\"
 
-copy /Y "$(SolutionDir)Debug\Framework.lib" "$(SolutionDir)MapEditor"
+copy /Y "$(SolutionDir)Debug\Framework.lib" "$(SolutionDir)MapEditor\"
 copy /Y "$(SolutionDir)Debug\Framework.pdb" "$(SolutionDir)MapEditor\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
