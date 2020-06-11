@@ -2,10 +2,11 @@
 #include "Main.h"
 #include "Systems/Window.h"
 
-#include "Viewer.h"
+#include "ImGuiTest.h"
 
 void Main::Initialize()
 {
+	Push(new ImGuiTest());
 }
 
 void Main::Ready()

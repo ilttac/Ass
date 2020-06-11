@@ -220,6 +220,9 @@
     <ClCompile Include="Environment\TerrainLod.cpp">
       <Filter>Environment\Terrain</Filter>
     </ClCompile>
+    <ClCompile Include="Particle\ParticleSystem.cpp">
+      <Filter>Particle</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Renders\Context.h">
@@ -407,6 +410,9 @@
       <Filter>Environment\Terrain</Filter>
     </ClInclude>
     <ClInclude Include="Particle\ParticleData.h">
+      <Filter>Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="Particle\ParticleSystem.h">
       <Filter>Particle</Filter>
     </ClInclude>
   </ItemGroup>

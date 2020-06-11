@@ -51,6 +51,7 @@
     <ClCompile Include="Objects\GBuffer.cpp" />
     <ClCompile Include="Objects\Projector.cpp" />
     <ClCompile Include="Objects\Shadow.cpp" />
+    <ClCompile Include="Particle\ParticleSystem.cpp" />
     <ClCompile Include="Renders\Buffers.cpp" />
     <ClCompile Include="Renders\Context.cpp" />
     <ClCompile Include="Renders\DebugLine.cpp" />
@@ -114,6 +115,7 @@
     <ClInclude Include="Objects\Projector.h" />
     <ClInclude Include="Objects\Shadow.h" />
     <ClInclude Include="Particle\ParticleData.h" />
+    <ClInclude Include="Particle\ParticleSystem.h" />
     <ClInclude Include="Renders\Buffers.h" />
     <ClInclude Include="Renders\Context.h" />
     <ClInclude Include="Renders\DebugLine.h" />

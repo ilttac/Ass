@@ -232,6 +232,12 @@ DepthStencilState DepthEnable_False
 {
     DepthEnable = false;
 };
+DepthStencilState DepthWriteMask_Zero
+{
+	DepthEnable = true;
+	DepthFunc = Less_Equal;
+	DepthWriteMask = 0;
+};
 
 BlendState AlphaBlend
 {
@@ -277,8 +283,19 @@ BlendState Blend_Addtive
     RenderTargetWriteMask[0] = 15;
 };
 
+BlendState Opaque
+{
+	BlendEnable[0] = true;
+	DestBlend[0] = One;
+	SrcBlend[0] = Zero;
+	BlendOp[0] = Add;
 
+	SrcBlendAlpha[0] = One;
+	DestBlendAlpha[0] = Zero;
+	BlendOpAlpha[0] = Add;
 
+	RenderTargetWriteMask[0] = 15;
+};
 //Pass
 //---------------------------------------------------------------------------------
 ///////////////////////////////////////////////////////////////////////////////

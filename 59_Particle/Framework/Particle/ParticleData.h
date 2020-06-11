@@ -15,6 +15,8 @@ public:
 
 	wstring TextureFile = L"";
 
+	UINT MaxParticles = 100;
+
 	float Readytime = 1.0f;
 	float ReadyRandomTime = 0;
 

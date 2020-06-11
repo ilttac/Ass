@@ -122,3 +122,4 @@ typedef D3DXPLANE Plane;
 #include "Environment/Billboard.h"
 
 #include "Particle/ParticleData.h"
+#include "Particle/ParticleSystem.h"

@@ -64,7 +64,6 @@ void Converter::ReadMaterial()
 		srcMaterial->Get(AI_MATKEY_COLOR_EMISSIVE, color);
 		material->Emissive = Color(color.r, color.g, color.b, 1.0f);
 
-
 		aiString file;
 
 		srcMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &file);
