@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="Converter.cpp" />
+    <ClCompile Include="Convert.cpp">
+      <Filter>Convert</Filter>
+    </ClCompile>
+    <ClCompile Include="DrawAnimation.cpp">
+      <Filter>Draw</Filter>
+    </ClCompile>
+    <ClCompile Include="DrawModel.cpp">
+      <Filter>Draw</Filter>
+    </ClCompile>
+    <ClCompile Include="DrawMesh.cpp">
+      <Filter>Draw</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Main.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="Converter.h" />
+    <ClInclude Include="Types.h" />
+    <ClInclude Include="Convert.h">
+      <Filter>Convert</Filter>
+    </ClInclude>
+    <ClInclude Include="DrawAnimation.h">
+      <Filter>Draw</Filter>
+    </ClInclude>
+    <ClInclude Include="DrawModel.h">
+      <Filter>Draw</Filter>
+    </ClInclude>
+    <ClInclude Include="DrawMesh.h">
+      <Filter>Draw</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Convert">
+      <UniqueIdentifier>{6a89bc77-56d6-45b5-8189-b9efff1cd075}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Draw">
+      <UniqueIdentifier>{5edee8a2-471a-4367-8c96-75b37158841a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
