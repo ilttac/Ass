@@ -22,6 +22,8 @@ private:
 	Shader * shader;
 	Shadow* shadow;
 
+	ParticleSystem* particleSystem;
+
 	Sky* sky;
 
 	Material* floor;

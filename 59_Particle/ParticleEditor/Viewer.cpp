@@ -14,6 +14,12 @@ void Viewer::Initialize()
 	sky->ScatteringPass(3);
 	sky->RealTime(false, Math::PI - 1e-6f, 0.5f);
 
+	particleSystem = new ParticleSystem(L"Explosion");
+	//particleSystem = new ParticleSystem(L"Star");
+	//particleSystem = new ParticleSystem(L"Fire");
+	//particleSystem = new ParticleSystem(L"Explosion");
+	//particleSystem = new ParticleSystem(L"Smoke");
+
 	Mesh();
 }
 
@@ -29,6 +35,8 @@ void Viewer::Destroy()
 
 	SafeDelete(sphere);
 	SafeDelete(grid);
+
+	SafeDelete(particleSystem);
 }
 
 void Viewer::Update()
@@ -65,6 +73,9 @@ void Viewer::Update()
 
 	sphere->GetTransform(0)->Position(P);
 	sphere->UpdateTransforms();
+	
+	particleSystem->Add(P);
+	particleSystem->Update();
 }
 
 void Viewer::PreRender()
@@ -90,6 +101,9 @@ void Viewer::Render()
 
 	floor->Render();
 	grid->Render();
+
+	ImGui::Checkbox("Loop", &particleSystem->GetData().bLoop);
+	particleSystem->Render();
 }
 
 void Viewer::Mesh()

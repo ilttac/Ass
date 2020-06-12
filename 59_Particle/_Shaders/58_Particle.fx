@@ -78,7 +78,10 @@ float2x2 ComputeRotation(float value, float age)
 
 float4 ComputeColor(float4 projectedPosition, float randomValue,float normalizedAge)
 {
+	float4 color = lerp(Particle.MinColor, Particle.MaxColor, randomValue);
+	color.a = normalizedAge * (1 - normalizedAge) * (1 - normalizedAge) * 6.7f;
 	
+	return color;
 }
 VertexOutput VS(VertexInput input)
 {
@@ -87,10 +90,29 @@ VertexOutput VS(VertexInput input)
 	float age = Particle.CurrentTime - input.Time;
 	age *= input.Random.x * Particle.ReadyRandomTime+1;
 	
-	float normalizeAge = saturate(age / Particle.ReadyTime);
+	float normalizedAge = saturate(age / Particle.ReadyTime);
 	
-	output.Position = ComputePosition(input.Position.xyz,input.Velocity,age,normalizeAge);	
+	output.Position = ComputePosition(input.Position.xyz,input.Velocity,age,normalizedAge);	
 
-	float size = ComputeSize(input.Random.y, normalizeAge);
+	float size = ComputeSize(input.Random.y, normalizedAge);
 	float2x2 rotation = ComputeRotation(input.Random.z, age);
+	
+	output.Position.xy += mul(input.Corner, rotation) * size * 0.5f;
+	
+	output.Uv = (input.Corner + 1.0f) * 0.5f;
+	output.Color = ComputeColor(output.Position,input.Random.w,normalizedAge);
+
+	return output;
+}
+
+float4 PS(VertexOutput input) :SV_Target
+{
+	return ParticleMap.Sample(LinearSampler, input.Uv) * input.Color;
+}
+
+technique11 T0
+{
+	P_DSS_BS_VP(P0, DepthWriteMask_Zero, Opaque, VS, PS) //DepthEnable_False π∞√º∏¶ ∂’¿Ω.
+	P_DSS_BS_VP(P1, DepthWriteMask_Zero, Addtive_Alpha, VS, PS)
+	P_DSS_BS_VP(P2, DepthWriteMask_Zero, AlphaBlend, VS, PS)
 }

@@ -5,6 +5,8 @@
 ParticleSystem::ParticleSystem(wstring file)
 	:Renderer(L"58_Particle.fxo")
 {
+	ReadFile(L"../../_Textures/Particles/" +file + L".xml");
+
 	buffer = new ConstantBuffer(&desc, sizeof(Desc));
 	sBuffer = shader->AsConstantBuffer("CB_Particle");
 
@@ -205,7 +207,7 @@ void ParticleSystem::Activate()
 
 void ParticleSystem::Deactivate()
 {
-	while (deactiveCount != gpuCount)
+	while (deactiveCount != activeCount)
 	{
 		float age = currentTime - vertices[deactiveCount * 4].Time;
 
@@ -331,4 +333,5 @@ void ParticleSystem::ReadFile(wstring file)
 	node = node->NextSiblingElement();
 	data.MaxEndSize = node->FloatText();
 
+	SafeDelete(document);
 }

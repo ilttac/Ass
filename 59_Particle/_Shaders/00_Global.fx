@@ -157,9 +157,6 @@ struct MeshGeometryOutput
     uint TargetIndex : SV_RenderTargetArrayIndex;
 };
 
-
-
-
 //Input
 //-----------------------------------------------
 struct Vertex
@@ -269,7 +266,7 @@ BlendState AlphaBlend_AlphaToCoverage
     RenderTargetWriteMask[0] = 15;
 };
 
-BlendState Blend_Addtive
+BlendState Addtive
 {
     BlendEnable[0] = true;
     DestBlend[0] = One;
@@ -277,7 +274,7 @@ BlendState Blend_Addtive
     BlendOp[0] = Add;
 
     SrcBlendAlpha[0] = One;
-    DestBlendAlpha[0] = One;
+    DestBlendAlpha[0] = Zero;
     BlendOpAlpha[0] = Add;
 
     RenderTargetWriteMask[0] = 15;
@@ -286,8 +283,8 @@ BlendState Blend_Addtive
 BlendState Opaque
 {
 	BlendEnable[0] = true;
-	DestBlend[0] = One;
-	SrcBlend[0] = Zero;
+	DestBlend[0] = Zero;
+	SrcBlend[0] =One;
 	BlendOp[0] = Add;
 
 	SrcBlendAlpha[0] = One;
@@ -296,6 +293,36 @@ BlendState Opaque
 
 	RenderTargetWriteMask[0] = 15;
 };
+BlendState Addtive_Coverage
+{
+	AlphaToCoverageEnable = true;
+
+	BlendEnable[0] = true;
+	DestBlend[0] = One;
+	SrcBlend[0] = One;
+	BlendOp[0] = Add;
+
+	SrcBlendAlpha[0] = One;
+	DestBlendAlpha[0] = Zero;
+	BlendOpAlpha[0] = Add;
+
+	RenderTargetWriteMask[0] = 15;
+};
+
+BlendState Addtive_Alpha
+{
+	BlendEnable[0] = true;
+	DestBlend[0] = One;
+	SrcBlend[0] = SRC_ALPHA;
+	BlendOp[0] = Add;
+
+	SrcBlendAlpha[0] = One;
+	DestBlendAlpha[0] = Zero;
+	BlendOpAlpha[0] = Add;
+
+	RenderTargetWriteMask[0] = 15;
+};
+
 //Pass
 //---------------------------------------------------------------------------------
 ///////////////////////////////////////////////////////////////////////////////

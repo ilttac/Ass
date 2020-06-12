@@ -3,10 +3,11 @@
 #include "Systems/Window.h"
 
 #include "Viewer.h"
+#include "Editor.h"
 
 void Main::Initialize()
 {
-	Push(new Viewer());
+	Push(new Editor());
 }
 
 void Main::Ready()
