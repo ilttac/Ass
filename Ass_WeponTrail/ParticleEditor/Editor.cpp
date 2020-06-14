@@ -70,11 +70,9 @@ void Editor::Update()
 		else if (Keyboard::Get()->Press('Q'))
 			P += -U * moveSpeed * Time::Delta();
 	}
-
 	sphere->GetTransform(0)->Position(P);
 	sphere->UpdateTransforms();
 	
-
 	if (particleSystem != NULL)
 	{
 		particleSystem->Add(P);

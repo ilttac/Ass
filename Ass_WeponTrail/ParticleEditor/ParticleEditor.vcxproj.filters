@@ -5,6 +5,7 @@
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="Viewer.cpp" />
     <ClCompile Include="Editor.cpp" />
+    <ClCompile Include="ModelEditor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Main.h" />
@@ -12,5 +13,6 @@
     <ClInclude Include="Types.h" />
     <ClInclude Include="Viewer.h" />
     <ClInclude Include="Editor.h" />
+    <ClInclude Include="ModelEditor.h" />
   </ItemGroup>
 </Project>

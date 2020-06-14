@@ -4,6 +4,7 @@
 
 #include "Viewer.h"
 #include "Editor.h"
+#include "ModelEditor.h"
 
 void Main::Initialize()
 {
