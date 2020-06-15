@@ -49,6 +49,7 @@
     <ClCompile Include="Objects\Collider.cpp" />
     <ClCompile Include="Objects\Frustum.cpp" />
     <ClCompile Include="Objects\GBuffer.cpp" />
+    <ClCompile Include="Objects\PostEffect.cpp" />
     <ClCompile Include="Objects\Projector.cpp" />
     <ClCompile Include="Objects\Shadow.cpp" />
     <ClCompile Include="Particle\ParticleSystem.cpp" />
@@ -112,6 +113,7 @@
     <ClInclude Include="Objects\Collider.h" />
     <ClInclude Include="Objects\Frustum.h" />
     <ClInclude Include="Objects\GBuffer.h" />
+    <ClInclude Include="Objects\PostEffect.h" />
     <ClInclude Include="Objects\Projector.h" />
     <ClInclude Include="Objects\Shadow.h" />
     <ClInclude Include="Particle\ParticleData.h" />

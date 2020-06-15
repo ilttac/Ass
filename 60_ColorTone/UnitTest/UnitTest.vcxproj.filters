@@ -147,6 +147,9 @@
     <ClCompile Include="BillboardCrossQuadDemo.cpp">
       <Filter>Environment</Filter>
     </ClCompile>
+    <ClCompile Include="ColorToneDemo.cpp">
+      <Filter>RenderTarget</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Main.h" />
@@ -294,6 +297,9 @@
     </ClInclude>
     <ClInclude Include="BillboardCrossQuadDemo.h">
       <Filter>Environment</Filter>
+    </ClInclude>
+    <ClInclude Include="ColorToneDemo.h">
+      <Filter>RenderTarget</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

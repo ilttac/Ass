@@ -50,10 +50,11 @@
 #include "WaterDemo.h"
 #include "TerrainLodDemo.h"
 #include "BillboardCrossQuadDemo.h"
+#include "ColorToneDemo.h"
 
 void Main::Initialize()
 {
-	Push(new BillboardCrossQuadDemo());
+	Push(new ColorToneDemo());
 }
 
 void Main::Ready()

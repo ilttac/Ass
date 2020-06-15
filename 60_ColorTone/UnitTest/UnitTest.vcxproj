@@ -128,6 +128,7 @@
     <ClCompile Include="BillboardCrossQuadDemo.cpp" />
     <ClCompile Include="ByteAddressDemo.cpp" />
     <ClCompile Include="ColliderDemo.cpp" />
+    <ClCompile Include="ColorToneDemo.cpp" />
     <ClCompile Include="CpuBillboardDemo.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
@@ -186,6 +187,7 @@
     <ClInclude Include="BillboardCrossQuadDemo.h" />
     <ClInclude Include="ByteAddressDemo.h" />
     <ClInclude Include="ColliderDemo.h" />
+    <ClInclude Include="ColorToneDemo.h" />
     <ClInclude Include="CpuBillboardDemo.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClInclude>

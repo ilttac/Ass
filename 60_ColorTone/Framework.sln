@@ -92,6 +92,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "41-", "41-", "{B2E9AA27-69F
 		_Shaders\56_Billboard.fx = _Shaders\56_Billboard.fx
 		_Shaders\57_ParticleViewer.fx = _Shaders\57_ParticleViewer.fx
 		_Shaders\58_Particle.fx = _Shaders\58_Particle.fx
+		_Shaders\59_ColorTone.fx = _Shaders\59_ColorTone.fx
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ParticleEditor", "ParticleEditor\ParticleEditor.vcxproj", "{705DA693-EAAA-4352-AE1F-1A65387BA8BF}"

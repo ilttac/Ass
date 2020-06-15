@@ -105,6 +105,7 @@ typedef D3DXPLANE Plane;
 #include "Objects/Shadow.h"
 #include "Objects/GBuffer.h"
 #include "Objects/Frustum.h"
+#include "Objects/PostEffect.h"
 
 #include "Model/Model.h"
 #include "Model/ModelMesh.h"

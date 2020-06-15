@@ -223,6 +223,9 @@
     <ClCompile Include="Particle\ParticleSystem.cpp">
       <Filter>Particle</Filter>
     </ClCompile>
+    <ClCompile Include="Objects\PostEffect.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Renders\Context.h">
@@ -414,6 +417,9 @@
     </ClInclude>
     <ClInclude Include="Particle\ParticleSystem.h">
       <Filter>Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\PostEffect.h">
+      <Filter>Objects</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

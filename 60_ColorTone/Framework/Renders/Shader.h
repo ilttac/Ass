@@ -20,6 +20,8 @@ public:
 
 	void Dispatch(UINT technique, UINT pass, UINT x, UINT y, UINT z);
 
+	UINT PassCount(UINT techIndex = 0) { return techniques[techIndex].Passes.size(); }
+
 
 	ID3DX11EffectVariable* Variable(string name);
 	ID3DX11EffectScalarVariable* AsScalar(string name);
