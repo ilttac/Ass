@@ -8,7 +8,7 @@
 
 void Main::Initialize()
 {
-	Push(new Editor());
+	Push(new ModelEditor());
 }
 
 void Main::Ready()

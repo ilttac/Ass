@@ -44,7 +44,7 @@ void Convert::Kachujin()
 {
 	Converter* conv = new Converter();
 	conv->ReadFile(L"Kachujin/Mesh.fbx");
-	conv->ExportMaterial(L"Kachujin/Mesh", false);
+	conv->ExportMaterial(L"Kachujin/Mesh",false);
 	conv->ExportMesh(L"Kachujin/Mesh");
 	SafeDelete(conv);
 

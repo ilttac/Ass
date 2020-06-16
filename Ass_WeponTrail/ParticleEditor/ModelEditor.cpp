@@ -9,6 +9,7 @@ void ModelEditor::Initialize()
 	((Freedom*)Context::Get()->GetCamera())->Speed(20, 5);
 
 	shader = new Shader(L"57_ParticleViewer.fxo");
+	modelShader = new Shader(L"33_Animation.fxo");
 	shadow = new Shadow(shader, Vector3(0, 0, 0), 65);
 
 	sky = new Sky(shader);
@@ -19,6 +20,7 @@ void ModelEditor::Initialize()
 
 	UpdateParticleList();
 	UpdateTextureList();
+	UpdateModelAnimList();
 }
 
 void ModelEditor::Destroy()
@@ -161,156 +163,70 @@ void ModelEditor::Pass(UINT meshPass)
 
 void ModelEditor::UpdateParticleList()
 {
-	particleList.clear();
-	Path::GetFiles(&particleList, L"../../_Textures/Particles/", L"*.xml", false);
-
-	for (wstring& file : particleList)
-		file = Path::GetFileNameWithoutExtension(file);//확장자빼고 가져옴
 
 }
 
 void ModelEditor::UpdateTextureList()
 {
-	textureList.clear();
 
-	vector<wstring> files;
-	Path::GetFiles(&files, L"../../_Textures/Particles/", L"*", false);
+}
 
-	for (wstring file : files)
-	{
-		wstring ext = Path::GetExtension(file); //확장자만 가져옴
-		transform(ext.begin(), ext.end(), ext.begin(), toupper);
-
-		file = Path::GetFileName(file);
-		if (ext == L"PNG" || ext == L"JPG" || ext == L"TGA")
-			textureList.push_back(file);
-	}
+void ModelEditor::UpdateModelAnimList()
+{
 }
 
 void ModelEditor::OnGUI()
 {
-	float width = D3D::Width();
-	float height = D3D::Height();
-
-	bool bOpen = true;
-	bOpen = ImGui::Begin("Particle", &bOpen);
-	//ImGui::SetWindowPos(ImVec2(width - windowWidth, 0));
-	ImGui::SetWindowSize(ImVec2(windowWidth, height));
+	if (ImGui::BeginMainMenuBar())
 	{
-		OnGUI_LIst();
-		OnGUI_Settings();
+		if(ImGui::BeginMenu("File"))
+		{
+			D3DDesc desc = D3D::GetDesc();
+
+			if (ImGui::MenuItem("Open", "CTRL+O"))
+			{
+				Path::OpenFileDialog
+				(
+					openFile,
+					L"fbx_File\0*.fbx",
+					L"../../_Assets",
+					bind(&ModelEditor::OpenFile, this, placeholders::_1),
+					desc.Handle
+				);
+			}
+			else if (ImGui::MenuItem("Save", "CTRL+S")) 
+			{
+				Path::SaveFileDialog
+				(
+					saveFile,
+					L"Mesh_file\0*.mesh",
+					L"../../_Models",
+					bind(&ModelEditor::WrtieFile, this, placeholders::_1),
+					desc.Handle
+				);
+			}	
+		ImGui::EndMenu();
+		}
 	}
-	ImGui::End();
+	ImGui::EndMainMenuBar();
 }
 
 void ModelEditor::OnGUI_LIst()
 {
-	if (ImGui::CollapsingHeader("Particle List", ImGuiTreeNodeFlags_DefaultOpen))
+	if (openFile != L"")
 	{
-		for (UINT i = 0; i < particleList.size(); i++)
-		{
-			if (ImGui::Button(String::ToString(particleList[i]).c_str(), ImVec2(200, 0)))
-			{
-				SafeDelete(particleSystem);
-
-				file = particleList[i];
-				particleSystem = new ParticleSystem(particleList[i]);
-
-				bLoop = particleSystem->GetData().bLoop;
-				maxParticle = particleSystem->GetData().MaxParticles;
-			}
-		}
+		openFile = Path::GetFileNameWithoutExtension(openFile);
 	}
 }
 
 void ModelEditor::OnGUI_Settings()
 {
-	if (particleSystem == NULL) return;
-
-	ImGui::Spacing();
-
-	if (ImGui::CollapsingHeader("Particle Settings"), ImGuiTreeNodeFlags_DefaultOpen)
-	{
-		ImGui::Separator();//구분선
-
-		ImGui::SliderInt("maxParticles", (int*)& maxParticle, 1, 1000);
-		ImGui::Checkbox("Loop", &bLoop);
-
-		if (ImGui::Button("Apply"))
-		{
-			particleSystem->GetData().bLoop = bLoop;
-			particleSystem->GetData().MaxParticles = maxParticle;
-			particleSystem->Reset();
-		}
-
-		ImGui::Separator();
-
-		const char* types[] = { "Opaque","Additive","AlphaBlend" };
-		ImGui::Combo("BlendType", (int*)& particleSystem->GetData().Type, types, 3);
-
-		ImGui::SliderFloat("ReadyTime", &particleSystem->GetData().Readytime, 0.1f, 10.0f);
-		ImGui::SliderFloat("ReadyRandomTimeTime", &particleSystem->GetData().ReadyRandomTime, 0.1f, 10.0f);
-
-		ImGui::SliderFloat("StartVelocity", &particleSystem->GetData().StartVelocity, 0.0f, 10.0f);
-		ImGui::SliderFloat("EndVelocity", &particleSystem->GetData().EndVelocity, -100.0f, 100.0f);
-
-		ImGui::SliderFloat("MinHorizontalVelocity", &particleSystem->GetData().MinHorizontalVelocity, -100.0f, 100.0f);
-		ImGui::SliderFloat("MaxHorizontalVelocity", &particleSystem->GetData().MaxHorizontalVelocity, -100.0f, 100.0f);
-
-		ImGui::SliderFloat("MinVerticalVelocity", &particleSystem->GetData().MinVerticalVelocity, -100.0f, 100.0f);
-		ImGui::SliderFloat("MaxVerticalVelocity", &particleSystem->GetData().MaxVerticalVelocity, -100.0f, 100.0f);
-
-		ImGui::SliderFloat3("Gravity", particleSystem->GetData().Gravity, 100.0f, 100.0f);
-
-		ImGui::ColorEdit4("MinColor", particleSystem->GetData().MinColor);
-		ImGui::ColorEdit4("MaxColor", particleSystem->GetData().MaxColor);
-
-		ImGui::SliderFloat("MinRotateSpeed", &particleSystem->GetData().MinRotateSpeed, -10.0f, 10.0f);
-		ImGui::SliderFloat("MaxRotateSpeed", &particleSystem->GetData().MaxRotateSpeed, -10.0f, 10.0f);
-
-		ImGui::SliderFloat("MinStartSize", &particleSystem->GetData().MinStartSize, 0.0f, 500.0f);
-		ImGui::SliderFloat("MaxStartSize", &particleSystem->GetData().MaxStartSize, 0.0f, 500.0f);
-
-		ImGui::SliderFloat("MinEndSize", &particleSystem->GetData().MinEndSize, 0.0f, 500.0f);
-		ImGui::SliderFloat("MaxEndSize", &particleSystem->GetData().MaxEndSize, 0.0f, 500.0f);
-
-		ImGui::Spacing();
-		OnGuI_Write();
-
-		ImGui::Spacing();
-		ImGui::Separator();
-
-		if (ImGui::CollapsingHeader("TextureList", ImGuiTreeNodeFlags_DefaultOpen))
-		{
-			for (wstring texturefile : textureList)
-			{
-				if (ImGui::Button(String::ToString(texturefile).c_str(), ImVec2(200, 0)))
-				{
-					particleSystem->GetData().TextureFile = texturefile;
-					particleSystem->SetTexture(L"Particles/" + texturefile);
-				}
-			}
-		}
-	}//Collapce
+	
 }
 
 void ModelEditor::OnGuI_Write()
 {
-	ImGui::Separator();
-
-	if (ImGui::Button("SaveParticle"))
-	{
-		D3DDesc desc = D3D::GetDesc();
-
-		Path::SaveFileDialog
-		(
-			file,
-			L"Particle file\0*.xml",
-			L"../../_Textures/Particles",
-			bind(&ModelEditor::WrtieFile, this, placeholders::_1),
-			desc.Handle
-		);
-	}
+	
 }
 
 void ModelEditor::WrtieFile(wstring file)
@@ -437,4 +353,12 @@ void ModelEditor::WrtieFile(wstring file)
 	SafeDelete(document);
 
 	UpdateParticleList();
+}
+
+void ModelEditor::OpenFile(wstring file)
+{
+	openFile = file;
+
+	modelAnimator = new ModelAnimator(modelShader);	
+	
 }

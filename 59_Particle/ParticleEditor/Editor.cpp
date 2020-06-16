@@ -147,7 +147,6 @@ void Editor::Mesh()
 		transform->Position(0, 5, 0);
 		transform->Scale(5, 5, 5);
 	}
-
 	sphere->UpdateTransforms();
 	grid->UpdateTransforms();
 

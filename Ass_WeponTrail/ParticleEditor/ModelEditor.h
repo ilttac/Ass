@@ -20,29 +20,35 @@ private:
 
 	void UpdateParticleList();
 	void UpdateTextureList();
+	void UpdateModelAnimList();
 
 	void OnGUI();
 	void OnGUI_LIst();
 	void OnGUI_Settings();
 	void OnGuI_Write();
 	void WrtieFile(wstring file);
-
+	void OpenFile(wstring file);
 private:
 	Shader* shader;
+	Shader* modelShader;
 	Shadow* shadow;
 
 	ParticleSystem* particleSystem;
-
+	ModelAnimator* modelAnimator;
 	float windowWidth = 500;
 
 	bool bLoop = false;
 	UINT maxParticle = 0;
 
+	vector<wstring> modelAnimList;
 	vector<wstring> particleList;
-	vector<wstring> textureList;
+	vector<wstring> textureLists;
+	vector<wstring> boneLists;
+	vector<wstring> meshLists;
+	vector<wstring> clipLists;
 
-	wstring file = L"";
-
+	wstring openFile = L"";
+	wstring saveFile = L"";
 	Sky* sky;
 
 	Material* floor;
