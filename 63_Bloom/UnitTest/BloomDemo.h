@@ -49,7 +49,7 @@ private:
 	Shader* shader;
 	Shadow* shadow;
 
-	RenderTarget* renderTarget[5];
+	RenderTarget* renderTarget[6];
 	DepthStencil* depthStencil;
 	Viewport* viewPort;
 	Render2D* render2D;

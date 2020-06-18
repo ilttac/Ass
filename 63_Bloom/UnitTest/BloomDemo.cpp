@@ -23,6 +23,7 @@ void BloomDemo::Initialize()
 	renderTarget[2] = new RenderTarget((UINT)width, (UINT)height); //BlurX
 	renderTarget[3] = new RenderTarget((UINT)width, (UINT)height); //BlurY
 	renderTarget[4] = new RenderTarget((UINT)width, (UINT)height); //Composite
+	renderTarget[5] = new RenderTarget((UINT)width, (UINT)height); //ColorGrading
 
 	depthStencil = new DepthStencil((UINT)width, (UINT)height);
 	viewPort = new Viewport(width, height);
@@ -33,8 +34,6 @@ void BloomDemo::Initialize()
 	render2D->SRV(renderTarget[0]->SRV());
 
 	postEffect = new PostEffect(L"62_Bloom.fxo");
-
-
 	billShader = new Shader(L"56_Billboard.fxo");
 	AddBillboard();
 
@@ -55,7 +54,7 @@ void BloomDemo::Destroy()
 	SafeDelete(sky);
 	SafeDelete(snow);
 
-	for (UINT i = 0; i < 5; i++)
+	for (UINT i = 0; i < 6; i++)
 	{
 		SafeDelete(renderTarget[i]);
 	}
@@ -213,12 +212,26 @@ void BloomDemo::PreRender()
 		postEffect->Pass(3);
 		postEffect->Render();
 	}
+
+	//Color Grading
+	{
+		renderTarget[5]->Set(depthStencil);
+		viewPort->RSSetViewport();
+
+		postEffect->Pass(4);
+		postEffect->SRV(renderTarget[4]->SRV());
+		postEffect->Render();
+	}
+	
 }
 
 void BloomDemo::Render()
 {
+	ImGui::InputInt("Target Index", (int*)& targetIndex);
+	targetIndex = Math::Clamp<UINT>(targetIndex, 0, 5);
+
 	postEffect->Pass(0);
-	postEffect->SRV(renderTarget[3]->SRV());
+	postEffect->SRV(renderTarget[targetIndex]->SRV());
 	postEffect->Render();
 
 	render2D->Render();
@@ -544,7 +557,7 @@ void BloomDemo::GetBlurParameter(vector<float>& weights, vector<Vector2>& offset
 
 	for (UINT i = 0; i < blurCount; i++)
 	{
-		weights[i] / sum;
+		weights[i] /= sum;
 	}
 }
 

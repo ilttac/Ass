@@ -205,6 +205,10 @@ SamplerState LinearSampler
     AddressU = Wrap;
     AddressV = Wrap;
 };
+SamplerState LinearSampler_Address_None
+{
+	Filter = MIN_MAG_MIP_LINEAR;
+};
 
 RasterizerState FillMode_WireFrame
 {

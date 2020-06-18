@@ -20,7 +20,7 @@ Sky::Sky(Shader * shader)
 	scatterBuffer = new ConstantBuffer(&scatterDesc, sizeof(ScatterDesc));
 	sScatterBuffer = shader->AsConstantBuffer("CB_Scattering");
 
-	dome = new Dome(shader, Vector3(0, 16, 0), Vector3(80, 80, 80));
+	dome = new Dome(shader, Vector3(0, 16, 0), Vector3(100, 100, 100));
 	moon = new Moon(shader);
 
 	cloud = new Cloud(shader);
