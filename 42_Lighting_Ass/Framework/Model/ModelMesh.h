@@ -45,7 +45,6 @@ private:
 	~ModelMesh();
 
 	void Binding(Model* model);
-
 public:
 	void Pass(UINT val) { pass = val; }
 	void SetShader(Shader* shader);
@@ -61,13 +60,12 @@ public:
 	void Transforms(Matrix* transform);
 	
 	void TransformsSRV(ID3D11ShaderResourceView* srv);
-
 private:
 	struct BoneDesc
 	{
 		UINT Index;
 		float Padding[3];
-	} boneDesc;
+	}boneDesc;
 
 private:
 	wstring name;

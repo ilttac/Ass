@@ -40,6 +40,7 @@ private:
 	MeshRender* grid;
 	
 	Model* weapon;
+	Model* weapon2;
 	ModelRender* archerWeapon;
 	Transform* archerWeaponTransform[arrowCount] = { NULL ,};
 	Vector3 arrowNorMal[arrowCount];
@@ -48,7 +49,7 @@ private:
 	ModelAnimator* michelle = NULL;
 	ModelAnimator* hallin = NULL;
 	ModelAnimator* archer = NULL;
-
+	ModelAnimator* michelle2 = NULL;
 	UINT weaponCount;
 
 	//Monster 가 여러명이라면 index 로 관리

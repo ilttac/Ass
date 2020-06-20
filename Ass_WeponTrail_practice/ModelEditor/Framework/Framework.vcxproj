@@ -64,6 +64,14 @@
     <ClCompile Include="Renders\Transform.cpp" />
     <ClCompile Include="Systems\D3D.cpp" />
     <ClCompile Include="Systems\Gui.cpp" />
+    <ClCompile Include="Systems\ImCurveEdit.cpp" />
+    <ClCompile Include="Systems\ImGradient.cpp" />
+    <ClCompile Include="Systems\ImGuizmo.cpp" />
+    <ClCompile Include="Systems\ImSequencer.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Systems\Keyboard.cpp" />
     <ClCompile Include="Systems\Mouse.cpp" />
     <ClCompile Include="Systems\Time.cpp" />
@@ -130,6 +138,11 @@
     <ClInclude Include="Systems\D3D.h" />
     <ClInclude Include="Systems\Gui.h" />
     <ClInclude Include="Systems\IExecute.h" />
+    <ClInclude Include="Systems\ImCurveEdit.h" />
+    <ClInclude Include="Systems\ImGradient.h" />
+    <ClInclude Include="Systems\ImGuizmo.h" />
+    <ClInclude Include="Systems\imgui_internal.h" />
+    <ClInclude Include="Systems\ImSequencer.h" />
     <ClInclude Include="Systems\Keyboard.h" />
     <ClInclude Include="Systems\Mouse.h" />
     <ClInclude Include="Systems\Time.h" />

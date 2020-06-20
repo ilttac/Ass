@@ -19,7 +19,10 @@ public:
 	Model* GetModel() { return model; }
 
 	void Pass(UINT pass);
-
+	ID3D11ShaderResourceView* GetSRV() { return srv; }
+	void SetSRV(ID3D11ShaderResourceView* srv1);/* { srv = srv1; }*/
+	ID3D11Texture2D* GetTexture() { return texture; }
+	void SetTexture(ID3D11Texture2D* tex) { texture = tex; }
 	Transform* AddTransform();
 	Transform* GetTransform(UINT index) { return transforms[index]; }
 	void UpdateTransforms();
@@ -29,10 +32,10 @@ public:
 
 	UINT CurrClipNumber(UINT index) { return tweenDesc[index].Curr.Clip; }
 	UINT NextClipNumber(UINT index) { return tweenDesc[index].Next.Clip; }
+
 private:
-	
-	void CreateClipTransform(UINT index);
 	void CreateComputeDesc();
+	void CreateClipTransform(UINT index);
 
 
 private:

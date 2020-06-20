@@ -308,16 +308,19 @@ void AssExampleDemo::Michelle()
 	weapon = new Model();
 	weapon->ReadMaterial(L"Weapon/Sword");
 	weapon->ReadMesh(L"Weapon/Sword");
+	
 
+	//michelle->CreateTexture();
 	//D3DX11SaveTextureToFile
 	//D3DX11LoadTextureFromTexture
+
 	Transform attachTransform;
 	attachTransform.Position(0, 0, 0);
 	attachTransform.RotationDegree(0, -90, 0);
 	attachTransform.Scale(0.5f, 0.5f, 0.5f);
 
 	michelle->GetModel()->Attach(shader, weapon, 121, &attachTransform);
-
+	
 	Transform* transform = NULL;
 
 	transform = michelle->AddTransform();
@@ -327,6 +330,32 @@ void AssExampleDemo::Michelle()
 
 	michelle->UpdateTransforms();
 
+	/////////////////////
+	michelle2 = new ModelAnimator(shader);
+	michelle2->ReadMaterial(L"Michelle/Mesh");
+	michelle2->ReadMesh(L"Michelle/Mesh");
+	
+	michelle2->ReadClip(L"Michelle/Idle");//0
+	michelle2->ReadClip(L"Michelle/Running"); //1
+	michelle2->ReadClip(L"Michelle/Jab_Elbow_Punch");//2
+	michelle2->ReadClip(L"Michelle/Hit_Reaction");//3
+	michelle2->ReadClip(L"Michelle/Sword_Default");//4
+	michelle2->ReadClip(L"Michelle/Sword_Skill");//5
+
+	weapon2 = new Model();
+	weapon2->ReadMaterial(L"Weapon/Katana");
+	weapon2->ReadMesh(L"Weapon/Katana");
+
+	Transform attachTransform2;
+	attachTransform2.Position(0, 0, 0);
+	attachTransform2.RotationDegree(0, -90, 0);
+	attachTransform2.Scale(0.5f, 0.5f, 0.5f);
+	
+	michelle2->GetModel()->Attach(shader, weapon2, 121, &attachTransform2);
+	michelle2->CreateTexture();
+	
+	michelle2->UpdateTransforms();
+	//michelle2->CreateComputeDesc();
 	//Collider init
 	{
 		collider[0].Init = new Transform();
@@ -653,9 +682,7 @@ void AssExampleDemo::MonsterAttack(ModelAnimator * monster, ModelAnimator * play
 		monster->PlayClip(monIndex, 2, 1.0f, 1.0f);
 	}
 
-	
 	monster->UpdateTransforms();
-
 }
 
 void AssExampleDemo::PlayerMove()
@@ -781,55 +808,13 @@ void AssExampleDemo::PlayerWeaponChange()
 	{
 		if (weapon != NULL)
 		{
-			for (UINT i = 0; i < weapon->BoneCount(); i++)
-			{
-				michelle->GetModel()->Bones().pop_back();
-			}
-			michelle->GetModel()->Materials().pop_back();
-			michelle->GetModel()->Meshes().pop_back();
-			michelle->GetModel()->BoneByIndex(121)->Childs().pop_back();
-			michelle->GetModel()->BoneByIndex(121)->Childs().pop_back();
-
-			SafeDelete(weapon);
-
-			if ((weaponCount % 3) == 0)
-			{
-				weapon = new Model();
-				weapon->ReadMaterial(L"Weapon/Dagger_epic");
-				weapon->ReadMesh(L"Weapon/Dagger_epic");
-				weaponCount++;
-			}
-			else if ((weaponCount % 3) == 1)
-			{
-				weaponCount++;
-			}
-
-
-			if ((weaponCount % 3) != 2)
-			{
-				Transform attachTransform;
-				attachTransform.Position(0, 0, 0);
-				attachTransform.RotationDegree(0, -90, 0);
-				attachTransform.Scale(0.5f, 0.5f, 0.5f);
-				michelle->GetModel()->Attach(shader, weapon, 121, &attachTransform);
-				michelle->CreateTexture();
-			}
-
+		 	michelle->SetTexture(michelle2->GetTexture());
+			michelle->SetSRV(michelle2->GetSRV());
+			michelle->UpdateTransforms();
 		}
 		else
 		{
-			weapon = new Model();
-			weapon->ReadMaterial(L"Weapon/Sword");
-			weapon->ReadMesh(L"Weapon/Sword");
-
-			Transform attachTransform;
-			attachTransform.Position(0, 0, 0);
-			attachTransform.RotationDegree(0, -90, 0);
-			attachTransform.Scale(0.5f, 0.5f, 0.5f);
-
-			michelle->GetModel()->Attach(shader, weapon, 121, &attachTransform);
-			michelle->CreateTexture();
-			weaponCount++;
+			   
 		}
 	}
 }

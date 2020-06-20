@@ -1,5 +1,6 @@
+#include"Framework.h"
 #include "ImCurveEdit.h"
-#include "imgui.h"
+#include "ImGui_New/imgui.h"
 #include "imgui_internal.h"
 #include <stdint.h>
 #include <set>

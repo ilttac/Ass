@@ -137,7 +137,7 @@ void Model::Attach(Shader * shader, Model * model, int parentBoneIndex, Transfor
 		materials.push_back(newMaterial);
 	}
 
-	vector < pair<int, int>> changes;
+	vector<pair<int, int>> changes;
 	//Copy Bone
 	{
 		ModelBone* parentBone = BoneByIndex(parentBoneIndex);
@@ -161,13 +161,12 @@ void Model::Attach(Shader * shader, Model * model, int parentBoneIndex, Transfor
 					{
 						newBone->parentIndex = temp.second;
 						newBone->parent = bones[newBone->parentIndex];
-						newBone->parent->childs.push_back(newBone);
-						
+						newBone->parent->childs.push_back(newBone);						
 						break;
 					}
 				}//for(temp)
 			}
-			else
+			else //model 의 루트노드 처리 
 			{
 				newBone->parentIndex = parentBoneIndex;
 				newBone->parent = parentBone;
@@ -213,13 +212,10 @@ void Model::Attach(Shader * shader, Model * model, int parentBoneIndex, Transfor
 
 			newMesh->Binding(this);
 			newMesh->SetShader(shader);
-
-			meshes.push_back(newMesh);
-		
+			
+			meshes.push_back(newMesh);		
 		}
-		
 	}
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

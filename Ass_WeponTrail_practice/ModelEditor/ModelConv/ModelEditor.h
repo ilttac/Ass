@@ -71,4 +71,54 @@ private:
 
 	vector<struct asBone*> bones;
 	vector<struct asMesh*> asMeshes;
+
+
+
+private:
+	int lastUsing = 0;
+	float objectMatrix[4][16] = {
+	  { 1.f, 0.f, 0.f, 0.f,
+		0.f, 1.f, 0.f, 0.f,
+		0.f, 0.f, 1.f, 0.f,
+		0.f, 0.f, 0.f, 1.f },
+
+	  { 1.f, 0.f, 0.f, 0.f,
+	  0.f, 1.f, 0.f, 0.f,
+	  0.f, 0.f, 1.f, 0.f,
+	  2.f, 0.f, 0.f, 1.f },
+
+	  { 1.f, 0.f, 0.f, 0.f,
+	  0.f, 1.f, 0.f, 0.f,
+	  0.f, 0.f, 1.f, 0.f,
+	  2.f, 0.f, 2.f, 1.f },
+
+	  { 1.f, 0.f, 0.f, 0.f,
+	  0.f, 1.f, 0.f, 0.f,
+	  0.f, 0.f, 1.f, 0.f,
+	  0.f, 0.f, 2.f, 1.f }
+	};
+
+
+
+	float cameraView[16] =
+	{ 1.f, 0.f, 0.f, 0.f,
+	  0.f, 1.f, 0.f, 0.f,
+	  0.f, 0.f, 1.f, 0.f,
+	  0.f, 0.f, 0.f, 1.f };
+
+	float cameraProjection[16];
+
+
+
+
+	// Camera projection
+	bool isPerspective = true;
+	float fov = 27.f;
+	float viewWidth = 10.f; // for orthographic
+	float camYAngle = 165.f / 180.f * 3.14159f;
+	float camXAngle = 32.f / 180.f * 3.14159f;
+	float camDistance = 8.f;
+	int gizmoCount = 1;
+
+	bool firstFrame = true;
 };

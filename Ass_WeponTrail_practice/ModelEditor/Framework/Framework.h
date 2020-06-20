@@ -123,3 +123,7 @@ typedef D3DXPLANE Plane;
 
 #include "Particle/ParticleData.h"
 #include "Particle/ParticleSystem.h"
+
+#include "Systems/ImCurveEdit.h"
+#include "Systems/ImGradient.h"
+#include "Systems/ImGuizmo.h"

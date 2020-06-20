@@ -141,7 +141,10 @@ void ModelAnimator::Render()
 	sFrameBuffer->SetConstantBuffer(frameBuffer->Buffer());
 
 	for (ModelMesh* mesh : model->Meshes())
+	{
 		mesh->Render(transforms.size());
+		//mesh->TransformsSRV()
+	}
 }
 
 void ModelAnimator::ReadMaterial(wstring file)
@@ -291,16 +294,20 @@ void ModelAnimator::CreateTexture()
 
 		Check(D3D::GetDevice()->CreateShaderResourceView(texture, &srvDesc, &srv));
 	}
-
 	for (ModelMesh* mesh : model->Meshes())
 		mesh->TransformsSRV(srv);
-	
+}
+
+void ModelAnimator::SetSRV(ID3D11ShaderResourceView* srv1)
+{
+	srv = srv1;
+	for (ModelMesh* mesh : model->Meshes())
+		mesh->TransformsSRV(srv);
 }
 
 void ModelAnimator::CreateClipTransform(UINT index)
 {
 	Matrix* bones = new Matrix[MAX_MODEL_TRANSFORMS];
-
 	ModelClip* clip = model->ClipByIndex(index);
 
 	for (UINT f = 0; f < clip->FrameCount(); f++)
@@ -343,12 +350,9 @@ void ModelAnimator::CreateClipTransform(UINT index)
 				bones[b] = parent;
 
 				clipTransforms[index].Transform[f][b] = bone->Transform() * bones[b];
-			}		
-
-			
+			}
 		}
 	}
-
 }
 
 void ModelAnimator::CreateComputeDesc()

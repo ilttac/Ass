@@ -92,7 +92,7 @@ void ModelMesh::Render(UINT drawCount)
 }
 
 
-void ModelMesh::TransformsSRV(ID3D11ShaderResourceView * srv)
+void ModelMesh::TransformsSRV(ID3D11ShaderResourceView* srv)
 {
 	transformsSRV = srv;
 }
