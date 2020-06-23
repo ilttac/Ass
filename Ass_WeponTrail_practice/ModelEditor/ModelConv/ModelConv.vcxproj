@@ -142,6 +142,7 @@
     <ClInclude Include="DrawAnimation.h" />
     <ClInclude Include="DrawMesh.h" />
     <ClInclude Include="DrawModel.h" />
+    <ClInclude Include="GizmoFunc.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="ModelEditor.h" />
     <ClInclude Include="stdafx.h" />

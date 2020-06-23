@@ -36,6 +36,7 @@
       <Filter>Draw</Filter>
     </ClInclude>
     <ClInclude Include="ModelEditor.h" />
+    <ClInclude Include="GizmoFunc.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Convert">

@@ -29,6 +29,7 @@ private:
 	void OpenFbxFile(wstring file);
 	void OpenMeshFile(wstring file);
 
+	void DragAndDropTreeNode(const char* label);
 
 private:
 	Shader* shader;
@@ -49,7 +50,8 @@ private:
 	vector<wstring> meshLists;
 	vector<wstring> clipLists;
 
-	wstring openFile = L"";
+	wstring openFile = L" ";
+
 	wstring saveFile = L"";
 	Sky* sky;
 
@@ -72,8 +74,12 @@ private:
 	vector<struct asBone*> bones;
 	vector<struct asMesh*> asMeshes;
 
-
-
+//Project,Hiarachy
+private:
+	vector<string> projectMeshNames;
+	vector<string> hiarachyName;
+	vector<ModelRender*> modelLists;
+	int currentModelID = -1;
 private:
 	int lastUsing = 0;
 	float objectMatrix[4][16] = {
