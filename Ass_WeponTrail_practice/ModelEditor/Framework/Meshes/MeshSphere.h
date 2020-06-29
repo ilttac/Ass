@@ -7,7 +7,7 @@ public:
 	MeshSphere(float radius, UINT stackCount = 20, UINT sliceCount = 20);
 	~MeshSphere();
 
-protected:
+public:
 	void Create() override;
 
 private:

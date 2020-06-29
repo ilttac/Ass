@@ -15,6 +15,8 @@ public:
 	void Update();
 	void Render(UINT drawCount);
 
+	MeshVertex* GetVertices(){ return vertices; }
+	UINT GetVertexCount() { return vertexCount; }
 protected:
 	virtual void Create() = 0;
 	

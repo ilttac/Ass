@@ -6,11 +6,9 @@
 #include "Systems/imgui_internal.h"
 #include "GizmoFunc.h"
 
-MySequence mySequence;
 void ModelEditor::Initialize()
 {
 	// sequence with default values
-
 	mySequence.mFrameMin = -100;
 	mySequence.mFrameMax = 1000;
 	mySequence.myItems.push_back(MySequence::MySequenceItem{ 0, 10, 30, false });
@@ -24,6 +22,8 @@ void ModelEditor::Initialize()
 	Context::Get()->GetCamera()->RotationDegree(20, 0, 0);
 	Context::Get()->GetCamera()->Position(1, 25, -50);
 	((Freedom*)Context::Get()->GetCamera())->Speed(20, 5);
+
+	D3DXMatrixIdentity(&matrixIdentity);
 
 	shader = new Shader(L"57_ParticleViewer.fxo");
 	modelShader = new Shader(L"32_Model.fxo");
@@ -52,141 +52,83 @@ void ModelEditor::Destroy()
 	SafeDelete(particleSystem);
 	SafeDelete(importer);
 	SafeDelete(modelAnimator)
+
+		for (auto& list : modelLists)
+		{
+			SafeDelete(list);
+		}
+
 }
 
 void ModelEditor::Update()
 {
 	///////////////
 
-	static const float identityMatrix[16] =
-	{ 1.f, 0.f, 0.f, 0.f,
-		0.f, 1.f, 0.f, 0.f,
-		0.f, 0.f, 1.f, 0.f,
-		0.f, 0.f, 0.f, 1.f };
-	ImGuizmo::SetOrthographic(!isPerspective);
-	ImGuizmo::BeginFrame();
 
-	ImGui::Begin("Editor");
-	ImGui::Text("Camera");
-	bool viewDirty = false;
-	if (ImGui::RadioButton("Perspective", isPerspective)) isPerspective = true;
-	ImGui::SameLine();
-	if (ImGui::RadioButton("Orthographic", !isPerspective)) isPerspective = false;
-	if (isPerspective)
-	{
-		ImGui::SliderFloat("Fov", &fov, 20.f, 110.f);
-	}
-	else
-	{
-		ImGui::SliderFloat("Ortho width", &viewWidth, 1, 20);
-	}
-	viewDirty |= ImGui::SliderFloat("Distance", &camDistance, 1.f, 10.f);
-	ImGui::SliderInt("Gizmo count", &gizmoCount, 1, 4);
-
-	//if (viewDirty || firstFrame)
-	//{
-	//	float eye[] = { cosf(camYAngle) * cosf(camXAngle) * camDistance, sinf(camXAngle) * camDistance, sinf(camYAngle) * cosf(camXAngle) * camDistance };
-	//	float at[] = { 0.f, 0.f, 0.f };
-	//	float up[] = { 0.f, 1.f, 0.f };
-	//	LookAt(eye, at, up, cameraView);
-	//	firstFrame = false;
-	//}
-
-	//ImGuizmo::DrawCubes(cameraView, cameraProjection, &objectMatrix[0][0], gizmoCount);
-	ImGui::Separator();
-
-	for (int matId = 0; matId < gizmoCount; matId++)
-	{
-		ImGuizmo::SetID(matId);
-		if (modelLists.size() != 0 && currentModelID != -1)
-		{
-			EditTransform(Context::Get()->View(), Context::Get()->Projection(), &modelLists[currentModelID]->GetTransform(0)->World()[matId], lastUsing == matId);
-			modelLists[currentModelID]->UpdateTransforms();
-		}
-		if (ImGuizmo::IsUsing())
-		{
-			lastUsing = matId;
-		}
-	}
-	ImGui::End();
-
-	//ImGuizmo::DrawGrid(Context::Get()->View(), Context::Get()->Projection(), identityMatrix, 10.f);
-	// let's create the sequencer
-	static int selectedEntry = -1;
-	static int firstFrame1 = 0;
-	static bool expanded = true;
-	static int currentFrame = 100;
-
-	///*	ImGui::Begin("Sequencer");
-	//
-	//	ImGui::PushItemWidth(130);
-	//	ImGui::InputInt("Frame Min", &mySequence.mFrameMin);
-	//	ImGui::SameLine();
-	//	ImGui::InputInt("Frame ", &currentFrame);
-	//	ImGui::SameLine();
-	//	ImGui::InputInt("Frame Max", &mySequence.mFrameMax);
-	//	ImGui::PopItemWidth();
-	//	Sequencer(&mySequence, &currentFrame, &expanded, &selectedEntry, &firstFrame1, ImSequencer::SEQUENCER_EDIT_STARTEND | ImSequencer::SEQUENCER_ADD | ImSequencer::SEQUENCER_DEL | ImSequencer::SEQUENCER_COPYPASTE | ImSequencer::SEQUENCER_CHANGE_FRAME);
-	//	*/// add a UI to edit that particular item
-	//	if (selectedEntry != -1)
-	//	{
-	//		const MySequence::MySequenceItem& item = mySequence.myItems[selectedEntry];
-	//		ImGui::Text("I am a %s, please edit me", SequencerItemTypeNames[item.mType]);
-	//		// switch (type) ....
-	//	}
-	//	ImGui::End();
-	//	ImGuizmo::ViewManipulate(cameraView, camDistance, ImVec2(io.DisplaySize.x - 128, 0), ImVec2(128, 128), 0x10101010);
-		///////////////
-
-		//Imgui Set
+	//Imgui Set
 	{
 		MainMenu();
+		Gizmo();
 		Project();
 		Hiarachy();
 		Inspector();
 	}
+	if (Mouse::Get()->DoubleClick(0))
+	{
+		transformNum = sphere->GetPickedPosition();
+		if (transformNum != UINT32_MAX)//?? ==
+		{
+			editorState = BONE_EDITOR_STATE;
+		}
+	}
+	//static string str; 
+	//str = to_string(picked.x) + ", " + to_string(picked.y) + " , " + to_string(picked.z);
+	//Gui::Get()->RenderText(Vector2(10, 60), Color(1, 0, 0, 1), "Raycast : " + str);
+
 
 	sky->Update();
 
 	grid->Update();
 	sphere->Update();
 
-	Vector3 P;
-	sphere->GetTransform(0)->Position(&P);
-	float moveSpeed = 30.0f;
+	//Vector3 P;
+	//sphere->GetTransform(0)->Position(&P);
+	//float moveSpeed = 30.0f;
 
-	if (Mouse::Get()->Press(1) == false)
-	{
-		const Vector3& F = Context::Get()->GetCamera()->Foward();
-		const Vector3& R = Context::Get()->GetCamera()->Right();
-		const Vector3& U = Context::Get()->GetCamera()->Up();
-		if (Keyboard::Get()->Press('W'))
-			P += Vector3(F.x, 0, F.z) * moveSpeed * Time::Delta();
-		else if (Keyboard::Get()->Press('S'))
-			P += Vector3(-F.x, 0, -F.z) * moveSpeed * Time::Delta();
+	//if (Mouse::Get()->Press(1) == false)
+	//{
+	//	const Vector3& F = Context::Get()->GetCamera()->Foward();
+	//	const Vector3& R = Context::Get()->GetCamera()->Right();
+	//	const Vector3& U = Context::Get()->GetCamera()->Up();
+	//	if (Keyboard::Get()->Press('W'))
+	//		P += Vector3(F.x, 0, F.z) * moveSpeed * Time::Delta();
+	//	else if (Keyboard::Get()->Press('S'))
+	//		P += Vector3(-F.x, 0, -F.z) * moveSpeed * Time::Delta();
 
-		if (Keyboard::Get()->Press('A'))
-			P += -R * moveSpeed * Time::Delta();
-		else if (Keyboard::Get()->Press('D'))
-			P += R * moveSpeed * Time::Delta();
+	//	if (Keyboard::Get()->Press('A'))
+	//		P += -R * moveSpeed * Time::Delta();
+	//	else if (Keyboard::Get()->Press('D'))
+	//		P += R * moveSpeed * Time::Delta();
 
-		if (Keyboard::Get()->Press('E'))
-			P += U * moveSpeed * Time::Delta();
-		else if (Keyboard::Get()->Press('Q'))
-			P += -U * moveSpeed * Time::Delta();
-	}
-	sphere->GetTransform(0)->Position(P);
-	sphere->UpdateTransforms();
+	//	if (Keyboard::Get()->Press('E'))
+	//		P += U * moveSpeed * Time::Delta();
+	//	else if (Keyboard::Get()->Press('Q'))
+	//		P += -U * moveSpeed * Time::Delta();
+	//}
+	//sphere->GetTransform(0)->Position(P);
+	//sphere->UpdateTransforms();
 
 	if (particleSystem != NULL)
 	{
-		particleSystem->Add(P);
-		particleSystem->Update();
+		/*	particleSystem->Add(P);
+			particleSystem->Update();*/
 	}
 
 	if (modelLists.size() != 0 && currentModelID != -1)
 	{
 		modelLists[currentModelID]->Update();
+		modelBones = modelLists[currentModelID]->GetModel()->Bones();
+		BoneView();
 	}
 }
 
@@ -197,7 +139,7 @@ void ModelEditor::PreRender()
 	{
 		shadow->Set();
 		Pass(0);
-		sphere->Render();
+		//sphere->Render();
 	}
 
 }
@@ -207,21 +149,25 @@ void ModelEditor::Render()
 	sky->Pass(4, 5, 6);
 	sky->Render();
 
-	Pass(7);
-	stone->Render();
-	sphere->Render();
+	//32_model.fx
+	{
+		stone->Render();
+		sphere->Pass(1);
+		sphere->Render();
+	}
 
+	Pass(7);
 	floor->Render();
 	grid->Render();
 
-	if (particleSystem != NULL)
-	{
-		particleSystem->Render();
-	}
 
 	if (modelLists.size() != 0 && currentModelID != -1)
 	{
 		modelLists[currentModelID]->Render();
+	}
+	if (particleSystem != NULL)
+	{
+		particleSystem->Render();
 	}
 }
 
@@ -241,14 +187,13 @@ void ModelEditor::Mesh()
 		floor->Emissive(0.2f, 0.2f, 0.2f, 0.3f);
 
 		//±¸
-		stone = new Material(shader);
+		stone = new Material(modelShader);
 		stone->DiffuseMap("Bricks.png");
 		stone->SpecularMap("Bricks_Specular.png");
 		stone->NormalMap("Bricks_Normal.png");
 		stone->Specular(0.3f, 0.3f, 0.3f, 20.0f);
 		stone->Emissive(0.2f, 0.2f, 0.2f, 0.3f);
 	}
-
 	//Create Mesh
 	{
 		Transform* transform = NULL;
@@ -258,17 +203,16 @@ void ModelEditor::Mesh()
 		transform->Position(0, 0, 0);
 		transform->Scale(20, 1, 20);
 
-		sphere = new MeshRender(shader, new MeshSphere(0.5f, 20, 20));
-		transform = sphere->AddTransform();
-		transform->Position(0, 5, 0);
-		transform->Scale(5, 5, 5);
+		//MeshSphere* meshSphere = new MeshSphere(0.5f, 20, 20);
+		//meshSphere->Create();
+		sphere = new MeshRender(modelShader, new MeshSphere(0.5f, 20, 20));
+
 	}
 
 	sphere->UpdateTransforms();
 	grid->UpdateTransforms();
 	meshes.push_back(sphere);
 	meshes.push_back(grid);
-
 }
 
 
@@ -347,7 +291,6 @@ void ModelEditor::Project()
 	bOpen = ImGui::Begin("Project", &bOpen);
 	//ImGui::SetWindowPos(ImVec2(width - windowWidth, 0));
 	//ImGui::SetWindowSize(ImVec2(windowWidth, height));
-
 	ImGui::TextColored(ImVec4(0.1f, 0.1f, 0.9f, 1.0f), "Models");
 	ImGui::Separator();
 
@@ -367,7 +310,6 @@ void ModelEditor::Project()
 
 				ImGui::TreePop();
 			}
-
 		}
 	}
 	if (ImGui::CollapsingHeader("Behavior Trees", ImGuiTreeNodeFlags_DefaultOpen))
@@ -430,6 +372,7 @@ void ModelEditor::Hiarachy()
 							break;
 						}
 					}
+
 					currentModelID = index;
 				}
 
@@ -450,6 +393,58 @@ void ModelEditor::Inspector()
 	bOpen = ImGui::Begin("Inspector", &bOpen);
 	ImGui::Separator();
 	ImGui::Separator();
+	ImGui::End();
+}
+void ModelEditor::Gizmo()
+{
+	static const float identityMatrix[16] =
+	{ 1.f, 0.f, 0.f, 0.f,
+		0.f, 1.f, 0.f, 0.f,
+		0.f, 0.f, 1.f, 0.f,
+		0.f, 0.f, 0.f, 1.f };
+	ImGuizmo::SetOrthographic(!isPerspective);
+	ImGuizmo::BeginFrame();
+
+	ImGui::Begin("Editor");
+	ImGui::Text("Camera");
+	bool viewDirty = false;
+	if (ImGui::RadioButton("Perspective", isPerspective)) isPerspective = true;
+	ImGui::SameLine();
+	if (ImGui::RadioButton("Orthographic", !isPerspective)) isPerspective = false;
+	if (isPerspective)
+	{
+		ImGui::SliderFloat("Fov", &fov, 20.f, 110.f);
+	}
+	else
+	{
+		ImGui::SliderFloat("Ortho width", &viewWidth, 1, 20);
+	}
+	viewDirty |= ImGui::SliderFloat("Distance", &camDistance, 1.f, 10.f);
+	ImGui::SliderInt("Gizmo count", &gizmoCount, 1, 4);
+
+	ImGui::Separator();
+	for (int matId = 0; matId < gizmoCount; matId++)
+	{
+		ImGuizmo::SetID(matId);
+		if (modelLists.size() != 0 && currentModelID != -1 && editorState == MESH_EDITOR_STATE)
+		{
+			EditTransform(Context::Get()->View(), Context::Get()->Projection(), &modelLists[currentModelID]->GetTransform(0)->World()[matId], lastUsing == matId);
+			modelLists[currentModelID]->UpdateTransforms();
+		}
+		else if (modelLists.size() != 0 && currentModelID != -1 && editorState == BONE_EDITOR_STATE && transformNum != UINT32_MAX)
+		{
+			EditTransform(Context::Get()->View(), Context::Get()->Projection(), &sphere->GetTransform(transformNum)->World()[matId], lastUsing == matId);
+			sphere->UpdateTransforms();
+			//modelLists[currentModelID]->GetTransform(0)->World() = sphere->GetTransform(transformNum)->World();
+			modelLists[currentModelID]->GetModel()->Bones()[transformNum]->Transform() = sphere->MeshTransformWorld(transformNum);
+			modelLists[currentModelID]->UpdateTransform(currentModelID,transformNum,*sphere->GetTransform(transformNum));
+			modelLists[currentModelID]->UpdateTransforms();
+		}
+		if (ImGuizmo::IsUsing())
+		{
+			lastUsing = matId;
+		}
+	}
 	ImGui::End();
 }
 //ImGui
@@ -528,27 +523,57 @@ void ModelEditor::OpenFbxFile(wstring file)
 void ModelEditor::OpenMeshFile(wstring file)
 {
 	wstring fileDirectory = Path::GetLastDirectoryName(file);
+	openFile = Path::GetFileNameWithoutExtension(file);
+	projectMeshNames.push_back(String::ToString(openFile));
+	ModelRender* modelRender = new ModelRender(modelShader);
+	modelRender->ReadMaterial(fileDirectory + L"/Mesh");
+	modelRender->ReadMesh(fileDirectory + L"/Mesh");
 
-	modelAnimator = new ModelRender(modelShader);
-	modelAnimator->ReadMaterial(fileDirectory + L"/Mesh");
-	modelAnimator->ReadMesh(fileDirectory + L"/Mesh");
-
-	Transform * attachTransform = modelAnimator->AddTransform();
+	Transform * attachTransform = modelRender->AddTransform();
 	attachTransform->Position(-10, 0, -10);
 	attachTransform->Scale(0.1f, 0.1f, 0.1f);
 
-	openFile = Path::GetFileNameWithoutExtension(file);
-
-	modelAnimator->UpdateTransforms();
-	modelAnimator->Pass(1);
+	modelRender->UpdateTransforms();
+	modelRender->Pass(1);
+	modelLists.push_back(modelRender);
 }
+
+void ModelEditor::BoneView()
+{
+	static int count = 0;
+	if (count == 0)
+	{
+		vector<Matrix*> sphereTransform;
+		vector<Matrix> modelBoneTransform;
+		Matrix W = modelLists[currentModelID]->GetTransform(0)->World();
+		Transform* transform = NULL;
+		sphereTransform.reserve(500);
+		for (UINT i = 0; i < (modelLists[currentModelID]->GetModel()->Bones().size()); i++)
+		{
+			transform = sphere->AddTransform();
+			transform->Scale(1.0f, 1.0f, 1.0f);
+			modelBoneTransform.push_back(modelBones[i]->Transform());
+		}
+		for (UINT i = 0; i < (modelLists[currentModelID]->GetModel()->Bones().size()); i++)
+		{
+			sphereTransform.push_back(&sphere->GetTransform(i)->World());
+			D3DXMatrixInverse(sphereTransform[i], NULL, sphereTransform[i]);
+			*sphereTransform[i] *= modelBoneTransform[i] * W;
+			sphereTransform[i]->_11 = 0.2f;
+			sphereTransform[i]->_22 = 0.2f;
+			sphereTransform[i]->_33 = 0.2f;
+		}
+		count = 1;
+	}
+	sphere->UpdateTransforms();
+}
+
 void ModelEditor::DragAndDropTreeNode(const char* label)
 {
 
 	for (int n = 0; n < projectMeshNames.size(); n++)
 	{
 		ImGui::PushID(n);
-
 		if (ImGui::TreeNode(projectMeshNames[n].c_str()))
 		{
 			ImGui::TreePop();
@@ -557,11 +582,8 @@ void ModelEditor::DragAndDropTreeNode(const char* label)
 		// Our buttons are both drag sources and drag targets here!
 		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
 		{
-
 			ImGui::SetDragDropPayload("DND_DEMO_CELL", &n, sizeof(int));    // Set payload to carry the index of our item (could be anything)
-			//if (mode == Mode_Copy) { ImGui::Text("Copy %s", names[n]); }    // Display preview (could be anything, e.g. when dragging an image we could decide to display the filename and a small preview of the image, etc.)
-			//if (mode == Mode_Move) { ImGui::Text("Move %s", names[n]); }
-			//if (mode == Mode_Swap) { ImGui::Text("Swap %s", names[n]); }
+
 			ImGui::Text("%s", projectMeshNames[n].c_str());
 			ImGui::EndDragDropSource();
 		}
@@ -571,17 +593,9 @@ void ModelEditor::DragAndDropTreeNode(const char* label)
 			{
 				IM_ASSERT(payload->DataSize == sizeof(int));
 				int payload_n = *(const int*)payload->Data;
-				//if (mode == Mode_Move)
-				//{
-				//	names[n] = names[payload_n];
-				//	names[payload_n] = "";
-				//}
-				int a = 10;
 			}
 			ImGui::EndDragDropTarget();
 		}
-
 		ImGui::PopID();
 	}
-
 }

@@ -111,8 +111,54 @@ void ModelRender::UpdateTransform(UINT instanceId, UINT boneIndex, Transform & t
 		memcpy(subResource.pData, boneTransforms, MAX_MODEL_INSTANCE * MAX_MODEL_TRANSFORMS * sizeof(Matrix));
 	}
 	D3D::GetDC()->Unmap(texture, 0);
-}
+	//Create SRV
+	{
+		D3D11_TEXTURE2D_DESC desc;
+		texture->GetDesc(&desc);
 
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+		ZeroMemory(&srvDesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MipLevels = 1;
+		srvDesc.Format = desc.Format;
+
+		Check(D3D::GetDevice()->CreateShaderResourceView(texture, &srvDesc, &srv));
+	}
+
+	for (ModelMesh* mesh : model->Meshes())
+	{
+		mesh->TransformsSRV(srv);
+		mesh->SetShader(shader);
+	}
+}
+void ModelRender::UpdateboneTransform(UINT instanceId, UINT boneIndex)
+{
+	ModelBone* bone = model->BoneByIndex(boneIndex);
+	boneTransforms[instanceId][boneIndex] = bone->Transform();
+
+	D3D11_MAPPED_SUBRESOURCE subResource;
+	D3D::GetDC()->Map(texture, 0, D3D11_MAP_WRITE_DISCARD, 0, &subResource);
+	{
+		memcpy(subResource.pData, boneTransforms, MAX_MODEL_INSTANCE * MAX_MODEL_TRANSFORMS * sizeof(Matrix));
+	}
+	D3D::GetDC()->Unmap(texture, 0);
+	//Create SRV
+	{
+		D3D11_TEXTURE2D_DESC desc;
+		texture->GetDesc(&desc);
+
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+		ZeroMemory(&srvDesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MipLevels = 1;
+		srvDesc.Format = desc.Format;
+
+		Check(D3D::GetDevice()->CreateShaderResourceView(texture, &srvDesc, &srv));
+	}
+
+	for (ModelMesh* mesh : model->Meshes())
+		mesh->TransformsSRV(srv);
+}
 void ModelRender::CreateTexture()
 {
 	//CreateTexture	

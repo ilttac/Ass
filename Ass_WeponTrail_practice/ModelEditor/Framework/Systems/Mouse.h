@@ -35,6 +35,10 @@ public:
 	{
 		return buttonMap[button] == BUTTON_INPUT_STATUS_PRESS;
 	}
+	bool DoubleClick(DWORD button)
+	{
+		return buttonMap[button] == BUTTON_INPUT_STATUS_DBLCLK;
+	}
 
 	D3DXVECTOR3 GetMoveValue()
 	{

@@ -1,7 +1,6 @@
 #include "Framework.h"
 #include "Model.h"
 #include "Utilities/Xml.h"
-
 #include "ModelMesh.h"
 #include "Utilities/BinaryFile.h"
 
@@ -379,7 +378,6 @@ void Model::ReadMesh(wstring file)
 				stdext::checked_array_iterator<UINT*>(mesh->indices, count)
 			);
 		}
-
 		meshes.push_back(mesh);
 	}
 

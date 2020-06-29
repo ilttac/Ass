@@ -23,8 +23,8 @@ public:
 	void UpdateTransforms();
 
 	void UpdateTransform(UINT instanceId, UINT boneIndex, Transform& transform);
-
-private:
+	void UpdateboneTransform(UINT instanceId, UINT boneIndex);
+public:
 	void CreateTexture();
 
 private:	

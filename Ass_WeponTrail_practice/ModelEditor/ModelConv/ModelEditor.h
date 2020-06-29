@@ -23,11 +23,13 @@ private:
 	void Project();
 	void Hiarachy();
 	void Inspector();
+	void Gizmo();
 	void WriteMeshFile(wstring file);
 	void WriteMaterialFile(wstring file);
 	void OpenFile(wstring file);
 	void OpenFbxFile(wstring file);
 	void OpenMeshFile(wstring file);
+	void BoneView();
 
 	void DragAndDropTreeNode(const char* label);
 
@@ -71,9 +73,9 @@ private:
 
 	vector<struct asMaterial*> materials;
 
-	vector<struct asBone*> bones;
+	//vector<struct asBone*> bones;
 	vector<struct asMesh*> asMeshes;
-
+	vector<ModelBone*> modelBones;
 //Project,Hiarachy
 private:
 	vector<string> projectMeshNames;
@@ -104,8 +106,6 @@ private:
 	  0.f, 0.f, 2.f, 1.f }
 	};
 
-
-
 	float cameraView[16] =
 	{ 1.f, 0.f, 0.f, 0.f,
 	  0.f, 1.f, 0.f, 0.f,
@@ -113,10 +113,6 @@ private:
 	  0.f, 0.f, 0.f, 1.f };
 
 	float cameraProjection[16];
-
-
-
-
 	// Camera projection
 	bool isPerspective = true;
 	float fov = 27.f;
@@ -127,4 +123,16 @@ private:
 	int gizmoCount = 1;
 
 	bool firstFrame = true;
+	////
+	class Mesh* mesh1;
+
+private:
+	enum EditorState
+	{
+		MESH_EDITOR_STATE =0,
+		BONE_EDITOR_STATE
+	};
+	EditorState editorState = MESH_EDITOR_STATE;
+	Matrix matrixIdentity;
+	UINT transformNum;
 };

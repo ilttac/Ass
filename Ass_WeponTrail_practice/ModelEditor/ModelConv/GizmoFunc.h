@@ -416,3 +416,5 @@ inline void rotationY(const float angle, float* m16)
 	m16[14] = 0.f;
 	m16[15] = 1.0f;
 }
+
+MySequence mySequence;

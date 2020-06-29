@@ -176,7 +176,6 @@ void DefferedPointLightArrayDemo::Mesh()
 
 		
 	}
-
 	sphere->UpdateTransforms();
 	cylinder->UpdateTransforms();
 	cube->UpdateTransforms();

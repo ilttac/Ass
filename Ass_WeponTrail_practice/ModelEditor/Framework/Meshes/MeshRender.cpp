@@ -44,6 +44,47 @@ Transform * MeshRender::AddTransform()
 }
 
 
+UINT MeshRender::GetPickedPosition()
+{
+	Matrix V = Context::Get()->View();
+	Matrix P = Context::Get()->Projection();
+	Viewport* vp = Context::Get()->GetViewport();
+
+	Vector3 mouse = Mouse::Get()->GetPosition();
+
+	Matrix M;
+	for (UINT k = 0; k < transforms.size(); k++)
+	{
+		Vector3 n;
+		Vector3 f;
+		mouse.z = 0.0f;
+		vp->UnProject(&n, mouse, transforms[k]->World(), V, P);
+
+		mouse.z = 1.0f;
+		vp->UnProject(&f, mouse, transforms[k]->World(), V, P);
+
+		Vector3 start = n;
+		Vector3 direction = f - n;
+		
+		for (int i = 0; i < mesh->GetVertexCount();)
+		{
+			Vector3 p[4];
+			for (int j = 0; j < 4; j++)
+			{
+				p[j] = mesh->GetVertices()[i].Position;
+				i++;
+			}
+			float u, v, distance;
+			if (D3DXIntersectTri(&p[0], &p[1], &p[2], &start, &direction, &u, &v, &distance) == TRUE)
+				return k;
+
+			if (D3DXIntersectTri(&p[3], &p[1], &p[2], &start, &direction, &u, &v, &distance) == TRUE)
+				return k;
+
+		}
+	}
+	return UINT32_MAX;
+}
 
 void MeshRender::UpdateTransforms()
 {

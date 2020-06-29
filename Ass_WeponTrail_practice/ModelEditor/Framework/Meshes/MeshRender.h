@@ -18,6 +18,10 @@ public:
 	Transform* AddTransform();
 	Transform* GetTransform(UINT index) { return transforms[index]; }
 	void UpdateTransforms();
+	Matrix& MeshTransformWorld(UINT index) { return worlds[index]; };
+
+public:
+	UINT GetPickedPosition();
 
 private:
 	Mesh * mesh;

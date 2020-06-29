@@ -69,7 +69,6 @@ void ModelMesh::SetShader(Shader * shader)
 void ModelMesh::Update()
 {
 	boneDesc.Index = boneIndex;
-
 	perFrame->Update();	
 }
 
