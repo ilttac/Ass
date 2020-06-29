@@ -128,8 +128,8 @@ void ModelRender::UpdateTransform(UINT instanceId, UINT boneIndex, Transform & t
 	for (ModelMesh* mesh : model->Meshes())
 	{
 		mesh->TransformsSRV(srv);
-		mesh->SetShader(shader);
 	}
+
 }
 void ModelRender::UpdateboneTransform(UINT instanceId, UINT boneIndex)
 {
