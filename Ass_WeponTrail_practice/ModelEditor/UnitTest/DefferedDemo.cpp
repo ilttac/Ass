@@ -74,8 +74,6 @@ void DefferedDemo::PreRender()
 
 	airplane->Render();
 	kachujin->Render();
-
-
 }
 
 void DefferedDemo::Render()

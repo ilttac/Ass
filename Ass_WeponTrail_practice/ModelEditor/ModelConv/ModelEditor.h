@@ -17,18 +17,21 @@ public:
 private:
 	void Mesh();
 	void Pass(UINT meshPass);
-
-
+private:
+	//ImGui
 	void MainMenu();
 	void Project();
 	void Hiarachy();
 	void Inspector();
 	void Gizmo();
+private:
 	void WriteMeshFile(wstring file);
 	void WriteMaterialFile(wstring file);
 	void OpenFile(wstring file);
 	void OpenFbxFile(wstring file);
 	void OpenMeshFile(wstring file);
+	void OpenPngFile(wstring file);
+private:
 	void BoneView();
 	void BoneSphereUpdate();
 
@@ -53,9 +56,11 @@ private:
 	vector<wstring> meshLists;
 	vector<wstring> clipLists;
 
-	wstring openFile = L" ";
-
+	wstring openFile = L"";
+	wstring openPngFile = L"";
 	wstring saveFile = L"";
+
+
 	Sky* sky;
 
 	Material* floor;
@@ -80,6 +85,7 @@ private:
 //Project,Hiarachy
 private:
 	vector<string> projectMeshNames;
+	vector<string> projectPngFileNames;
 	vector<string> hiarachyName;
 	vector<ModelRender*> modelLists;
 	int currentModelID = -1;

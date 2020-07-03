@@ -73,14 +73,14 @@ void ModelEditor::Update()
 		Hiarachy();
 		Inspector();
 	}
-	if (Mouse::Get()->DoubleClick(0))
-	{
-		transformNum = sphere->GetPickedPosition();
-		if (transformNum != UINT32_MAX)//?? ==
-		{
-			editorState = BONE_EDITOR_STATE;
-		}
-	}
+	//if (Mouse::Get()->DoubleClick(0))
+	//{
+	//	transformNum = sphere->GetPickedPosition();
+	//	if (transformNum != UINT32_MAX)//?? ==
+	//	{
+	//		editorState = BONE_EDITOR_STATE;
+	//	}
+	//}
 	//static string str; 
 	//str = to_string(picked.x) + ", " + to_string(picked.y) + " , " + to_string(picked.z);
 	//Gui::Get()->RenderText(Vector2(10, 60), Color(1, 0, 0, 1), "Raycast : " + str);
@@ -250,6 +250,17 @@ void ModelEditor::MainMenu()
 						desc.Handle
 					);
 				}
+				if (ImGui::MenuItem(".png"))
+				{
+					Path::OpenFileDialog
+					(
+						openPngFile,
+						L"Mesh_file\0*.png",
+						L"../../_Textures",
+						bind(&ModelEditor::OpenPngFile, this, placeholders::_1),
+						desc.Handle
+					);
+				}
 				ImGui::EndMenu();
 			}
 			if (ImGui::BeginMenu("Save"))
@@ -303,12 +314,14 @@ void ModelEditor::Project()
 	}
 	if (ImGui::CollapsingHeader("Materials", ImGuiTreeNodeFlags_DefaultOpen))
 	{
-		if (openFile != L"")
+		if (openPngFile != L"")
 		{
-			if (ImGui::TreeNode(String::ToString(openFile).c_str()))
+			for (const auto file : projectPngFileNames)
 			{
-
-				ImGui::TreePop();
+				if (ImGui::TreeNode(file.c_str()))
+				{
+					ImGui::TreePop();
+				}
 			}
 		}
 	}
@@ -372,10 +385,8 @@ void ModelEditor::Hiarachy()
 							break;
 						}
 					}
-
 					currentModelID = index;
 				}
-
 				if (node_open)
 				{
 					ImGui::TreePop();
@@ -390,9 +401,72 @@ void ModelEditor::Hiarachy()
 void ModelEditor::Inspector()
 {
 	bool bOpen = true;
-	bOpen = ImGui::Begin("Inspector", &bOpen);
+	bOpen = ImGui::Begin("Inspector", &bOpen, ImGuiWindowFlags_AlwaysVerticalScrollbar | ImGuiWindowFlags_AlwaysHorizontalScrollbar);
 	ImGui::Separator();
 	ImGui::Separator();
+	//temp
+	Texture* diff = new Texture(L"Red.png");
+	Texture* spec = new Texture(L"Blue.png");
+	Texture* emissive = new Texture(L"Green.png");
+
+	float my_tex_w = (float)diff->GetWidth();
+	float my_tex_h = (float)diff->GetHeight();
+
+	if (-1 != currentModelID)
+	{
+		ImGui::Columns(4, "grid", true);
+		ImGui::TextColored(ImVec4(0.3f, 0.6f, 0.9f, 1.0f), "Mat_Name", ImVec2(80, 80));
+		ImGui::NextColumn();
+		ImGui::TextColored(ImVec4(0.9f, 0.0f, 0.0f, 1.0f), "Diff",ImVec2(80,80));
+		ImGui::NextColumn();
+		ImGui::TextColored(ImVec4(0.0f, 0.9f, 0.0f, 1.0f), "Spec", ImVec2(80, 80));
+		ImGui::NextColumn();
+		ImGui::TextColored(ImVec4(0.0f, 0.0f, 0.9f, 1.0f), "Normal", ImVec2(80, 80));
+		ImGui::NextColumn();
+		for(UINT i = 0 ; i < 4 ; i++)
+		{
+			ImGui::SetColumnWidth(i,88);
+		}
+		ImGui::Dummy(ImVec2(32, 32));
+		for (int i = 0; i < modelLists[currentModelID]->GetModel()->MeshCount(); i++)
+		{
+			ImGui::TextColored(ImVec4(0.3f, 0.3f, 0.9f, 1.0f),String::ToString( modelLists[currentModelID]->GetModel()->Materials()[i]->Name()).c_str());
+			ImVec2 tempV = ImGui::CalcTextSize("S");
+			ImGui::Dummy(ImVec2(64, 68 - tempV.y));
+		}
+		ImGui::NextColumn();
+		int frame_padding = -1;     // -1 = uses default padding
+		for (int i = 0; i < modelLists[currentModelID]->GetModel()->MeshCount(); i++)
+		{
+			if (ImGui::ImageButton(*modelLists[currentModelID]->GetModel()->MaterialByIndex(i)->DiffuseMap()
+				, ImVec2(64, 64), ImVec2(0, 0), ImVec2(1, 1), frame_padding, ImVec4(0.0f, 0.0f, 0.0f, 1.0f)))
+			{
+				
+			}
+		}
+		ImGui::NextColumn();
+		for (int i = 0; i < modelLists[currentModelID]->GetModel()->MeshCount(); i++)
+		{
+			if (ImGui::ImageButton(*modelLists[currentModelID]->GetModel()->MaterialByIndex(i)->SpecularMap()
+				, ImVec2(64, 64), ImVec2(0, 0), ImVec2(1, 1), frame_padding, ImVec4(0.0f, 0.0f, 0.0f, 1.0f)))
+			{
+
+			}
+		}
+		ImGui::NextColumn();
+		for (int i = 0; i < modelLists[currentModelID]->GetModel()->MeshCount(); i++)
+		{
+			if (ImGui::ImageButton(*modelLists[currentModelID]->GetModel()->MaterialByIndex(i)->NormalMap()
+				, ImVec2(64, 64), ImVec2(0, 0), ImVec2(1, 1), frame_padding, ImVec4(0.0f, 0.0f, 0.0f, 1.0f)))
+			{
+
+			}
+		}
+	}
+
+	
+
+	//
 	ImGui::End();
 }
 void ModelEditor::Gizmo()
@@ -431,25 +505,25 @@ void ModelEditor::Gizmo()
 			EditTransform(Context::Get()->View(), Context::Get()->Projection(), &modelLists[currentModelID]->GetTransform(0)->World()[matId], lastUsing == matId);
 			modelLists[currentModelID]->UpdateTransforms();
 		}
-		else if (modelLists.size() != 0 && currentModelID != -1 && editorState == BONE_EDITOR_STATE && transformNum != UINT32_MAX)
-		{
-			Matrix m;
-			D3DXMatrixIdentity(&m);
-			Transform* transform = new Transform();
-			transform->World() = m;
-			EditTransform(Context::Get()->View(), Context::Get()->Projection(), &sphere->GetTransform(71)->World()[matId], lastUsing == matId);
-			sphere->UpdateTransforms();
-			//modelLists[currentModelID]->GetTransform(0)->World() = sphere->GetTransform(transformNum)->World();
-			modelLists[currentModelID]->GetModel()->Bones()[71]->Transform() = sphere->MeshTransformWorld(71);
-			modelLists[currentModelID]->GetModel()->Bones()[71]->Transform()._11 = 5.0f;
-			modelLists[currentModelID]->GetModel()->Bones()[71]->Transform()._22 = 5.0f;
-			modelLists[currentModelID]->GetModel()->Bones()[71]->Transform()._33 = 5.0f;
-			modelLists[currentModelID]->UpdateTransform(currentModelID, 71, *transform);
-			modelLists[currentModelID]->UpdateTransforms();
+		//else if (modelLists.size() != 0 && currentModelID != -1 && editorState == BONE_EDITOR_STATE && transformNum != UINT32_MAX)
+		//{
+		//	Matrix m;
+		//	D3DXMatrixIdentity(&m);
+		//	Transform* transform = new Transform();
+		//	transform->World() = m;
+		//	EditTransform(Context::Get()->View(), Context::Get()->Projection(), &sphere->GetTransform(71)->World()[matId], lastUsing == matId);
+		//	sphere->UpdateTransforms();
+		//	//modelLists[currentModelID]->GetTransform(0)->World() = sphere->GetTransform(transformNum)->World();
+		//	modelLists[currentModelID]->GetModel()->Bones()[71]->Transform() = sphere->MeshTransformWorld(71);
+		//	modelLists[currentModelID]->GetModel()->Bones()[71]->Transform()._11 = 5.0f;
+		//	modelLists[currentModelID]->GetModel()->Bones()[71]->Transform()._22 = 5.0f;
+		//	modelLists[currentModelID]->GetModel()->Bones()[71]->Transform()._33 = 5.0f;
+		//	modelLists[currentModelID]->UpdateTransform(currentModelID, 71, *transform);
+		//	modelLists[currentModelID]->UpdateTransforms();
 
-			//modelLists[currentModelID]->GetModel()->BindBone();
-			//modelLists[currentModelID]->GetModel()->BindMesh();
-		}
+		//	//modelLists[currentModelID]->GetModel()->BindBone();
+		//	//modelLists[currentModelID]->GetModel()->BindMesh();
+		//}
 		if (ImGuizmo::IsUsing())
 		{
 			lastUsing = matId;
@@ -502,6 +576,10 @@ void ModelEditor::OpenFile(wstring file)
 	{
 		OpenMeshFile(fileDirectory + L"/" + fileName);
 	}
+	else if (ext == L"PNG")
+	{
+		OpenPngFile(fileDirectory + L"/" + fileName);
+	}
 }
 
 void ModelEditor::OpenFbxFile(wstring file)
@@ -526,31 +604,38 @@ void ModelEditor::OpenFbxFile(wstring file)
 	attachTransform->Scale(0.1f, 0.1f, 0.1f);
 
 	modelRender->UpdateTransforms();
-	modelRender->Pass(2);
+	modelRender->Pass(1);
 	modelLists.push_back(modelRender);
 }
 
 void ModelEditor::OpenMeshFile(wstring file)
 {
 	wstring fileDirectory = Path::GetLastDirectoryName(file);
+	wstring fileName = Path::GetFileNameWithoutExtension(file);
 	openFile = Path::GetFileNameWithoutExtension(file);
 	projectMeshNames.push_back(String::ToString(openFile));
 	ModelRender* modelRender = new ModelRender(modelShader);
-	modelRender->ReadMaterial(fileDirectory + L"/Mesh");
-	modelRender->ReadMesh(fileDirectory + L"/Mesh");
+	modelRender->ReadMaterial(fileDirectory + L"/" + fileName);
+	modelRender->ReadMesh(fileDirectory + L"/" + fileName);
 
 	Transform * attachTransform = modelRender->AddTransform();
 	attachTransform->Position(-10, 0, -10);
 	attachTransform->Scale(0.1f, 0.1f, 0.1f);
 
 	modelRender->UpdateTransforms();
-	modelRender->Pass(2);
+	modelRender->Pass(1);
+
 	modelLists.push_back(modelRender);
+}
+
+void ModelEditor::OpenPngFile(wstring file)
+{
+	openPngFile = Path::GetFileName(file);
+	projectPngFileNames.push_back(String::ToString(openPngFile));
 }
 
 void ModelEditor::BoneView()
 {
-
 	if (bCount == false)
 	{
 		vector<Matrix*> sphereTransform;
@@ -585,10 +670,10 @@ void ModelEditor::BoneView()
 void ModelEditor::BoneSphereUpdate()
 {
 	Matrix W = modelLists[currentModelID]->GetTransform(0)->World();
-	D3DXMatrixInverse(&W,NULL,&W);
-	for (UINT i = 0; i < modelLists[currentModelID]->GetModel()->BoneCount()-2; i++)
+	//D3DXMatrixInverse(&W,NULL,&W);
+	for (UINT i = 0; i < modelLists[currentModelID]->GetModel()->BoneCount(); i++)
 	{
-		modelLists[currentModelID]->GetModel()->Bones()[i]->Transform() = sphere->GetTransform(i)->World() ;
+		sphere->GetTransform(i)->World() = modelLists[currentModelID]->GetModel()->Bones()[i]->Transform() * W;
 	}
 	sphere->UpdateTransforms();
 	modelLists[currentModelID]->UpdateTransforms();
@@ -603,8 +688,6 @@ void ModelEditor::DragAndDropTreeNode(const char* label)
 		{
 			ImGui::TreePop();
 		}
-
-		// Our buttons are both drag sources and drag targets here!
 		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
 		{
 			ImGui::SetDragDropPayload("DND_DEMO_CELL", &n, sizeof(int));    // Set payload to carry the index of our item (could be anything)
