@@ -309,7 +309,7 @@ void ModelEditor::Project()
 	{
 		if (openFile != L"")
 		{
-			DragAndDropTreeNode("Project");
+			DragAndDropTreeNode("Meshes");
 		}
 	}
 	if (ImGui::CollapsingHeader("Materials", ImGuiTreeNodeFlags_DefaultOpen))
@@ -318,10 +318,7 @@ void ModelEditor::Project()
 		{
 			for (const auto file : projectPngFileNames)
 			{
-				if (ImGui::TreeNode(file.c_str()))
-				{
-					ImGui::TreePop();
-				}
+				DragAndDropTreeNode("Materials");
 			}
 		}
 	}
@@ -412,6 +409,9 @@ void ModelEditor::Inspector()
 	float my_tex_w = (float)diff->GetWidth();
 	float my_tex_h = (float)diff->GetHeight();
 
+
+
+
 	if (-1 != currentModelID)
 	{
 		ImGui::Columns(4, "grid", true);
@@ -428,6 +428,7 @@ void ModelEditor::Inspector()
 			ImGui::SetColumnWidth(i,88);
 		}
 		ImGui::Dummy(ImVec2(32, 32));
+
 		for (int i = 0; i < modelLists[currentModelID]->GetModel()->MeshCount(); i++)
 		{
 			ImGui::TextColored(ImVec4(0.3f, 0.3f, 0.9f, 1.0f),String::ToString( modelLists[currentModelID]->GetModel()->Materials()[i]->Name()).c_str());
@@ -436,17 +437,25 @@ void ModelEditor::Inspector()
 		}
 		ImGui::NextColumn();
 		int frame_padding = -1;     // -1 = uses default padding
-		for (int i = 0; i < modelLists[currentModelID]->GetModel()->MeshCount(); i++)
+		for (int i = 0; i < modelLists[currentModelID]->GetModel()->MaterialCount(); i++)
 		{
+
+			ImGui::BulletText(to_string(i).c_str());
 			if (ImGui::ImageButton(*modelLists[currentModelID]->GetModel()->MaterialByIndex(i)->DiffuseMap()
 				, ImVec2(64, 64), ImVec2(0, 0), ImVec2(1, 1), frame_padding, ImVec4(0.0f, 0.0f, 0.0f, 1.0f)))
 			{
 				
 			}
+			int index = DragAndDropReceiver("Png");
+			if (index >= 0)
+			{
+				*modelLists[currentModelID]->GetModel()->MaterialByIndex(i)->DiffuseMap() = *modelLists[currentModelID]->GetModel()->MaterialByIndex(i)->NormalMap();
+			}
 		}
 		ImGui::NextColumn();
 		for (int i = 0; i < modelLists[currentModelID]->GetModel()->MeshCount(); i++)
 		{
+			DragAndDropReceiver("Png");
 			if (ImGui::ImageButton(*modelLists[currentModelID]->GetModel()->MaterialByIndex(i)->SpecularMap()
 				, ImVec2(64, 64), ImVec2(0, 0), ImVec2(1, 1), frame_padding, ImVec4(0.0f, 0.0f, 0.0f, 1.0f)))
 			{
@@ -456,12 +465,14 @@ void ModelEditor::Inspector()
 		ImGui::NextColumn();
 		for (int i = 0; i < modelLists[currentModelID]->GetModel()->MeshCount(); i++)
 		{
+			DragAndDropReceiver("Png");
 			if (ImGui::ImageButton(*modelLists[currentModelID]->GetModel()->MaterialByIndex(i)->NormalMap()
 				, ImVec2(64, 64), ImVec2(0, 0), ImVec2(1, 1), frame_padding, ImVec4(0.0f, 0.0f, 0.0f, 1.0f)))
 			{
 
 			}
 		}
+
 	}
 
 	
@@ -681,29 +692,78 @@ void ModelEditor::BoneSphereUpdate()
 
 void ModelEditor::DragAndDropTreeNode(const char* label)
 {
-	for (int n = 0; n < projectMeshNames.size(); n++)
+	if ("Meshes" == label)
 	{
-		ImGui::PushID(n);
-		if (ImGui::TreeNode(projectMeshNames[n].c_str()))
+		for (int n = 0; n < projectMeshNames.size(); n++)
 		{
-			ImGui::TreePop();
-		}
-		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
-		{
-			ImGui::SetDragDropPayload("DND_DEMO_CELL", &n, sizeof(int));    // Set payload to carry the index of our item (could be anything)
-
-			ImGui::Text("%s", projectMeshNames[n].c_str());
-			ImGui::EndDragDropSource();
-		}
-		if (ImGui::BeginDragDropTarget())
-		{
-			if (const ImGuiPayload * payload = ImGui::AcceptDragDropPayload("DND_DEMO_CELL"))
+			ImGui::PushID(n);
+			if (ImGui::TreeNode(projectMeshNames[n].c_str()))
 			{
-				IM_ASSERT(payload->DataSize == sizeof(int));
-				int payload_n = *(const int*)payload->Data;
+				ImGui::TreePop();
 			}
-			ImGui::EndDragDropTarget();
+			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+			{
+				ImGui::SetDragDropPayload("DND_DEMO_CELL", &n, sizeof(int));    // Set payload to carry the index of our item (could be anything)
+
+				ImGui::Text("%s", projectMeshNames[n].c_str());
+				ImGui::EndDragDropSource();
+			}
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload * payload = ImGui::AcceptDragDropPayload("DND_DEMO_CELL"))
+				{
+					IM_ASSERT(payload->DataSize == sizeof(int));
+					int payload_n = *(const int*)payload->Data;
+				}
+				ImGui::EndDragDropTarget();
+			}
+			ImGui::PopID();
 		}
-		ImGui::PopID();
 	}
+	else if ("Materials" == label)
+	{
+		for (int n = 0; n < projectPngFileNames.size(); n++)
+		{
+			ImGui::PushID(n);
+			if (ImGui::TreeNode(projectPngFileNames[n].c_str()))
+			{
+				ImGui::TreePop();
+			}
+			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+			{
+				ImGui::SetDragDropPayload("Png", &n, sizeof(int));    // Set payload to carry the index of our item (could be anything)
+
+				ImGui::Text("%s", projectPngFileNames[n].c_str());
+				ImGui::EndDragDropSource();
+			}
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload * payload = ImGui::AcceptDragDropPayload("Png"))
+				{
+					IM_ASSERT(payload->DataSize == sizeof(int));
+					int payload_n = *(const int*)payload->Data;
+				}
+				ImGui::EndDragDropTarget();
+			}
+			ImGui::PopID();
+		}
+	}
+
+}
+
+int ModelEditor::DragAndDropReceiver(const char* name)
+{
+	int indexNum = -1;
+	if (ImGui::BeginDragDropTarget())
+	{
+		if (const ImGuiPayload * payload = ImGui::AcceptDragDropPayload(name))
+		{
+			IM_ASSERT(payload->DataSize == sizeof(int));
+			int payload_n = *(const int*)payload->Data;
+			indexNum = payload_n;
+			assert(indexNum>=0,"accepted value of nagtive");
+		}
+		ImGui::EndDragDropTarget();
+	}
+	return indexNum;
 }

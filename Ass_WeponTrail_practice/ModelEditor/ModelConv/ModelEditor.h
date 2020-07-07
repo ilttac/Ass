@@ -34,8 +34,8 @@ private:
 private:
 	void BoneView();
 	void BoneSphereUpdate();
-
 	void DragAndDropTreeNode(const char* label);
+	int DragAndDropReceiver(const char* name);
 
 private:
 	Shader* shader;
