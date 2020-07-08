@@ -56,12 +56,13 @@ public:
 	wstring Name() { return name; }
 
 	int BoneIndex() { return boneIndex; }
+	
 	class ModelBone* Bone() { return bone; }
 
 	void Transforms(Matrix* transform);
 	
 	void TransformsSRV(ID3D11ShaderResourceView* srv);
-
+	Material* GetMaterial() { return material; }
 private:
 	struct BoneDesc
 	{

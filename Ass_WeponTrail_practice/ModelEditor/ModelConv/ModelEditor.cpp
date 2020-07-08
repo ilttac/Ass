@@ -5,6 +5,7 @@
 #include "Utilities/Xml.h"
 #include "Systems/imgui_internal.h"
 #include "GizmoFunc.h"
+#include <filesystem>
 
 void ModelEditor::Initialize()
 {
@@ -26,7 +27,7 @@ void ModelEditor::Initialize()
 	D3DXMatrixIdentity(&matrixIdentity);
 
 	shader = new Shader(L"57_ParticleViewer.fxo");
-	modelShader = new Shader(L"32_Model.fxo");
+	modelShader = new Shader(L"33_Animation.fxo");
 	shadow = new Shadow(shader, Vector3(0, 0, 0), 65);
 
 	sky = new Sky(shader);
@@ -38,26 +39,29 @@ void ModelEditor::Initialize()
 
 void ModelEditor::Destroy()
 {
-	SafeDelete(shader);
-	SafeDelete(shadow);
+	SafeDelete(shader)
+		SafeDelete(shadow)
 
-	SafeDelete(sky);
+		SafeDelete(sky)
 
-	SafeDelete(floor);
-	SafeDelete(stone);
+		SafeDelete(floor)
+		SafeDelete(stone)
 
-	SafeDelete(sphere);
-	SafeDelete(grid);
+		SafeDelete(sphere)
+		SafeDelete(grid)
 
-	SafeDelete(particleSystem);
-	SafeDelete(importer);
-	SafeDelete(modelAnimator)
+		SafeDelete(particleSystem)
+		SafeDelete(importer)
+		SafeDelete(modelAnimator)
 
 		for (auto& list : modelLists)
 		{
-			SafeDelete(list);
+			SafeDelete(list)
 		}
-
+	for (auto& texture : textures)
+	{
+		SafeDelete(texture);
+	}
 }
 
 void ModelEditor::Update()
@@ -316,10 +320,9 @@ void ModelEditor::Project()
 	{
 		if (openPngFile != L"")
 		{
-			for (const auto file : projectPngFileNames)
-			{
-				DragAndDropTreeNode("Materials");
-			}
+
+			DragAndDropTreeNode("Materials");
+
 		}
 	}
 	if (ImGui::CollapsingHeader("Behavior Trees", ImGuiTreeNodeFlags_DefaultOpen))
@@ -402,9 +405,9 @@ void ModelEditor::Inspector()
 	ImGui::Separator();
 	ImGui::Separator();
 	//temp
-	Texture* diff = new Texture(L"Red.png");
-	Texture* spec = new Texture(L"Blue.png");
-	Texture* emissive = new Texture(L"Green.png");
+	Texture * diff = new Texture(L"Red.png");
+	Texture * spec = new Texture(L"Blue.png");
+	Texture * emissive = new Texture(L"Green.png");
 
 	float my_tex_w = (float)diff->GetWidth();
 	float my_tex_h = (float)diff->GetHeight();
@@ -417,65 +420,76 @@ void ModelEditor::Inspector()
 		ImGui::Columns(4, "grid", true);
 		ImGui::TextColored(ImVec4(0.3f, 0.6f, 0.9f, 1.0f), "Mat_Name", ImVec2(80, 80));
 		ImGui::NextColumn();
-		ImGui::TextColored(ImVec4(0.9f, 0.0f, 0.0f, 1.0f), "Diff",ImVec2(80,80));
+		ImGui::TextColored(ImVec4(0.9f, 0.0f, 0.0f, 1.0f), "Diff", ImVec2(80, 80));
 		ImGui::NextColumn();
 		ImGui::TextColored(ImVec4(0.0f, 0.9f, 0.0f, 1.0f), "Spec", ImVec2(80, 80));
 		ImGui::NextColumn();
 		ImGui::TextColored(ImVec4(0.0f, 0.0f, 0.9f, 1.0f), "Normal", ImVec2(80, 80));
 		ImGui::NextColumn();
-		for(UINT i = 0 ; i < 4 ; i++)
+		for (UINT i = 0; i < 4; i++)
 		{
-			ImGui::SetColumnWidth(i,88);
+			ImGui::SetColumnWidth(i, 88);
 		}
 		ImGui::Dummy(ImVec2(32, 32));
 
 		for (int i = 0; i < modelLists[currentModelID]->GetModel()->MeshCount(); i++)
 		{
-			ImGui::TextColored(ImVec4(0.3f, 0.3f, 0.9f, 1.0f),String::ToString( modelLists[currentModelID]->GetModel()->Materials()[i]->Name()).c_str());
+			ImGui::TextColored(ImVec4(0.3f, 0.3f, 0.9f, 1.0f), String::ToString(modelLists[currentModelID]->GetModel()->Materials()[i]->Name()).c_str());
 			ImVec2 tempV = ImGui::CalcTextSize("S");
 			ImGui::Dummy(ImVec2(64, 68 - tempV.y));
 		}
 		ImGui::NextColumn();
 		int frame_padding = -1;     // -1 = uses default padding
-		for (int i = 0; i < modelLists[currentModelID]->GetModel()->MaterialCount(); i++)
+		for (int i = 0; i < modelLists[currentModelID]->GetModel()->MeshCount(); i++)
 		{
-
-			ImGui::BulletText(to_string(i).c_str());
-			if (ImGui::ImageButton(*modelLists[currentModelID]->GetModel()->MaterialByIndex(i)->DiffuseMap()
+			if (ImGui::ImageButton(*modelLists[currentModelID]->GetModel()->MeshByIndex(i)->GetMaterial()->DiffuseMap()
 				, ImVec2(64, 64), ImVec2(0, 0), ImVec2(1, 1), frame_padding, ImVec4(0.0f, 0.0f, 0.0f, 1.0f)))
 			{
-				
+
 			}
 			int index = DragAndDropReceiver("Png");
 			if (index >= 0)
 			{
-				*modelLists[currentModelID]->GetModel()->MaterialByIndex(i)->DiffuseMap() = *modelLists[currentModelID]->GetModel()->MaterialByIndex(i)->NormalMap();
+				*modelLists[currentModelID]->GetModel()->MeshByIndex(i)->GetMaterial()->DiffuseMap() = *textures[index];
+				*modelLists[currentModelID]->GetModel()->MaterialByIndex(i)->DiffuseMap() = *textures[index];
 			}
 		}
 		ImGui::NextColumn();
 		for (int i = 0; i < modelLists[currentModelID]->GetModel()->MeshCount(); i++)
 		{
-			DragAndDropReceiver("Png");
-			if (ImGui::ImageButton(*modelLists[currentModelID]->GetModel()->MaterialByIndex(i)->SpecularMap()
+
+			if (ImGui::ImageButton(*modelLists[currentModelID]->GetModel()->MeshByIndex(i)->GetMaterial()->SpecularMap()
 				, ImVec2(64, 64), ImVec2(0, 0), ImVec2(1, 1), frame_padding, ImVec4(0.0f, 0.0f, 0.0f, 1.0f)))
 			{
 
+			}
+			int index = DragAndDropReceiver("Png");
+			if (index >= 0)
+			{
+				*modelLists[currentModelID]->GetModel()->MeshByIndex(i)->GetMaterial()->SpecularMap() = *textures[index];
+				*modelLists[currentModelID]->GetModel()->MaterialByIndex(i)->SpecularMap() = *textures[index];
 			}
 		}
 		ImGui::NextColumn();
 		for (int i = 0; i < modelLists[currentModelID]->GetModel()->MeshCount(); i++)
 		{
-			DragAndDropReceiver("Png");
-			if (ImGui::ImageButton(*modelLists[currentModelID]->GetModel()->MaterialByIndex(i)->NormalMap()
+
+			if (ImGui::ImageButton(*modelLists[currentModelID]->GetModel()->MeshByIndex(i)->GetMaterial()->NormalMap()
 				, ImVec2(64, 64), ImVec2(0, 0), ImVec2(1, 1), frame_padding, ImVec4(0.0f, 0.0f, 0.0f, 1.0f)))
 			{
 
+			}
+			int index = DragAndDropReceiver("Png");
+			if (index >= 0)
+			{
+				*modelLists[currentModelID]->GetModel()->MeshByIndex(i)->GetMaterial()->NormalMap() = *textures[index];
+				*modelLists[currentModelID]->GetModel()->MaterialByIndex(i)->NormalMap() = *textures[index];
 			}
 		}
 
 	}
 
-	
+
 
 	//
 	ImGui::End();
@@ -606,7 +620,7 @@ void ModelEditor::OpenFbxFile(wstring file)
 	openFile = Path::GetFileNameWithoutExtension(file);
 	projectMeshNames.push_back(String::ToString(openFile));
 
-	ModelRender * modelRender = new ModelRender(modelShader);
+	ModelAnimator * modelRender = new ModelAnimator(modelShader);
 	modelRender->ReadMaterial(fileDirectory + L"/" + fileName);
 	modelRender->ReadMesh(fileDirectory + L"/" + fileName);
 
@@ -623,13 +637,31 @@ void ModelEditor::OpenMeshFile(wstring file)
 {
 	wstring fileDirectory = Path::GetLastDirectoryName(file);
 	wstring fileName = Path::GetFileNameWithoutExtension(file);
+	wstring fileFullDirectory = Path::GetDirectoryName(file);
 	openFile = Path::GetFileNameWithoutExtension(file);
 	projectMeshNames.push_back(String::ToString(openFile));
-	ModelRender* modelRender = new ModelRender(modelShader);
+	ModelAnimator* modelRender = new ModelAnimator(modelShader);
 	modelRender->ReadMaterial(fileDirectory + L"/" + fileName);
 	modelRender->ReadMesh(fileDirectory + L"/" + fileName);
+	//해당 fileDirectory 있는 확장자가 .clip 파일을 다 불러온다.
+	namespace fs = std::experimental::filesystem;
 
-	Transform * attachTransform = modelRender->AddTransform();
+	std::string path("../../_Models/"+String::ToString(fileFullDirectory));
+	std::string ext(".clip");
+	for (auto& p : fs::recursive_directory_iterator(path))
+	{
+		if (p.path().extension() == ext)
+		{
+			clipNames.push_back(String::ToString(p.path().filename().c_str()));
+		}
+	}
+	
+	for (auto name : clipNames)
+	{
+		modelRender->ReadClip(fileDirectory + L"/"+ Path::GetFileNameWithoutExtension(String::ToWString(name)));
+	}
+
+	Transform* attachTransform = modelRender->AddTransform();
 	attachTransform->Position(-10, 0, -10);
 	attachTransform->Scale(0.1f, 0.1f, 0.1f);
 
@@ -643,6 +675,8 @@ void ModelEditor::OpenPngFile(wstring file)
 {
 	openPngFile = Path::GetFileName(file);
 	projectPngFileNames.push_back(String::ToString(openPngFile));
+	Texture* texture = new Texture(openPngFile);
+	textures.push_back(texture);
 }
 
 void ModelEditor::BoneView()
@@ -733,7 +767,7 @@ void ModelEditor::DragAndDropTreeNode(const char* label)
 			{
 				ImGui::SetDragDropPayload("Png", &n, sizeof(int));    // Set payload to carry the index of our item (could be anything)
 
-				ImGui::Text("%s", projectPngFileNames[n].c_str());
+				//ImGui::Text("%s", projectPngFileNames[n].c_str());
 				ImGui::EndDragDropSource();
 			}
 			if (ImGui::BeginDragDropTarget())
@@ -761,7 +795,7 @@ int ModelEditor::DragAndDropReceiver(const char* name)
 			IM_ASSERT(payload->DataSize == sizeof(int));
 			int payload_n = *(const int*)payload->Data;
 			indexNum = payload_n;
-			assert(indexNum>=0,"accepted value of nagtive");
+			assert(indexNum >= 0, "accepted value of nagtive");
 		}
 		ImGui::EndDragDropTarget();
 	}

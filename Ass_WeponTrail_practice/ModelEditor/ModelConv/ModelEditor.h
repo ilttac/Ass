@@ -77,7 +77,7 @@ private:
 	Assimp::Importer* importer;
 	const aiScene* scene;
 
-	vector<struct asMaterial*> materials;
+	vector<Texture*> textures;
 
 	//vector<struct asBone*> bones;
 	vector<struct asMesh*> asMeshes;
@@ -87,7 +87,8 @@ private:
 	vector<string> projectMeshNames;
 	vector<string> projectPngFileNames;
 	vector<string> hiarachyName;
-	vector<ModelRender*> modelLists;
+	vector<ModelAnimator*> modelLists;
+	vector<string> clipNames;
 	int currentModelID = -1;
 private:
 	int lastUsing = 0;
