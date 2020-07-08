@@ -617,13 +617,28 @@ void ModelEditor::OpenFbxFile(wstring file)
 
 	wstring fileDirectory = Path::GetLastDirectoryName(file);
 	wstring fileName = Path::GetFileNameWithoutExtension(file);
+	wstring fileFullDirectory = Path::GetDirectoryName(file);
 	openFile = Path::GetFileNameWithoutExtension(file);
 	projectMeshNames.push_back(String::ToString(openFile));
 
 	ModelAnimator * modelRender = new ModelAnimator(modelShader);
 	modelRender->ReadMaterial(fileDirectory + L"/" + fileName);
 	modelRender->ReadMesh(fileDirectory + L"/" + fileName);
-
+	//해당 fileDirectory 폴더 있는 확장자가 .clip 파일을 다 불러와서 클립을 읽는다.
+	std::string path("../../_Models/" + String::ToString(fileFullDirectory));
+	std::string ext(".clip");
+	for (auto& p : std::experimental::filesystem::recursive_directory_iterator(path))
+	{
+		if (p.path().extension() == ext)
+		{
+			clipNames.push_back(String::ToString(p.path().filename().c_str()));
+		}
+	}
+	for (auto name : clipNames)
+	{
+		modelRender->ReadClip(fileDirectory + L"/" + Path::GetFileNameWithoutExtension(String::ToWString(name)));
+	}
+	//
 	Transform * attachTransform = modelRender->AddTransform();
 	attachTransform->Position(-10, 0, -10);
 	attachTransform->Scale(0.1f, 0.1f, 0.1f);
@@ -638,29 +653,28 @@ void ModelEditor::OpenMeshFile(wstring file)
 	wstring fileDirectory = Path::GetLastDirectoryName(file);
 	wstring fileName = Path::GetFileNameWithoutExtension(file);
 	wstring fileFullDirectory = Path::GetDirectoryName(file);
+	
 	openFile = Path::GetFileNameWithoutExtension(file);
 	projectMeshNames.push_back(String::ToString(openFile));
 	ModelAnimator* modelRender = new ModelAnimator(modelShader);
 	modelRender->ReadMaterial(fileDirectory + L"/" + fileName);
 	modelRender->ReadMesh(fileDirectory + L"/" + fileName);
-	//해당 fileDirectory 있는 확장자가 .clip 파일을 다 불러온다.
-	namespace fs = std::experimental::filesystem;
-
+	
+	//해당 fileDirectory 폴더 있는 확장자가 .clip 파일을 다 불러와서 클립을 읽는다.
 	std::string path("../../_Models/"+String::ToString(fileFullDirectory));
 	std::string ext(".clip");
-	for (auto& p : fs::recursive_directory_iterator(path))
+	for (auto& p : std::experimental::filesystem::recursive_directory_iterator(path))
 	{
 		if (p.path().extension() == ext)
 		{
 			clipNames.push_back(String::ToString(p.path().filename().c_str()));
 		}
 	}
-	
 	for (auto name : clipNames)
 	{
 		modelRender->ReadClip(fileDirectory + L"/"+ Path::GetFileNameWithoutExtension(String::ToWString(name)));
 	}
-
+	//
 	Transform* attachTransform = modelRender->AddTransform();
 	attachTransform->Position(-10, 0, -10);
 	attachTransform->Scale(0.1f, 0.1f, 0.1f);
