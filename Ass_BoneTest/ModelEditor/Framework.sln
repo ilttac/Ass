@@ -62,6 +62,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "21-40", "21-40", "{868A57F2
 		_Shaders\33_Animation.fx = _Shaders\33_Animation.fx
 		_Shaders\34_ByteAddress.fx = _Shaders\34_ByteAddress.fx
 		_Shaders\35_Collider.fx = _Shaders\35_Collider.fx
+		_Shaders\35_ColliderMulti.fx = _Shaders\35_ColliderMulti.fx
 		_Shaders\36_Specular.fx = _Shaders\36_Specular.fx
 		_Shaders\37_NormalMap.fx = _Shaders\37_NormalMap.fx
 		_Shaders\38_Lighting.fx = _Shaders\38_Lighting.fx

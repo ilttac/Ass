@@ -38,8 +38,8 @@ private:
 		Matrix** Transform;
 
 		ClipTransform()
-		{
-			Transform = new Matrix * [MAX_MODEL_KEYFRAMES];
+		{			
+			Transform = new Matrix*[MAX_MODEL_KEYFRAMES];
 
 			for (UINT i = 0; i < MAX_MODEL_KEYFRAMES; i++)
 				Transform[i] = new Matrix[MAX_MODEL_TRANSFORMS];
@@ -81,7 +81,7 @@ private:
 		float TweenTime = 0.0f;
 		float RunningTime = 0.0f;
 		float Padding;
-
+		
 		KeyframeDesc Curr;
 		KeyframeDesc Next;
 
@@ -106,26 +106,14 @@ private:
 		Matrix Result;
 	};
 
-	struct CS_OutputDesc2
-	{
-		UINT ResultByBone[MAX_MODEL_TRANSFORMS];
-		float Padding[2];
-	};
-
 	struct AttachDesc
 	{
 		UINT AttachBoneIndex = 35;
 		float Padding[3];
 	} attachDesc;
 
-	struct BoneDesc
-	{
-		UINT BoneIndex[MAX_MODEL_TRANSFORMS];
-		float Padding[2];
-	}boneDesc;
-
-private:
-	Shader* shader;
+private:	
+	Shader * shader;
 	Model* model;
 
 	vector<Transform*> transforms;
@@ -133,26 +121,19 @@ private:
 
 	VertexBuffer* instanceBuffer;
 
+
 private:
-	UINT test[MAX_MODEL_TRANSFORMS] = { 0, };
-	Matrix testMatrix[MAX_MODEL_TRANSFORMS];
-private:
-	Shader* computeShader;
+	Shader * computeShader;
 	StructuredBuffer* computeBuffer = NULL;
 
 	CS_InputDesc* csInput = NULL;
 	CS_OutputDesc* csOutput = NULL;
-	CS_OutputDesc2* csOutput2 = NULL;
 
 	ConstantBuffer* computeAttachBuffer;
-	ConstantBuffer* computeBoneBuffer;
-
 	ID3DX11EffectConstantBuffer* sComputeAttachBuffer;
-	ID3DX11EffectConstantBuffer* sComputeBoneBuffer;
 	ID3DX11EffectConstantBuffer* sComputeFrameBuffer;
 
 	ID3DX11EffectShaderResourceVariable* sSrv;
 	ID3DX11EffectUnorderedAccessViewVariable* sUav;
-	ID3DX11EffectUnorderedAccessViewVariable* sUav2;
-
+	
 };

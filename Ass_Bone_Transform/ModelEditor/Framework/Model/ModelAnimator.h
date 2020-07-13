@@ -92,6 +92,7 @@ private:
 		}
 	} tweenDesc[MAX_MODEL_INSTANCE];
 
+
 	ConstantBuffer* frameBuffer;
 	ID3DX11EffectConstantBuffer* sFrameBuffer;
 

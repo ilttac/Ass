@@ -2,7 +2,7 @@
 #include "ModelAnimator.h"
 #include "ModelMesh.h"
 
-ModelAnimator::ModelAnimator(Shader* shader)
+ModelAnimator::ModelAnimator(Shader * shader)
 	: shader(shader)
 {
 	model = new Model();
@@ -17,18 +17,11 @@ ModelAnimator::ModelAnimator(Shader* shader)
 
 	computeShader = new Shader(L"35_Collider.fx");
 	computeAttachBuffer = new ConstantBuffer(&attachDesc, sizeof(AttachDesc));
-	computeBoneBuffer = new ConstantBuffer(&boneDesc, sizeof(BoneDesc));
 
 	sSrv = computeShader->AsSRV("Input");
 	sUav = computeShader->AsUAV("Output");
-	sUav2 = computeShader->AsUAV("Output2");
-
 	sComputeAttachBuffer = computeShader->AsConstantBuffer("CB_Attach");
-	sComputeBoneBuffer = computeShader->AsConstantBuffer("CB_AnimBone");
 	sComputeFrameBuffer = computeShader->AsConstantBuffer("CB_AnimationFrame");
-
-	for (UINT i = 0; i < MAX_MODEL_INSTANCE; i++)
-		D3DXMatrixIdentity(&testMatrix[i]);
 }
 
 ModelAnimator::~ModelAnimator()
@@ -36,13 +29,13 @@ ModelAnimator::~ModelAnimator()
 	SafeDelete(computeShader);
 	SafeDelete(computeBuffer);
 	SafeDelete(computeAttachBuffer);
-	SafeDelete(computeBoneBuffer);
-	for (Transform* transform : transforms)
+
+	for(Transform* transform : transforms)
 		SafeDelete(transform);
 
 	SafeDelete(instanceBuffer);
 
-	SafeDelete(model);
+	SafeDelete(model);	
 
 	SafeDelete(frameBuffer);
 	SafeDeleteArray(clipTransforms);
@@ -114,22 +107,17 @@ void ModelAnimator::Update()
 	}//for(i)
 
 	frameBuffer->Apply();
-
 	if (computeBuffer != NULL)
 	{
 		computeAttachBuffer->Apply();
 		sComputeAttachBuffer->SetConstantBuffer(computeAttachBuffer->Buffer());
-		sComputeBoneBuffer->SetConstantBuffer(computeBoneBuffer->Buffer());
 		sComputeFrameBuffer->SetConstantBuffer(frameBuffer->Buffer());
 
 		sSrv->SetResource(computeBuffer->SRV());
 		sUav->SetUnorderedAccessView(computeBuffer->UAV());
-		sUav2->SetUnorderedAccessView(computeBuffer->UAV());
 
 		computeShader->Dispatch(0, 0, 1, 1, 1);
 		computeBuffer->Copy(csOutput, sizeof(CS_OutputDesc) * MAX_MODEL_TRANSFORMS);
-		computeBuffer->Copy(csOutput2, sizeof(CS_OutputDesc2) * MAX_MODEL_TRANSFORMS);
-		//testMatrix[i] = csOutput[i].Result;
 	}
 
 	for (ModelMesh* mesh : model->Meshes())
@@ -164,7 +152,7 @@ void ModelAnimator::ReadMesh(wstring file)
 
 	for (ModelMesh* mesh : model->Meshes())
 		mesh->SetShader(shader);
-
+	
 }
 
 void ModelAnimator::ReadClip(wstring file)
@@ -189,7 +177,7 @@ void ModelAnimator::Pass(UINT pass)
 	}
 }
 
-Transform* ModelAnimator::AddTransform()
+Transform * ModelAnimator::AddTransform()
 {
 	Transform* transform = new Transform();
 	transforms.push_back(transform);
@@ -224,7 +212,7 @@ Matrix ModelAnimator::GetAttachTransform(UINT index)
 	Matrix result = csOutput[index].Result;
 	Matrix world = GetTransform(index)->World();
 
-	return transform * result* world;
+	return transform * result * world;
 }
 
 void ModelAnimator::CreateTexture()
@@ -259,7 +247,7 @@ void ModelAnimator::CreateTexture()
 			{
 				UINT start = c * pageSize;
 
-				void* temp = (BYTE*)p + MAX_MODEL_TRANSFORMS * y * sizeof(Matrix) + start;
+				void* temp = (BYTE *)p + MAX_MODEL_TRANSFORMS * y * sizeof(Matrix) + start;
 
 				VirtualAlloc(temp, MAX_MODEL_TRANSFORMS * sizeof(Matrix), MEM_COMMIT, PAGE_READWRITE);
 
@@ -300,7 +288,7 @@ void ModelAnimator::CreateTexture()
 
 	for (ModelMesh* mesh : model->Meshes())
 		mesh->TransformsSRV(srv);
-
+	
 }
 
 void ModelAnimator::CreateClipTransform(UINT index)
@@ -349,9 +337,9 @@ void ModelAnimator::CreateClipTransform(UINT index)
 				bones[b] = parent;
 
 				clipTransforms[index].Transform[f][b] = bone->Transform() * bones[b];
-			}
+			}		
 
-
+			
 		}
 	}
 
@@ -382,7 +370,7 @@ void ModelAnimator::CreateComputeDesc()
 	(
 		csInput,
 		sizeof(CS_InputDesc), inSize,
-		sizeof(CS_OutputDesc) + sizeof(CS_OutputDesc2), outSize * 2
+		sizeof(CS_OutputDesc), outSize
 	);
 
 	if (csOutput == NULL)
@@ -392,17 +380,5 @@ void ModelAnimator::CreateComputeDesc()
 		for (UINT i = 0; i < outSize; i++)
 			D3DXMatrixIdentity(&csOutput[i].Result);
 	}
-	if (csOutput2 == NULL)
-	{
-		csOutput2 = new CS_OutputDesc2[outSize];
 
-		for (UINT i = 0; i < outSize; i++)
-		{
-			for (UINT j = 0; j < outSize; j++)
-			{
-				csOutput2[i].ResultByBone[j] = 0;
-			}
-		}
-
-	}
 }

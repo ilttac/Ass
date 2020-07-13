@@ -90,7 +90,7 @@ private:
 	vector<string> projectMeshNames;
 	vector<string> projectPngFileNames;
 	vector<string> hiarachyName;
-	vector<ModelAnimator*> modelLists;
+	vector<ModelAnimMultiBone*> modelLists;
 	vector<string> clipNames;
 	int currentModelID = -1;
 

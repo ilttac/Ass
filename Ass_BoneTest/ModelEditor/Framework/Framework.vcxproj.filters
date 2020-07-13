@@ -133,9 +133,6 @@
     <ClCompile Include="Model\ModelClip.cpp">
       <Filter>Model</Filter>
     </ClCompile>
-    <ClCompile Include="Model\ModelAnimator.cpp">
-      <Filter>Model</Filter>
-    </ClCompile>
     <ClCompile Include="Environment\Billboard.cpp">
       <Filter>Environment</Filter>
     </ClCompile>
@@ -234,6 +231,12 @@
     </ClCompile>
     <ClCompile Include="Systems\ImGradient.cpp">
       <Filter>Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="Model\ModelAnimMultiBone.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Model\ModelAnimator.cpp">
+      <Filter>Model</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -349,9 +352,6 @@
     <ClInclude Include="Model\ModelClip.h">
       <Filter>Model</Filter>
     </ClInclude>
-    <ClInclude Include="Model\ModelAnimator.h">
-      <Filter>Model</Filter>
-    </ClInclude>
     <ClInclude Include="Environment\Billboard.h">
       <Filter>Environment</Filter>
     </ClInclude>
@@ -441,6 +441,12 @@
     </ClInclude>
     <ClInclude Include="Systems\imgui_internal.h">
       <Filter>Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Model\ModelAnimMultiBone.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Model\ModelAnimator.h">
+      <Filter>Model</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -7,7 +7,14 @@ float4 PS(MeshOutput input) : SV_Target0
     float3 diffuse = DiffuseMap.Sample(LinearSampler, input.Uv).rgb;
     float NdotL = dot(normalize(input.Normal), -GlobalLight.Direction);
 
-    return float4(diffuse * NdotL, 1);    
+    return float4(diffuse * NdotL,1);    
+}
+float4 PS_DepthSphere(MeshOutput input) : SV_Target0
+{
+	float3 diffuse = DiffuseMap.Sample(LinearSampler, input.Uv).rgb;
+	float NdotL = dot(normalize(input.Normal), -GlobalLight.Direction);
+
+	return float4(diffuse * NdotL,0.8);
 }
 
 technique11 T0
@@ -15,4 +22,6 @@ technique11 T0
     P_VP(P0, VS_Mesh, PS)
     P_VP(P1, VS_Model, PS)
     P_VP(P2, VS_Animation, PS)
+	P_VP(P3, VS_Model, PS_DepthSphere)
+
 }

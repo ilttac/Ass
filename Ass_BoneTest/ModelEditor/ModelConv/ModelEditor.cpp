@@ -161,7 +161,7 @@ void ModelEditor::Render()
 	//32_model.fx
 	{
 		stone->Render();
-		sphere->Pass(1);
+		sphere->Pass(3);
 		sphere->Render();
 	}
 
@@ -521,25 +521,6 @@ void ModelEditor::Gizmo()
 			EditTransform(Context::Get()->View(), Context::Get()->Projection(), &modelLists[currentModelID]->GetTransform(0)->World()[matId], lastUsing == matId);
 			modelLists[currentModelID]->UpdateTransforms();
 		}
-		//else if (modelLists.size() != 0 && currentModelID != -1 && editorState == BONE_EDITOR_STATE && transformNum != UINT32_MAX)
-		//{
-		//	Matrix m;
-		//	D3DXMatrixIdentity(&m);
-		//	Transform* transform = new Transform();
-		//	transform->World() = m;
-		//	EditTransform(Context::Get()->View(), Context::Get()->Projection(), &sphere->GetTransform(71)->World()[matId], lastUsing == matId);
-		//	sphere->UpdateTransforms();
-		//	//modelLists[currentModelID]->GetTransform(0)->World() = sphere->GetTransform(transformNum)->World();
-		//	modelLists[currentModelID]->GetModel()->Bones()[71]->Transform() = sphere->MeshTransformWorld(71);
-		//	modelLists[currentModelID]->GetModel()->Bones()[71]->Transform()._11 = 5.0f;
-		//	modelLists[currentModelID]->GetModel()->Bones()[71]->Transform()._22 = 5.0f;
-		//	modelLists[currentModelID]->GetModel()->Bones()[71]->Transform()._33 = 5.0f;
-		//	modelLists[currentModelID]->UpdateTransform(currentModelID, 71, *transform);
-		//	modelLists[currentModelID]->UpdateTransforms();
-
-		//	//modelLists[currentModelID]->GetModel()->BindBone();
-		//	//modelLists[currentModelID]->GetModel()->BindMesh();
-		//}
 		if (ImGuizmo::IsUsing())
 		{
 			lastUsing = matId;
@@ -673,7 +654,7 @@ void ModelEditor::OpenFbxFile(wstring file)
 	openFile = Path::GetFileNameWithoutExtension(file);
 	projectMeshNames.push_back(String::ToString(openFile));
 
-	ModelAnimator * modelRender = new ModelAnimator(modelShader);
+	ModelAnimMultiBone * modelRender = new ModelAnimMultiBone(modelShader);
 	modelRender->ReadMaterial(fileDirectory + L"/" + fileName);
 	modelRender->ReadMesh(fileDirectory + L"/" + fileName);
 	//해당 fileDirectory 폴더 있는 확장자가 .clip 파일을 다 불러와서 클립을 읽는다.
@@ -708,7 +689,7 @@ void ModelEditor::OpenMeshFile(wstring file)
 
 	openFile = Path::GetFileNameWithoutExtension(file);
 	projectMeshNames.push_back(String::ToString(openFile));
-	ModelAnimator* modelRender = new ModelAnimator(modelShader);
+	ModelAnimMultiBone* modelRender = new ModelAnimMultiBone(modelShader);
 	modelRender->ReadMaterial(fileDirectory + L"/" + fileName);
 	modelRender->ReadMesh(fileDirectory + L"/" + fileName);
 
@@ -784,23 +765,20 @@ void ModelEditor::BoneSphereUpdate()
 	//D3DXMatrixInverse(&W,NULL,&W);
 	if (tempDebugvalue == true)
 	{
-		Matrix m2[80];
-
 		for (UINT i = 0; i < modelLists[currentModelID]->GetModel()->BoneCount(); i++)
 		{
-			Matrix m = modelLists[currentModelID]->GetClipTransform(i);
-			m2[i] = modelLists[currentModelID]->GetClipTransform(i);
-			sphere->GetTransform(i)->World() = modelLists[currentModelID]->GetModel()->Bones()[i]->Transform()* m;
+			Matrix m = modelLists[currentModelID]->GetClipTransform(i);		
+			sphere->GetTransform(i)->World() = modelLists[currentModelID]->GetModel()->Bones()[i]->Transform()*m*W;
+			
 			//sphere->GetTransform(i)->World() =  W * m;
 			//sphere->GetTransform(i)->World() = m;
-			sphere->GetTransform(i)->World()._11 = 2.0f;
-			sphere->GetTransform(i)->World()._22 = 2.0f;
-			sphere->GetTransform(i)->World()._33 = 2.0f;
+			//sphere->GetTransform(i)->World()._11 = 2.0f;
+			//sphere->GetTransform(i)->World()._22 = 2.0f;
+			//sphere->GetTransform(i)->World()._33 = 2.0f;
 		}									
 		sphere->UpdateTransforms();			 
 		modelLists[currentModelID]->UpdateTransforms();
 	}
-
 }
 
 void ModelEditor::DragAndDropTreeNode(const char* label)

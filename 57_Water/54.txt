@@ -1,6 +1,0 @@
-LightController
-
-시간-> 반경조정
-
-개별 on off
-개별 position 변경
