@@ -23,9 +23,9 @@ public:
 	Transform* AddTransform();
 	Transform* GetTransform(UINT index) { return transforms[index]; }
 	void UpdateTransforms();
-
+public:
 	Matrix GetAttachTransform(UINT index);
-
+	Matrix GetClipTransform(UINT index) { return csOutput[index].Result; }
 private:
 	void CreateTexture();
 	void CreateClipTransform(UINT index);
