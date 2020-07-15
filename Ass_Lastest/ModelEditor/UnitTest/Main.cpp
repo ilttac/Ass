@@ -53,7 +53,7 @@
 
 void Main::Initialize()
 {
-	Push(new ByteAddressDemo());
+	Push(new ScatteringDemo());
 }
 
 void Main::Ready()

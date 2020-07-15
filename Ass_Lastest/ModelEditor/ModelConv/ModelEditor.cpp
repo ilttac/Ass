@@ -9,17 +9,6 @@
 
 void ModelEditor::Initialize()
 {
-	// sequence with default values
-	mySequence.mFrameMin = -100;
-	mySequence.mFrameMax = 1000;
-	mySequence.myItems.push_back(MySequence::MySequenceItem{ 0, 10, 30, false });
-	mySequence.myItems.push_back(MySequence::MySequenceItem{ 1, 20, 30, true });
-	mySequence.myItems.push_back(MySequence::MySequenceItem{ 3, 12, 60, false });
-	mySequence.myItems.push_back(MySequence::MySequenceItem{ 2, 61, 90, false });
-	mySequence.myItems.push_back(MySequence::MySequenceItem{ 4, 90, 99, false });
-
-	importer = new Assimp::Importer();
-
 	Context::Get()->GetCamera()->RotationDegree(20, 0, 0);
 	Context::Get()->GetCamera()->Position(1, 25, -50);
 	((Freedom*)Context::Get()->GetCamera())->Speed(20, 5);
@@ -43,24 +32,24 @@ void ModelEditor::Initialize()
 void ModelEditor::Destroy()
 {
 	SafeDelete(shader)
-	SafeDelete(shadow)
+		SafeDelete(shadow)
 
-	SafeDelete(sky)
+		SafeDelete(sky)
 
-	SafeDelete(floor)
-	SafeDelete(stone)
+		SafeDelete(floor)
+		SafeDelete(stone)
 
-	SafeDelete(sphere)
-	SafeDelete(grid)
+		SafeDelete(sphere)
+		SafeDelete(grid)
 
-	SafeDelete(particleSystem)
-	SafeDelete(importer)
-	SafeDelete(modelAnimator)
+		SafeDelete(particleSystem)
 
-	for (auto& list : modelLists)
-	{
-		SafeDelete(list)
-	}
+		SafeDelete(modelAnimator)
+
+		for (auto& list : modelLists)
+		{
+			SafeDelete(list)
+		}
 	for (auto& texture : textures)
 	{
 		SafeDelete(texture);
@@ -123,8 +112,6 @@ void ModelEditor::Update()
 	//	else if (Keyboard::Get()->Press('Q'))
 	//		P += -U * moveSpeed * Time::Delta();
 	//}
-	//sphere->GetTransform(0)->Position(P);
-	//sphere->UpdateTransforms();
 
 	if (particleSystem != NULL)
 	{
@@ -487,44 +474,19 @@ void ModelEditor::Inspector()
 }
 void ModelEditor::Gizmo()
 {
-	static const float identityMatrix[16] =
-	{ 1.f, 0.f, 0.f, 0.f,
-		0.f, 1.f, 0.f, 0.f,
-		0.f, 0.f, 1.f, 0.f,
-		0.f, 0.f, 0.f, 1.f };
-	ImGuizmo::SetOrthographic(!isPerspective);
 	ImGuizmo::BeginFrame();
 
 	ImGui::Begin("Editor");
 	ImGui::Text("Camera");
-	bool viewDirty = false;
-	if (ImGui::RadioButton("Perspective", isPerspective)) isPerspective = true;
-	ImGui::SameLine();
-	if (ImGui::RadioButton("Orthographic", !isPerspective)) isPerspective = false;
-	if (isPerspective)
-	{
-		ImGui::SliderFloat("Fov", &fov, 20.f, 110.f);
-	}
-	else
-	{
-		ImGui::SliderFloat("Ortho width", &viewWidth, 1, 20);
-	}
-	viewDirty |= ImGui::SliderFloat("Distance", &camDistance, 1.f, 10.f);
-	ImGui::SliderInt("Gizmo count", &gizmoCount, 1, 4);
+
 
 	ImGui::Separator();
-	for (int matId = 0; matId < gizmoCount; matId++)
+	ImGuizmo::SetID(0);
+
+	if (modelLists.size() != 0 && currentModelID != -1 && editorState == MESH_EDITOR_STATE)
 	{
-		ImGuizmo::SetID(matId);
-		if (modelLists.size() != 0 && currentModelID != -1 && editorState == MESH_EDITOR_STATE)
-		{
-			EditTransform(Context::Get()->View(), Context::Get()->Projection(), &modelLists[currentModelID]->GetTransform(0)->World()[matId], lastUsing == matId);
-			modelLists[currentModelID]->UpdateTransforms();
-		}
-		if (ImGuizmo::IsUsing())
-		{
-			lastUsing = matId;
-		}
+		EditTransform(Context::Get()->View(), Context::Get()->Projection(), &modelLists[currentModelID]->GetTransform(0)->World()[0], lastUsing == 0);
+		modelLists[currentModelID]->UpdateTransforms();
 	}
 	ImGui::End();
 }
@@ -555,7 +517,7 @@ void ModelEditor::Animation()
 				current_item = str[n];
 				currentClipNum = n;
 				//
-				tempDebugvalue = true;
+				
 				//
 			}
 			if (is_selected)
@@ -573,8 +535,10 @@ void ModelEditor::Animation()
 			editorState = ANIM_EDITOR_STATE;
 			modelLists[currentModelID]->Pass(2);
 			modelLists[currentModelID]->PlayClip(0, currentClipNum, 1.0f, 1.0f);
+			tempDebugvalue = true;
 		}
 	}
+
 	ImGui::SameLine();
 	if (ImGui::ImageButton(*pauseButton
 		, ImVec2(20, 16), ImVec2(0.0, 0), ImVec2(1, 1), 2, ImVec4(1.0f, 1.0f, 1.0f, 0.0f)))
@@ -585,6 +549,7 @@ void ModelEditor::Animation()
 	if (ImGui::ImageButton(*stopButton
 		, ImVec2(20, 16), ImVec2(0.0, 0), ImVec2(1, 1), 2, ImVec4(1.0f, 1.0f, 1.0f, 0.0f)))
 	{
+		tempDebugvalue = false;
 		modelLists[currentModelID]->Pass(1);
 	}
 	ImGui::End();
@@ -735,7 +700,6 @@ void ModelEditor::BoneView()
 
 		Matrix W = modelLists[currentModelID]->GetTransform(0)->World();
 		Transform* transform = NULL;
-
 		sphereTransform.reserve(250);
 
 		for (UINT i = 0; i < (modelLists[currentModelID]->GetModel()->Bones().size()); i++)
@@ -769,12 +733,15 @@ void ModelEditor::BoneSphereUpdate()
 		{
 			Matrix m = modelLists[currentModelID]->GetClipTransform(i);
 			sphere->GetTransform(i)->World() = modelLists[currentModelID]->GetModel()->Bones()[i]->Transform() * m * W;
-
-			//sphere->GetTransform(i)->World() =  W * m;
-			//sphere->GetTransform(i)->World() = m;
-			//sphere->GetTransform(i)->World()._11 = 2.0f;
-			//sphere->GetTransform(i)->World()._22 = 2.0f;
-			//sphere->GetTransform(i)->World()._33 = 2.0f;
+		}
+		sphere->UpdateTransforms();
+		modelLists[currentModelID]->UpdateTransforms();
+	}
+	else
+	{
+		for (UINT i = 0; i < modelLists[currentModelID]->GetModel()->BoneCount(); i++)
+		{
+			sphere->GetTransform(i)->World() = modelLists[currentModelID]->GetModel()->Bones()[i]->Transform() * W;
 		}
 		sphere->UpdateTransforms();
 		modelLists[currentModelID]->UpdateTransforms();

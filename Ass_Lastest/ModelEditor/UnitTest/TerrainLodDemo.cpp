@@ -27,9 +27,6 @@ void TerrainLodDemo::Initialize()
 		terrain->NormalMap(L"Terrain/Gray1024_Normal.png");
 		//terrain->Pass(1);
 	}
-
-	
-	
 }
 
 void TerrainLodDemo::Destroy()

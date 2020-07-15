@@ -64,6 +64,7 @@ private:
 	Texture* playeButton;
 	Texture* pauseButton;
 	Texture* stopButton;
+
 	Sky* sky;
 
 	Material* floor;
@@ -74,17 +75,15 @@ private:
 
 	vector<MeshRender*> meshes;
 	//-
+
 private:
 	wstring file;
-
-	Assimp::Importer* importer;
 	const aiScene* scene;
-
 	vector<Texture*> textures;
 
-	//vector<struct asBone*> bones;
 	vector<struct asMesh*> asMeshes;
 	vector<ModelBone*> modelBones;
+
 //Project,Hiarachy
 private:
 	vector<string> projectMeshNames;
@@ -92,51 +91,14 @@ private:
 	vector<string> hiarachyName;
 	vector<ModelAnimMultiBone*> modelLists;
 	vector<string> clipNames;
+
 	int currentModelID = -1;
 
 private:
 	int lastUsing = 0;
-	float objectMatrix[4][16] = {
-	  { 1.f, 0.f, 0.f, 0.f,
-		0.f, 1.f, 0.f, 0.f,
-		0.f, 0.f, 1.f, 0.f,
-		0.f, 0.f, 0.f, 1.f },
-
-	  { 1.f, 0.f, 0.f, 0.f,
-	  0.f, 1.f, 0.f, 0.f,
-	  0.f, 0.f, 1.f, 0.f,
-	  2.f, 0.f, 0.f, 1.f },
-
-	  { 1.f, 0.f, 0.f, 0.f,
-	  0.f, 1.f, 0.f, 0.f,
-	  0.f, 0.f, 1.f, 0.f,
-	  2.f, 0.f, 2.f, 1.f },
-
-	  { 1.f, 0.f, 0.f, 0.f,
-	  0.f, 1.f, 0.f, 0.f,
-	  0.f, 0.f, 1.f, 0.f,
-	  0.f, 0.f, 2.f, 1.f }
-	};
-
-	float cameraView[16] =
-	{ 1.f, 0.f, 0.f, 0.f,
-	  0.f, 1.f, 0.f, 0.f,
-	  0.f, 0.f, 1.f, 0.f,
-	  0.f, 0.f, 0.f, 1.f };
-
-	float cameraProjection[16];
-	// Camera projection
-	bool isPerspective = true;
-	float fov = 27.f;
-	float viewWidth = 10.f; // for orthographic
-	float camYAngle = 165.f / 180.f * 3.14159f;
-	float camXAngle = 32.f / 180.f * 3.14159f;
-	float camDistance = 8.f;
 	int gizmoCount = 1;
-
 	bool firstFrame = true;
 	////
-	class Mesh* mesh1;
 
 private:
 	enum EditorState

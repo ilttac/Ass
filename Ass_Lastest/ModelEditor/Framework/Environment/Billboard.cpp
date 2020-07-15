@@ -34,7 +34,6 @@ void Billboard::AddTexture(wstring file)
 void Billboard::Update()
 {
 	Super::Update();
-	
 }
 
 void Billboard::Render()
@@ -45,14 +44,10 @@ void Billboard::Render()
 	if (vertices.size() != vertexCount)
 	{
 		vertexCount = vertices.size();
-
 		SafeDelete(vertexBuffer);
 		vertexBuffer = new VertexBuffer(&vertices[0], vertices.size(), sizeof(VertexScale));
 	}
-
-
 	Super::Render();
-
 	sMaps->SetResource(textures->SRV());
 	shader->Draw(0, Pass(), vertexCount);
 }

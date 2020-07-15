@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ #include "stdafx.h"
 #include "Editor.h"
 #include "Utilities/Xml.h"
 
