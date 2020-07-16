@@ -55,7 +55,7 @@ private:
 	vector<wstring> textureLists;
 	vector<wstring> boneLists;
 	vector<wstring> meshLists;
-	vector<wstring> clipLists;
+	vector<vector<string>> clipLists;
 
 	wstring openFile = L"";
 	wstring openPngFile = L"";
@@ -78,10 +78,7 @@ private:
 
 private:
 	wstring file;
-	const aiScene* scene;
 	vector<Texture*> textures;
-
-	vector<struct asMesh*> asMeshes;
 	vector<ModelBone*> modelBones;
 
 //Project,Hiarachy
@@ -96,9 +93,6 @@ private:
 
 private:
 	int lastUsing = 0;
-	int gizmoCount = 1;
-	bool firstFrame = true;
-	////
 
 private:
 	enum EditorState
@@ -107,11 +101,10 @@ private:
 		BONE_EDITOR_STATE,
 		ANIM_EDITOR_STATE
 	};
+
 	EditorState editorState = MESH_EDITOR_STATE;
 	enum { eClipNameMaxNum = 100 };
 
-	Matrix matrixIdentity;
-	UINT transformNum;
 	bool tempDebugvalue = false;
 private:
 	bool bCount = false;

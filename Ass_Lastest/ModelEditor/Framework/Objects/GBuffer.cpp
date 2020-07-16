@@ -46,9 +46,6 @@ GBuffer::GBuffer(Shader * shader, UINT width, UINT height)
 	debug2D[3]->SRV(normalRTV->SRV());
 	debug2D[4]->SRV(tangentRTV->SRV());
 	debug2D[5]->SRV(depthStencil->SRV());	
-	
-	
-
 }
 
 GBuffer::~GBuffer()

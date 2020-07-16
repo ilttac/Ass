@@ -261,8 +261,6 @@ void WaterDemo::Mesh()
 			transform->Position(30, 15.5f, -15.0f + (float)i * 15.0f);
 			transform->Scale(5, 5, 5);
 		}
-
-		
 	}
 
 	sphere->UpdateTransforms();

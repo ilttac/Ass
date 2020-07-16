@@ -28,8 +28,6 @@ struct VertexOutput
 float4 PS(VertexOutput input) : SV_Target
 {
     return DiffuseMap.Sample(LinearSampler, input.Uv);
-
-    
 }
 
 technique11 T0

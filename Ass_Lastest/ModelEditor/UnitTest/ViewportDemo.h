@@ -35,7 +35,7 @@ private:
 
 	Shader * shader;
 	
-	class SkyCube* sky;
+	class Sky* sky;
 
 	Material* floor;
 	Material* stone;

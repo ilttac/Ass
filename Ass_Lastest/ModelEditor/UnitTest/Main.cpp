@@ -53,7 +53,7 @@
 
 void Main::Initialize()
 {
-	Push(new ScatteringDemo());
+	Push(new RtvDemo());
 }
 
 void Main::Ready()

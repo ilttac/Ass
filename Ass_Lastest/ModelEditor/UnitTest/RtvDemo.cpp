@@ -12,7 +12,7 @@ void RtvDemo::Initialize()
 	dynamic_cast<Freedom*>(Context::Get()->GetCamera())->Speed(50, 5);
 
 	shader = new Shader(L"38_Lighting.fxo");
-	sky = new SkyCube(L"Environment/GrassCube1024.dds");
+	//sky = new SkyCube(L"Environment/GrassCube1024.dds");
 
 	CreateViewer();
 
@@ -39,7 +39,7 @@ void RtvDemo::Update()
 	select %= 2;
 	shader->AsScalar("Select")->SetInt(select);
 
-	sky->Update();
+	//sky->Update();
 
 	sphere->Update();
 	cylinder->Update();
@@ -66,7 +66,7 @@ void RtvDemo::PreRender()
 	renderTarget->Set(depthStencil);
 	viewport->RSSetViewport();
 
-	sky->Render();
+//	sky->Render();
 
 	Pass(0, 1, 2);
 
@@ -91,7 +91,7 @@ void RtvDemo::PreRender()
 
 void RtvDemo::Render()
 {
-	sky->Render();
+	//sky->Render();
 
 	Pass(0, 1, 2);
 

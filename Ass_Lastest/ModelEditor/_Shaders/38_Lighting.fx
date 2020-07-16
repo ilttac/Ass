@@ -1,6 +1,7 @@
 #include "00_Global.fx"
 #include "00_Light.fx"
 #include "00_Model.fx"
+//#include "00_Deffered.fx"
 
 int Select;
 float4 PS(MeshOutput input) : SV_Target0

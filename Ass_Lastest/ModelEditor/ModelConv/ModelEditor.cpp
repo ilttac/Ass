@@ -13,7 +13,6 @@ void ModelEditor::Initialize()
 	Context::Get()->GetCamera()->Position(1, 25, -50);
 	((Freedom*)Context::Get()->GetCamera())->Speed(20, 5);
 
-	D3DXMatrixIdentity(&matrixIdentity);
 
 	shader = new Shader(L"57_ParticleViewer.fxo");
 	modelShader = new Shader(L"33_Animation.fxo");
@@ -52,15 +51,12 @@ void ModelEditor::Destroy()
 		}
 	for (auto& texture : textures)
 	{
-		SafeDelete(texture);
+		SafeDelete(texture)
 	}
 }
 
 void ModelEditor::Update()
 {
-	///////////////
-
-
 	//Imgui Set
 	{
 		MainMenu();
@@ -88,30 +84,6 @@ void ModelEditor::Update()
 	grid->Update();
 	sphere->Update();
 
-	//Vector3 P;
-	//sphere->GetTransform(0)->Position(&P);
-	//float moveSpeed = 30.0f;
-
-	//if (Mouse::Get()->Press(1) == false)
-	//{
-	//	const Vector3& F = Context::Get()->GetCamera()->Foward();
-	//	const Vector3& R = Context::Get()->GetCamera()->Right();
-	//	const Vector3& U = Context::Get()->GetCamera()->Up();
-	//	if (Keyboard::Get()->Press('W'))
-	//		P += Vector3(F.x, 0, F.z) * moveSpeed * Time::Delta();
-	//	else if (Keyboard::Get()->Press('S'))
-	//		P += Vector3(-F.x, 0, -F.z) * moveSpeed * Time::Delta();
-
-	//	if (Keyboard::Get()->Press('A'))
-	//		P += -R * moveSpeed * Time::Delta();
-	//	else if (Keyboard::Get()->Press('D'))
-	//		P += R * moveSpeed * Time::Delta();
-
-	//	if (Keyboard::Get()->Press('E'))
-	//		P += U * moveSpeed * Time::Delta();
-	//	else if (Keyboard::Get()->Press('Q'))
-	//		P += -U * moveSpeed * Time::Delta();
-	//}
 
 	if (particleSystem != NULL)
 	{
@@ -122,7 +94,7 @@ void ModelEditor::Update()
 	if (modelLists.size() != 0 && currentModelID != -1)
 	{
 		modelLists[currentModelID]->Update();
-		modelBones = modelLists[currentModelID]->GetModel()->Bones();
+		
 		BoneView();
 		BoneSphereUpdate();
 	}
@@ -145,12 +117,6 @@ void ModelEditor::Render()
 	sky->Pass(4, 5, 6);
 	sky->Render();
 
-	//32_model.fx
-	{
-		stone->Render();
-		sphere->Pass(3);
-		sphere->Render();
-	}
 
 	Pass(7);
 	floor->Render();
@@ -162,9 +128,13 @@ void ModelEditor::Render()
 		modelLists[currentModelID]->Render();
 	}
 
+	//32_model.fx
+	{
+		stone->Render();
+		sphere->Pass(3);
+		sphere->Render();
+	}
 }
-
-
 ////////////////////////////////////
 
 void ModelEditor::Mesh()
@@ -181,11 +151,11 @@ void ModelEditor::Mesh()
 
 		//구
 		stone = new Material(modelShader);
-		stone->DiffuseMap("Bricks.png");
-		stone->SpecularMap("Bricks_Specular.png");
-		stone->NormalMap("Bricks_Normal.png");
-		stone->Specular(0.3f, 0.3f, 0.3f, 20.0f);
-		stone->Emissive(0.2f, 0.2f, 0.2f, 0.3f);
+		stone->DiffuseMap("Blue.png");
+		stone->SpecularMap("Blue.png");
+		stone->NormalMap("Blue.png");
+		stone->Specular(0.3f, 0.3f, 0.3f, 30.0f);
+		stone->Emissive(0.2f, 0.2f, 0.2f, 0.7f);
 	}
 	//Create Mesh
 	{
@@ -257,7 +227,6 @@ void ModelEditor::MainMenu()
 			}
 			if (ImGui::BeginMenu("Save"))
 			{
-
 				if (ImGui::MenuItem(".mesh"))
 				{
 					Path::SaveFileDialog
@@ -371,6 +340,13 @@ void ModelEditor::Hiarachy()
 						{
 							index = j;
 							break;
+						}
+					}
+					if(bCount == true)
+					{
+						for (int i = 0; i < MAX_MODEL_TRANSFORMS; i++)
+						{
+							D3DXMatrixIdentity(&sphere->GetTransform(i)->World());
 						}
 					}
 					currentModelID = index;
@@ -498,33 +474,38 @@ void ModelEditor::Animation()
 	const char* str[eClipNameMaxNum] = { 0 };
 	static const char* current_item = NULL;
 	static int currentClipNum = -1;
-	for (int i = 0; i < clipNames.size(); ++i)
-	{
-		str[i] = clipNames[i].c_str();
-	}
+
 
 	ImGui::Begin("Animation", &bOpen, ImGuiWindowFlags_AlwaysVerticalScrollbar | ImGuiWindowFlags_AlwaysHorizontalScrollbar);
-
-	ImGui::PushItemWidth(150);
-	if (ImGui::BeginCombo("Clips", current_item))
+	if (currentModelID != -1)
 	{
-
-		for (int n = 0; n < clipNames.size(); n++)
+		for (int i = 0; i < clipLists[currentModelID].size(); ++i)
 		{
-			bool is_selected = (current_item == str[n]); // You can store your selection however you want, outside or inside your objects
-			if (ImGui::Selectable(str[n], is_selected))
-			{
-				current_item = str[n];
-				currentClipNum = n;
-				//
-				
-				//
-			}
-			if (is_selected)
-				ImGui::SetItemDefaultFocus();   // You may set the initial focus when opening the combo (scrolling + for keyboard navigation support)
+			str[i] = clipLists[currentModelID][i].c_str();
 		}
-		ImGui::EndCombo();
+
+		ImGui::PushItemWidth(150);
+		if (ImGui::BeginCombo("Clips", current_item))
+		{
+
+			for (int n = 0; n < clipLists[currentModelID].size(); n++)
+			{
+				bool is_selected = (current_item == str[n]); // You can store your selection however you want, outside or inside your objects
+				if (ImGui::Selectable(str[n], is_selected))
+				{
+					current_item = str[n];
+					currentClipNum = n;
+					//
+
+					//
+				}
+				if (is_selected)
+					ImGui::SetItemDefaultFocus();   // You may set the initial focus when opening the combo (scrolling + for keyboard navigation support)
+			}
+			ImGui::EndCombo();
+		}
 	}
+
 	ImGui::SameLine();
 	ImGui::Indent(200);
 	if (ImGui::ImageButton(*playeButton
@@ -551,6 +532,7 @@ void ModelEditor::Animation()
 	{
 		tempDebugvalue = false;
 		modelLists[currentModelID]->Pass(1);
+		current_item = NULL;
 	}
 	ImGui::End();
 }
@@ -661,6 +643,12 @@ void ModelEditor::OpenMeshFile(wstring file)
 	//해당 fileDirectory 폴더 있는 확장자가 .clip 파일을 다 불러와서 클립을 읽는다.
 	std::string path("../../_Models/" + String::ToString(fileFullDirectory));
 	std::string ext(".clip");
+
+	if (!clipNames.empty())
+	{
+		clipNames.clear();
+	}
+
 	for (auto& p : std::experimental::filesystem::recursive_directory_iterator(path))
 	{
 		if (p.path().extension() == ext)
@@ -668,6 +656,9 @@ void ModelEditor::OpenMeshFile(wstring file)
 			clipNames.push_back(String::ToString(p.path().filename().c_str()));
 		}
 	}
+
+	clipLists.push_back(clipNames);
+
 	for (auto name : clipNames)
 	{
 		modelRender->ReadClip(fileDirectory + L"/" + Path::GetFileNameWithoutExtension(String::ToWString(name)));
@@ -695,28 +686,12 @@ void ModelEditor::BoneView()
 {
 	if (bCount == false)
 	{
-		vector<Matrix*> sphereTransform;
-		vector<Matrix> modelBoneTransform;
-
-		Matrix W = modelLists[currentModelID]->GetTransform(0)->World();
 		Transform* transform = NULL;
-		sphereTransform.reserve(250);
-
-		for (UINT i = 0; i < (modelLists[currentModelID]->GetModel()->Bones().size()); i++)
+		for (UINT i = 0; i < MAX_MODEL_TRANSFORMS; i++)
 		{
 			transform = sphere->AddTransform();
 			transform->Scale(1.0f, 1.0f, 1.0f);
-			modelBoneTransform.push_back(modelBones[i]->Transform());
-		}
-
-		for (UINT i = 0; i < (modelLists[currentModelID]->GetModel()->Bones().size()); i++)
-		{
-			sphereTransform.push_back(&sphere->GetTransform(i)->World());
-			D3DXMatrixInverse(sphereTransform[i], NULL, sphereTransform[i]);
-			*sphereTransform[i] *= modelBoneTransform[i] * W;
-			sphereTransform[i]->_11 = 0.2f;
-			sphereTransform[i]->_22 = 0.2f;
-			sphereTransform[i]->_33 = 0.2f;
+		//	D3DXMatrixInverse(&transform->World(),NULL, &transform->World());
 		}
 		bCount = true;
 	}
@@ -726,22 +701,28 @@ void ModelEditor::BoneView()
 void ModelEditor::BoneSphereUpdate()
 {
 	Matrix W = modelLists[currentModelID]->GetTransform(0)->World();
-	//D3DXMatrixInverse(&W,NULL,&W);
 	if (tempDebugvalue == true)
 	{
 		for (UINT i = 0; i < modelLists[currentModelID]->GetModel()->BoneCount(); i++)
 		{
-			Matrix m = modelLists[currentModelID]->GetClipTransform(i);
+			Matrix m = modelLists[currentModelID]->GetBoneMatrix(i);
 			sphere->GetTransform(i)->World() = modelLists[currentModelID]->GetModel()->Bones()[i]->Transform() * m * W;
+			sphere->GetTransform(i)->World()._11 = 0.4f;
+			sphere->GetTransform(i)->World()._22 = 0.4f;
+			sphere->GetTransform(i)->World()._33 = 0.4f;
 		}
+		
 		sphere->UpdateTransforms();
 		modelLists[currentModelID]->UpdateTransforms();
-	}
+	} 
 	else
 	{
 		for (UINT i = 0; i < modelLists[currentModelID]->GetModel()->BoneCount(); i++)
 		{
 			sphere->GetTransform(i)->World() = modelLists[currentModelID]->GetModel()->Bones()[i]->Transform() * W;
+			sphere->GetTransform(i)->World()._11 = 0.4f;
+			sphere->GetTransform(i)->World()._22 = 0.4f;
+			sphere->GetTransform(i)->World()._33 = 0.4f;
 		}
 		sphere->UpdateTransforms();
 		modelLists[currentModelID]->UpdateTransforms();

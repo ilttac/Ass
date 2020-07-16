@@ -22,6 +22,6 @@ technique11 T0
     P_VP(P0, VS_Mesh, PS)
     P_VP(P1, VS_Model, PS)
     P_VP(P2, VS_Animation, PS)
-	P_VP(P3, VS_Model, PS_DepthSphere)
+	P_DSS_VP(P3,DepthEnable_False, VS_Model, PS_DepthSphere)
 
 }

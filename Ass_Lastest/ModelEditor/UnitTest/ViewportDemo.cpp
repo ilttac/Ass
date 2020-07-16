@@ -12,7 +12,7 @@ void ViewportDemo::Initialize()
 	dynamic_cast<Freedom*>(Context::Get()->GetCamera())->Speed(50, 5);
 
 	shader = new Shader(L"38_Lighting.fxo");
-	sky = new SkyCube(L"Environment/GrassCube1024.dds");
+	//sky = new Sky(L"Environment/GrassCube1024.dds");
 
 	CreateViewer();
 

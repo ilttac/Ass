@@ -4,7 +4,7 @@
 
 
 
-technique11 T0
-{
-    P_RS_DSS_VP(P0, FrontCounterCloskwise_True, DepthEnable_False, VS_Mesh, PS_Sky)
-}
+//technique11 T0
+//{
+//    P_RS_DSS_VP(P0, FrontCounterCloskwise_True, DepthEnable_False, VS_Mesh, PS_Sky)
+//}

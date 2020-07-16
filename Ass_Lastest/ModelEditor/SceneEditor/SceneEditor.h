@@ -30,14 +30,18 @@ private:
 private:
 	//Object Lists
 	/*
+	아래를 모두 같은 Hiarachy에 등록 한다면 ? 
 	vector<Shader*> shaderLists;
 	vector<ModelAnimMultiBone*> modelMultiBoneLists;
 	vector<ModelAnimator*> modelAnimatorLists;
 	vector<Terrain*> terrainLists;
+	vector로 관리 하고 hiarachy 는 unordered_map<int,String,vector<int>>
+	클릭시 -> unordered_map 에서 key로 value 를 찾고 value 의 유형 에 따라 
+	다르게 inspector 를 만든다. 
 	*/
 
 private:
-	Shader * shader;
+	Shader* shader;
 	Shadow* shadow;
 
 	ParticleSystem* particleSystem;
@@ -49,7 +53,7 @@ private:
 
 	vector<wstring> particleList;
 	vector<wstring> textureList;
-
+	
 	wstring file = L"";
 
 	Sky* sky;

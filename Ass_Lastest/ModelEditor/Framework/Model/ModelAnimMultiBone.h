@@ -25,7 +25,7 @@ public:
 	void UpdateTransforms();
 public:
 	Matrix GetAttachTransform(UINT index);
-	Matrix GetClipTransform(UINT index) { return boneMatrix[index]; }
+	Matrix GetBoneMatrix(UINT index) { return boneMatrix[index]; }
 private:
 	void CreateTexture();
 	void CreateClipTransform(UINT index);
