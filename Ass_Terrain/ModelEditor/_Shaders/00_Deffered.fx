@@ -39,7 +39,8 @@ struct PixelOutput_PackGBuffer
 PixelOutput_PackGBuffer PS_PackGBuffer(MeshOutput input)
 {
     Texture(Material.Diffuse, DiffuseMap, input.Uv);
-    NormalMapping(input.Uv, input.Normal, input.Tangent);
+    
+	(input.Uv, input.Normal, input.Tangent);
     Texture(Material.Specular, SpecularMap, input.Uv);
    
     PixelOutput_PackGBuffer output;

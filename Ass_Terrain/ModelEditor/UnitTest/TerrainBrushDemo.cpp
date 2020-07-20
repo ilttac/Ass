@@ -13,7 +13,6 @@ void TerrainBrushDemo::Initialize()
 	
 	terrain = new Terrain(shader, L"Terrain/Gray256.png");
 	terrain->BaseMap(L"Terrain/Dirt3.png");
-	
 }
 
 void TerrainBrushDemo::Destroy()
@@ -24,16 +23,12 @@ void TerrainBrushDemo::Destroy()
 
 void TerrainBrushDemo::Update()
 {
-
 	terrain->Update();
 }
 
 void TerrainBrushDemo::Render()
 {
-
 	terrain->Render();
-
-
 }
 
 

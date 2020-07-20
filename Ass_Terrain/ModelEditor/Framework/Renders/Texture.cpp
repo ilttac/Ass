@@ -11,7 +11,6 @@ Texture::Texture(wstring file, D3DX11_IMAGE_LOAD_INFO* loadInfo)
 	bool b = Path::IsRelativePath(file);
 	if (b == true)
 		this->file = L"../../_Textures/" + file;
-
 	Textures::Load(this, loadInfo);
 	String::Replace(&this->file, L"../../_Textures", L"");
 }
@@ -41,7 +40,6 @@ void Texture::SaveFile(wstring file, ID3D11Texture2D * src)
 {
 	D3D11_TEXTURE2D_DESC srcDesc;
 	src->GetDesc(&srcDesc);
-
 	ID3D11Texture2D* dest;
 	D3D11_TEXTURE2D_DESC destDesc;
 	ZeroMemory(&destDesc, sizeof(D3D11_TEXTURE2D_DESC));
@@ -104,7 +102,7 @@ D3D11_TEXTURE2D_DESC Texture::ReadPixel(ID3D11Texture2D * src, DXGI_FORMAT readF
 	ID3D11Texture2D* texture;
 	Check(D3D::GetDevice()->CreateTexture2D(&desc, NULL, &texture));
 	Check(D3DX11LoadTextureFromTexture(D3D::GetDC(), src, NULL, texture));
-
+	
 	UINT* colors = new UINT[desc.Width * desc.Height];
 	D3D11_MAPPED_SUBRESOURCE subResource;
 	D3D::GetDC()->Map(texture, 0, D3D11_MAP_READ, NULL, &subResource);

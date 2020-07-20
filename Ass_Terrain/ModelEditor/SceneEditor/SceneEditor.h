@@ -29,16 +29,13 @@ private:
 	다르게 inspector 를 만든다. 
 	*/
 private:
-	//TerrainLod
-	TerrainLod::InitialDesc terrainInitialDesc;
-	TerrainLod* terrainLod;
+	//Terrain
+	Terrain* terrain;
 	
 private:
 	Shader* shader;
 	Shader* skyShader;
 	Shadow* shadow;
 
-
 	Sky* sky;
-
 };

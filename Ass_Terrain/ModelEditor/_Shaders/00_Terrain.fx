@@ -128,9 +128,25 @@ float4 GetLayerColor(float2 uv)
     float4 layer = LayerMap.Sample(LinearSampler, uv);
 
     return lerp(base, layer, (1 - alpha));
-
 }
+//VS
+//-------------------------------------------------------------------------------------------------------
+VertexTerrain VS(VertexTextrueNormal input) //<-인텔리센스 오류는 무시하기. global.fx 가 인클루드 되어 있어서 괜찮다. 인식만 안될뿐
+{
+	VertexTerrain output;
+	output.Position = mul(input.Position, World);
+	output.wPosition = output.Position.xyz;
+	
+	output.Position = mul(output.Position, View);
+	output.Position = mul(output.Position, Projection);
 
+	output.Normal = mul(input.Normal, (float3x3) World);
+	output.Uv = input.Uv;
+
+	output.Color = GetBrushColor(output.wPosition);
+
+	return output;
+}
 ///////////////////////////////////////////////////////////////////////////////
 // TerrainLod
 ///////////////////////////////////////////////////////////////////////////////

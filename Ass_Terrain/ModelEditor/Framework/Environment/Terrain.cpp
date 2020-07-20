@@ -1,13 +1,14 @@
 #include "Framework.h"
 #include "Terrain.h"
 
-Terrain::Terrain(Shader * shader, wstring heightFile)
+Terrain::Terrain(Shader* shader, wstring heightFile)
 	: Renderer(shader)
 {
 	sBaseMap = shader->AsSRV("BaseMap");
 	sAlphaMap = shader->AsSRV("AlphaMap");
 	sLayerMap = shader->AsSRV("LayerMap");
 
+	//원래 height 맵에 r 에 basemap , g : layer1, b: layer2 ,a:alpha
 	heightMap = new Texture(heightFile);
 
 	brushBuffer = new ConstantBuffer(&brushDesc, sizeof(BrushDesc));
@@ -19,9 +20,8 @@ Terrain::Terrain(Shader * shader, wstring heightFile)
 	CreateVertexData();
 	CreateIndexData();
 	CreateNormalData();
-	
 	vertexBuffer = new VertexBuffer
-		(vertices, vertexCount, sizeof(TerrainVertex), 0, true);
+	(vertices, vertexCount, sizeof(TerrainVertex), 0, true);
 	indexBuffer = new IndexBuffer(indices, indexCount);
 }
 
@@ -44,16 +44,89 @@ Terrain::~Terrain()
 }
 
 void Terrain::Update()
-{	
-	Super::Update();	
+{
+	Super::Update();
+
+	//Brush
+	ImGui::InputInt("Type", (int*)& brushDesc.Type);
+	brushDesc.Type %= 3;
+
+	ImGui::InputInt("Range", (int*)& brushDesc.Range);
+	brushDesc.Range %= 20;
+
+	ImGui::Separator();
+	ImGui::Checkbox("Noise", (bool*)& brushDesc.Noise);
+
+	ImGui::Checkbox("Smooth", (bool*)& brushDesc.Smooth);
+	ImGui::Checkbox("Flat", (bool*)& brushDesc.Flat);
+	ImGui::Checkbox("Slope", (bool*)& brushDesc.Slope);
 
 	if (brushDesc.Type > 0)
 	{
 		brushDesc.Location = GetPickedPosition();
+		brushDesc.MousePos = Mouse::Get()->GetPosition();
+		if (Mouse::Get()->Press(0) && Keyboard::Get()->Press(SHIFT_PRESSED))
+		{
+			descHeight(brushDesc.Location, brushDesc.Type, brushDesc.Range);
+		}
+		else if (Mouse::Get()->Press(0) && brushDesc.Noise == true)
+		{
+			MakeNoise(brushDesc.Location, brushDesc.Type, brushDesc.Range);
+		}
+		else if (Mouse::Get()->Press(0) && brushDesc.Smooth == true)
+		{
+			MakeSmooth(brushDesc.Location, brushDesc.Type, brushDesc.Range);
+		}
+		else if (Mouse::Get()->Press(0) && brushDesc.Flat == true)
+		{
+			MakeFlat(brushDesc.Location, brushDesc.Type, brushDesc.Range);
+		}
+		else if (Mouse::Get()->Down(0) && brushDesc.Slope == true)
+		{
+			if (brushDesc.SlopeSwitch == 0)
+			{
+				brushDesc.SlopeSwitch = 1;
+				brushDesc.LateLocation = brushDesc.Location;
+				brushDesc.LateMousePos = brushDesc.MousePos;
+			}
+			else if (brushDesc.SlopeSwitch == 1 && brushDesc.LateMousePos != brushDesc.MousePos)
+			{
+				brushDesc.SlopeSwitch = 0;
+				MakeSlope(brushDesc.LateLocation, brushDesc.Location, brushDesc.Type, brushDesc.Range);
+			}
+		}
+		else if (Mouse::Get()->Press(0))
+		{
+			if (brushDesc.MousePos == brushDesc.LateMousePos)
+			{
+				RaiseHeightRect(brushDesc.LateLocation, brushDesc.Type, brushDesc.Range);
+			}
+			else
+			{
+				RaiseHeightRect(brushDesc.Location, brushDesc.Type, brushDesc.Range);
+				brushDesc.LateMousePos = brushDesc.MousePos;
+				brushDesc.LateLocation = brushDesc.Location;
+			}
 
-		if (Mouse::Get()->Press(0))
-			RaiseHeight(brushDesc.Location, brushDesc.Type, brushDesc.Range);
+		}
+
+
 	}
+
+	//Line
+	ImGui::Separator();
+	ImGui::ColorEdit3("Color", lineDesc.Color);
+
+	ImGui::InputInt("Visible", (int*)& lineDesc.Visible);
+	lineDesc.Visible %= 2;
+
+	ImGui::InputFloat("Thickness", &lineDesc.Thickness, 0.001f);
+	lineDesc.Thickness = Math::Clamp(lineDesc.Thickness, 0.01f, 0.9f);
+
+	ImGui::InputFloat("Size", &lineDesc.Size, 1.0f);
+	ImGui::Separator();
+	ImGui::Button("DescHeight : leftShift + leftClick");
+	
 	
 }
 
@@ -61,24 +134,21 @@ void Terrain::Render()
 {
 	Super::Render();
 
-	if(baseMap != NULL)
-		sBaseMap->SetResource(baseMap->SRV());	
+	if (baseMap != NULL)
+		sBaseMap->SetResource(baseMap->SRV());
 
 	brushBuffer->Apply();
 	sBrushBuffer->SetConstantBuffer(brushBuffer->Buffer());
 
 	lineBuffer->Apply();
 	sLineBuffer->SetConstantBuffer(lineBuffer->Buffer());
-
 	if (layerMap != NULL && alphaMap != NULL)
 	{
 		sAlphaMap->SetResource(alphaMap->SRV());
 		sLayerMap->SetResource(layerMap->SRV());
 	}
-	
-	
-	shader->DrawIndexed(0, Pass(), indexCount);
 
+	shader->DrawIndexed(0, Pass(), indexCount);
 }
 
 void Terrain::BaseMap(wstring file)
@@ -90,10 +160,11 @@ void Terrain::BaseMap(wstring file)
 void Terrain::LayerMap(wstring file, wstring alpha)
 {
 	SafeDelete(alphaMap);
-	SafeDelete(layerMap);
+	SafeDelete(layerMap);//기존꺼지우거 다시깐다.
 
 	alphaMap = new Texture(alpha);
 	layerMap = new Texture(file);
+
 }
 
 float Terrain::GetHeight(Vector3& position)
@@ -116,7 +187,7 @@ float Terrain::GetHeight(Vector3& position)
 
 	Vector3 result;
 
-	if(ddx + ddz <= 1)
+	if (ddx + ddz <= 1)
 		result = v[0] + (v[2] - v[0]) * ddx + (v[1] - v[0]) * ddz;
 	else
 	{
@@ -150,7 +221,7 @@ float Terrain::GetHeightPick(Vector3 & position)
 	float u, v, distance;
 	Vector3 result(-1, FLT_MIN, -1);
 
-	
+
 	if (D3DXIntersectTri(&p[0], &p[1], &p[2], &start, &direction, &u, &v, &distance) == TRUE)
 		result = p[0] + (p[1] - p[0]) * u + (p[2] - p[0]) * v;
 
@@ -182,7 +253,7 @@ Vector3 Terrain::GetPickedPosition()
 	for (UINT z = 0; z < height - 1; z++)
 	{
 		for (UINT x = 0; x < width - 1; x++)
-		{			
+		{
 			UINT index[4];
 			index[0] = width * z + x;
 			index[1] = width * (z + 1) + x;
@@ -210,10 +281,9 @@ void Terrain::CreateVertexData()
 	//heightMap의 색상 정보 받아오기
 	vector<Color> heights;
 	heightMap->ReadPixel(DXGI_FORMAT_R8G8B8A8_UNORM, &heights);
-
 	width = heightMap->GetWidth();
 	height = heightMap->GetHeight();
-
+	//heightMap->
 	//Create VData
 	vertexCount = width * height;
 	vertices = new TerrainVertex[vertexCount];
@@ -226,7 +296,7 @@ void Terrain::CreateVertexData()
 			UINT pixel = width * (height - z - 1) + x;
 
 			vertices[index].Position.x = (float)x;
-			vertices[index].Position.y = (heights[pixel].r * 256.0f) / 10.0f;
+			vertices[index].Position.y = (heights[pixel].r * 256.0f) / 10.0f ;
 			vertices[index].Position.z = (float)z;
 
 			vertices[index].Uv.x = (float)x / (float)width;
@@ -274,17 +344,83 @@ void Terrain::CreateNormalData()
 
 		Vector3 normal;
 		D3DXVec3Cross(&normal, &d1, &d2);
-		
+
 		vertices[index0].Normal = normal;
 		vertices[index1].Normal = normal;
-		vertices[index2].Normal = normal;		
+		vertices[index2].Normal = normal;
 	}
 
 	for (UINT i = 0; i < vertexCount; i++)
 		D3DXVec3Normalize(&vertices[i].Normal, &vertices[i].Normal);
 }
 
-void Terrain::RaiseHeight(Vector3 & position, UINT type, UINT range)
+void Terrain::RaiseHeightRect(Vector3 & position, UINT type, UINT range)
+{
+
+	D3D11_BOX rect;
+	rect.left = (LONG)position.x - range;
+	rect.top = (LONG)position.z + range;
+	rect.right = (LONG)position.x + range;
+	rect.bottom = (LONG)position.z - range;
+
+	if (rect.left < 0) rect.left = 0;
+	if (rect.right >= width) rect.right = width;
+	if (rect.bottom < 0) rect.bottom = 0;
+	if (rect.top >= height) rect.top = height;
+
+	if (type == 1)
+	{
+		for (LONG z = rect.bottom; z <= rect.top; z++)
+		{
+			for (LONG x = rect.left; x <= rect.right; x++)
+			{
+
+				UINT index = width * (UINT)z + (UINT)x;
+				if (vertices[index].Position.y >= 128.0f)
+				{
+					continue;
+				}
+				vertices[index].Position.y += 5.0f * Time::Delta();
+			}
+		}
+	}
+	else if (type == 2)
+	{
+		for (LONG z = rect.bottom; z <= rect.top; z++)
+		{
+			for (LONG x = rect.left; x <= rect.right; x++)
+			{
+				if (range >= (LONG)sqrt(pow(position.x - x, 2) + pow(position.z - z, 2)))
+				{
+					UINT index = width * (UINT)z + (UINT)x;
+					if (vertices[index].Position.y >= 128.0f)
+					{
+						continue;
+					}
+					vertices[index].Position.y += 5.0f * Time::Delta();
+				}
+			}
+		}
+	}
+
+
+
+	CreateNormalData();
+
+	/*D3D::GetDC()->UpdateSubresource
+	(
+		vertexBuffer->Buffer(), 0, NULL, vertices, sizeof(TerrainVertex) * vertexCount, 0
+	);*/
+
+	D3D11_MAPPED_SUBRESOURCE subResource;
+	D3D::GetDC()->Map(vertexBuffer->Buffer(), 0, D3D11_MAP_WRITE_DISCARD, 0, &subResource);
+	{
+		memcpy(subResource.pData, vertices, sizeof(TerrainVertex) * vertexCount);
+	}
+	D3D::GetDC()->Unmap(vertexBuffer->Buffer(), 0);
+}
+
+void Terrain::descHeight(Vector3 & position, UINT type, UINT range)
 {
 	D3D11_BOX rect;
 	rect.left = (LONG)position.x - range;
@@ -297,22 +433,602 @@ void Terrain::RaiseHeight(Vector3 & position, UINT type, UINT range)
 	if (rect.bottom < 0) rect.bottom = 0;
 	if (rect.top >= height) rect.top = height;
 
-	for (LONG z = rect.bottom; z <= rect.top; z++)
+	if (type == 1)
 	{
-		for (LONG x = rect.left; x <= rect.right; x++)
+		for (LONG z = rect.bottom; z <= rect.top; z++)
 		{
-			UINT index = width * (UINT)z + (UINT)x;
-			vertices[index].Position.y += 5.0f * Time::Delta();
+			for (LONG x = rect.left; x <= rect.right; x++)
+			{
+				UINT index = width * (UINT)z + (UINT)x;
+				if (vertices[index].Position.y <= -128.0f)
+				{
+					continue;
+				}
+				vertices[index].Position.y -= (5.0f * Time::Delta());
+			}
+		}
+	}
+	else if (type == 2)
+	{
+		for (LONG z = rect.bottom; z <= rect.top; z++)
+		{
+			for (LONG x = rect.left; x <= rect.right; x++)
+			{
+				if (range >= (LONG)sqrt(pow(position.x - x, 2) + pow(position.z - z, 2)))
+				{
+					UINT index = width * (UINT)z + (UINT)x;
+					if (vertices[index].Position.y <= -128.0f)
+					{
+						continue;
+					}
+					vertices[index].Position.y -= (5.0f * Time::Delta());
+				}
+			}
+		}
+	}
+
+
+
+	CreateNormalData();
+
+	//D3D::GetDC()->UpdateSubresource
+	//(
+	//	vertexBuffer->Buffer(), 0, NULL, vertices, sizeof(TerrainVertex) * vertexCount, 0
+	//);
+
+	D3D11_MAPPED_SUBRESOURCE subResource;
+	D3D::GetDC()->Map(vertexBuffer->Buffer(), 0, D3D11_MAP_WRITE_DISCARD, 0, &subResource);
+	{
+		memcpy(subResource.pData, vertices, sizeof(TerrainVertex) * vertexCount);
+	}
+	D3D::GetDC()->Unmap(vertexBuffer->Buffer(), 0);
+}
+void Terrain::MakeNoise(Vector3 & position, UINT type, UINT range)
+{
+	D3D11_BOX rect;
+	srand((UINT)time(0));
+
+
+	rect.left = (LONG)position.x - range;
+	rect.top = (LONG)position.z + range;
+	rect.right = (LONG)position.x + range;
+	rect.bottom = (LONG)position.z - range;
+
+	if (rect.left < 0) rect.left = 0;
+	if (rect.right >= width) rect.right = width;
+	if (rect.bottom < 0) rect.bottom = 0;
+	if (rect.top >= height) rect.top = height;
+
+	if (type == 1)
+	{
+		for (LONG z = rect.bottom; z <= rect.top; z++)
+		{
+			for (LONG x = rect.left; x <= rect.right; x++)
+			{
+				float randNum = (rand() % 10) - 5;
+				UINT index = width * (UINT)z + (UINT)x;
+				vertices[index].Position.y = randNum;
+			}
+		}
+	}
+	else if (type == 2)
+	{
+		for (LONG z = rect.bottom; z <= rect.top; z++)
+		{
+			for (LONG x = rect.left; x <= rect.right; x++)
+			{
+				if (range >= (LONG)sqrt(pow(position.x - x, 2) + pow(position.z - z, 2)))
+				{
+					float randNum = (rand() % 10) - 5;
+					UINT index = width * (UINT)z + (UINT)x;
+					vertices[index].Position.y = randNum;
+				}
+			}
 		}
 	}
 
 	CreateNormalData();
 
-	/*D3D::GetDC()->UpdateSubresource
-	(
-		vertexBuffer->Buffer(), 0, NULL, vertices, sizeof(TerrainVertex) * vertexCount, 0
-	);*/
-	
+	D3D11_MAPPED_SUBRESOURCE subResource;
+	D3D::GetDC()->Map(vertexBuffer->Buffer(), 0, D3D11_MAP_WRITE_DISCARD, 0, &subResource);
+	{
+		memcpy(subResource.pData, vertices, sizeof(TerrainVertex) * vertexCount);
+	}
+	D3D::GetDC()->Unmap(vertexBuffer->Buffer(), 0);
+}
+void Terrain::MakeSmooth(Vector3 & position, UINT type, UINT range)
+{
+	D3D11_BOX rect;
+
+	rect.left = (LONG)position.x - range;
+	rect.top = (LONG)position.z + range;
+	rect.right = (LONG)position.x + range;
+	rect.bottom = (LONG)position.z - range;
+
+	if (rect.left < 0) rect.left = 0;
+	if (rect.right >= width) rect.right = width;
+	if (rect.bottom < 0) rect.bottom = 0;
+	if (rect.top >= height) rect.top = height;
+	int max = 0;
+	int min = 0;
+
+	for (LONG z = rect.bottom; z <= rect.top; z++)
+	{
+		for (LONG x = rect.left; x <= rect.right; x++)
+		{
+			UINT index = width * (UINT)z + (UINT)x;
+			if (vertices[index].Position.y > max)
+			{
+				max = vertices[index].Position.y;
+			}
+			if (vertices[index].Position.y < min)
+			{
+				min = vertices[index].Position.y;
+			}
+		}
+	}
+	int avg = (max + min) / 2;
+	if (type == 1)
+	{
+		for (LONG z = rect.bottom; z <= rect.top; z++)
+		{
+			for (LONG x = rect.left; x <= rect.right; x++)
+			{
+				UINT index = width * (UINT)z + (UINT)x;
+				if (vertices[index].Position.y > avg)
+				{
+					vertices[index].Position.y -= 3.0f * Time::Delta();
+				}
+				else if (vertices[index].Position.y <= avg)
+				{
+					vertices[index].Position.y += 3.0f * Time::Delta();
+				}
+			}
+		}
+	}
+	else if (type == 2)
+	{
+		for (LONG z = rect.bottom; z <= rect.top; z++)
+		{
+			for (LONG x = rect.left; x <= rect.right; x++)
+			{
+				if (range >= (LONG)sqrt(pow(position.x - x, 2) + pow(position.z - z, 2)))
+				{
+					UINT index = width * (UINT)z + (UINT)x;
+					if (vertices[index].Position.y > avg)
+					{
+						vertices[index].Position.y -= 3.0f * Time::Delta();
+					}
+					else if (vertices[index].Position.y <= avg)
+					{
+						vertices[index].Position.y += 3.0f * Time::Delta();
+					}
+				}
+			}
+		}
+	}
+
+	CreateNormalData();
+
+	D3D11_MAPPED_SUBRESOURCE subResource;
+	D3D::GetDC()->Map(vertexBuffer->Buffer(), 0, D3D11_MAP_WRITE_DISCARD, 0, &subResource);
+	{
+		memcpy(subResource.pData, vertices, sizeof(TerrainVertex) * vertexCount);
+	}
+	D3D::GetDC()->Unmap(vertexBuffer->Buffer(), 0);
+}
+void Terrain::MakeFlat(Vector3 & position, UINT type, UINT range)
+{
+	D3D11_BOX rect;
+
+	rect.left = (LONG)position.x - range;
+	rect.top = (LONG)position.z + range;
+	rect.right = (LONG)position.x + range;
+	rect.bottom = (LONG)position.z - range;
+
+	if (rect.left < 0) rect.left = 0;
+	if (rect.right >= width) rect.right = width;
+	if (rect.bottom < 0) rect.bottom = 0;
+	if (rect.top >= height) rect.top = height;
+
+
+	if (type == 1)
+	{
+		for (LONG z = rect.bottom; z <= rect.top; z++)
+		{
+			for (LONG x = rect.left; x <= rect.right; x++)
+			{
+				UINT index = width * (UINT)z + (UINT)x;
+
+				vertices[index].Position.y = 0;
+
+			}
+		}
+	}
+	else if (type == 2)
+	{
+		for (LONG z = rect.bottom; z <= rect.top; z++)
+		{
+			for (LONG x = rect.left; x <= rect.right; x++)
+			{
+				if (range >= (LONG)sqrt(pow(position.x - x, 2) + pow(position.z - z, 2)))
+				{
+					UINT index = width * (UINT)z + (UINT)x;
+
+					vertices[index].Position.y = 0;
+
+				}
+			}
+		}
+	}
+
+	CreateNormalData();
+
+	D3D11_MAPPED_SUBRESOURCE subResource;
+	D3D::GetDC()->Map(vertexBuffer->Buffer(), 0, D3D11_MAP_WRITE_DISCARD, 0, &subResource);
+	{
+		memcpy(subResource.pData, vertices, sizeof(TerrainVertex) * vertexCount);
+	}
+	D3D::GetDC()->Unmap(vertexBuffer->Buffer(), 0);
+}
+void Terrain::MakeSlope(Vector3 & oldposition, Vector3 & newposition, UINT type, UINT range)
+{
+	D3D11_BOX rect;
+	D3D11_BOX rect2;
+
+	rect.left = (LONG)oldposition.x - range;
+	rect.top = (LONG)oldposition.z + range;
+	rect.right = (LONG)oldposition.x + range;
+	rect.bottom = (LONG)oldposition.z - range;
+
+	if (rect.left < 0) rect.left = 0;
+	if (rect.right >= width) rect.right = width;
+	if (rect.bottom < 0) rect.bottom = 0;
+	if (rect.top >= height) rect.top = height;
+
+	rect2.left = (LONG)newposition.x - range;
+	rect2.top = (LONG)newposition.z + range;
+	rect2.right = (LONG)newposition.x + range;
+	rect2.bottom = (LONG)newposition.z - range;
+
+	if (rect2.left < 0) rect2.left = 0;
+	if (rect2.right >= width) rect2.right = width;
+	if (rect2.bottom < 0) rect2.bottom = 0;
+	if (rect2.top >= height) rect2.top = height;
+
+	float height1;
+	float perx;
+	if (oldposition.y >= newposition.y)
+	{
+		height1 = oldposition.y;
+		perx = height1 / sqrt(pow((LONG)rect2.left - (LONG)rect.left, 2) + pow((LONG)rect2.top - (LONG)rect.top, 2));
+	}
+	else
+	{
+		height1 = newposition.y;
+		perx = height1 / sqrt(pow((LONG)rect2.left - (LONG)rect.left, 2) + pow((LONG)rect2.top - (LONG)rect.top, 2));;
+	}
+
+	if (oldposition.x <= newposition.x)
+	{
+		if (oldposition.z <= newposition.z)
+		{
+			if (type > 0)
+			{
+				if (oldposition.y >= newposition.y)
+				{
+					float maxheight = oldposition.y;
+					while (true)
+					{
+						for (LONG z = rect.bottom; z <= rect.top; z++)
+						{
+							for (LONG x = rect.left; x <= rect.right; x++)
+							{
+								UINT index = width * (UINT)z + (UINT)x;
+								if (maxheight < 0)
+								{
+									vertices[index].Position.y = 0;
+									continue;
+								}
+								vertices[index].Position.y = maxheight;
+							}
+						}
+						maxheight -= perx;
+						if (rect.top < rect2.top)
+						{
+							rect.top++;
+							rect.bottom++;
+						}
+						if (rect.left < rect2.left)
+						{
+							rect.left++;
+							rect.right++;
+						}
+						if (rect.top >= rect2.top && rect.left >= rect2.left)
+						{
+							break;
+						}
+					}
+				}
+				else
+				{
+					float maxheight = oldposition.y;
+					while (rect.left <= rect2.left)
+					{
+
+						for (LONG z = rect.bottom; z <= rect.top; z++)
+						{
+							for (LONG x = rect.left; x <= rect.right; x++)
+							{
+								UINT index = width * (UINT)z + (UINT)x;
+								if (maxheight > newposition.y)
+								{
+									vertices[index].Position.y = newposition.y;
+									continue;
+								}
+								vertices[index].Position.y = maxheight;
+							}
+						}
+						maxheight += perx;
+						if (rect.top < rect2.top)
+						{
+							rect.top++;
+							rect.bottom++;
+						}
+						if (rect.left < rect2.left)
+						{
+							rect.left++;
+							rect.right++;
+						}
+						if (rect.top >= rect2.top && rect.left >= rect2.left)
+						{
+							break;
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			if (type > 0)
+			{
+				if (oldposition.y >= newposition.y)
+				{
+					float maxheight = oldposition.y;
+					while (rect.left <= rect2.left)
+					{
+						for (LONG z = rect.bottom; z <= rect.top; z++)
+						{
+							for (LONG x = rect.left; x <= rect.right; x++)
+							{
+								//z 음수값으로 찍힐때 ---
+
+								UINT index = width * (UINT)z + (UINT)x;
+								if (maxheight < 0)
+								{
+									vertices[index].Position.y = 0;
+									continue;
+								}
+								vertices[index].Position.y = maxheight;
+							}
+						}
+						maxheight -= perx;
+						if (rect.top > rect2.top)
+						{
+							rect.top--;
+							rect.bottom--;
+						}
+						if (rect.left < rect2.left)
+						{
+							rect.left++;
+							rect.right++;
+						}
+						if (rect.top <= rect2.top && rect.left >= rect2.left)
+						{
+							break;
+						}
+					}
+				}
+				else
+				{
+					float maxheight = oldposition.y;
+					while (rect.left <= rect2.left)
+					{
+
+						for (LONG z = rect.bottom; z <= rect.top; z++)
+						{
+							for (LONG x = rect.left; x <= rect.right; x++)
+							{
+								UINT index = width * (UINT)z + (UINT)x;
+								if (maxheight > newposition.y)
+								{
+									vertices[index].Position.y = newposition.y;
+									continue;
+								}
+								vertices[index].Position.y = maxheight;
+							}
+						}
+						maxheight += perx;
+						if (rect.top > rect2.top)
+						{
+							rect.top--;
+							rect.bottom--;
+						}
+						if (rect.left < rect2.left)
+						{
+							rect.left++;
+							rect.right++;
+						}
+						if (rect.top <= rect2.top && rect.left >= rect2.left)
+						{
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		if (oldposition.z <= newposition.z)
+		{
+			if (type > 0)
+			{
+				if (oldposition.y >= newposition.y)
+				{
+					float maxheight = newposition.y;
+					while (rect2.left <= rect.left)
+					{
+						for (LONG z = rect2.bottom; z <= rect2.top; z++)
+						{
+							for (LONG x = rect2.left; x <= rect2.right; x++)
+							{
+								UINT index = width * (UINT)z + (UINT)x;
+								if (maxheight >= oldposition.y)
+								{
+									vertices[index].Position.y = oldposition.y;
+									continue;
+								}
+								vertices[index].Position.y = maxheight;
+							}
+						}
+						maxheight += perx;
+						if (rect2.top > rect.top)
+						{
+							rect2.top--;
+							rect2.bottom--;
+						}
+						if (rect2.left < rect.left)
+						{
+							rect2.left++;
+							rect2.right++;
+						}
+						if (rect2.top <= rect.top && rect2.left >= rect.left)
+						{
+							break;
+						}
+					}
+				}
+				else
+				{
+					float maxheight = newposition.y;
+					while (rect2.left <= rect.left)
+					{
+						for (LONG z = rect2.bottom; z <= rect2.top; z++)
+						{
+							for (LONG x = rect2.left; x <= rect2.right; x++)
+							{
+								UINT index = width * (UINT)z + (UINT)x;
+								if (maxheight <= 0)
+								{
+									vertices[index].Position.y = 0;
+									continue;
+								}
+								vertices[index].Position.y = maxheight;
+							}
+						}
+						maxheight -= perx;
+						if (rect2.top > rect.top)
+						{
+							rect2.top--;
+							rect2.bottom--;
+						}
+						if (rect2.left < rect.left)
+						{
+							rect2.left++;
+							rect2.right++;
+						}
+						if (rect2.top <= rect.top && rect2.left >= rect.left)
+						{
+							break;
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			if (type > 0)
+			{
+				if (oldposition.y >= newposition.y)
+				{
+					float maxheight = newposition.y;
+					while (rect2.left <= rect.left)
+					{
+						for (LONG z = rect2.bottom; z <= rect2.top; z++)
+						{
+							for (LONG x = rect2.left; x <= rect2.right; x++)
+							{
+								UINT index = width * (UINT)z + (UINT)x;
+								if (maxheight >= oldposition.y)
+								{
+									vertices[index].Position.y = oldposition.y;
+									continue;
+								}
+								vertices[index].Position.y = maxheight;
+							}
+						}
+						maxheight += perx;
+						if (rect2.top < rect.top)
+						{
+							rect2.top++;
+							rect2.bottom++;
+						}
+						if (rect2.left < rect.left)
+						{
+							rect2.left++;
+							rect2.right++;
+						}
+						if (rect2.top >= rect.top && rect2.left >= rect.left)
+						{
+							break;
+						}
+					}
+				}
+				else
+				{
+					float maxheight = newposition.y;
+					while (rect2.left <= rect.left)
+					{
+
+						for (LONG z = rect2.bottom; z <= rect2.top; z++)
+						{
+							for (LONG x = rect2.left; x <= rect2.right; x++)
+							{
+								UINT index = width * (UINT)z + (UINT)x;
+
+								if (maxheight <= 0)
+								{
+									vertices[index].Position.y = 0;
+									continue;
+								}
+								vertices[index].Position.y = maxheight;
+							}
+						}
+						maxheight -= perx;
+						if (rect2.top < rect.top)
+						{
+							rect2.top++;
+							rect2.bottom++;
+						}
+						if (rect2.left < rect.left)
+						{
+							rect2.left++;
+							rect2.right++;
+						}
+						if (rect2.top >= rect.top && rect2.left >= rect.left)
+						{
+							break;
+						}
+					}
+				}
+			}
+		}
+
+	}
+
+	CreateNormalData();
+
 	D3D11_MAPPED_SUBRESOURCE subResource;
 	D3D::GetDC()->Map(vertexBuffer->Buffer(), 0, D3D11_MAP_WRITE_DISCARD, 0, &subResource);
 	{
@@ -321,10 +1037,13 @@ void Terrain::RaiseHeight(Vector3 & position, UINT type, UINT range)
 	D3D::GetDC()->Unmap(vertexBuffer->Buffer(), 0);
 }
 
-///과제
-// 1. BrushType -> Sphere Type 추가
-// 2. Shift키를 누르고 클릭하면 지면 하강
-// 3. Noise(랜덤)
-// 4. Smooth(평균화)
-// 5. Flat(평탄화)
-// 6. Slope(두 점사이의 경사)
+void Terrain::SaveTerrain()
+{
+	//바이너리 파일.trn파일을 save
+	/*
+	1.높이값 pass 방식 : terrainLod로 못불러옴.
+	2.height맵을 다시 생성해서 pass 
+	-> -25.5 ~ 25.5를 
+	-> 0~1사이로 
+	*/
+}

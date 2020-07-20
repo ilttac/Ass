@@ -23,8 +23,6 @@ RasterizerState RS
 
 technique11 T0
 {
-
     P_VP(P0, VS, PS)    
-    P_RS_VP(P1, RS, VS, PS)
-    
+    P_RS_VP(P1, RS, VS, PS)   
 }

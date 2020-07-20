@@ -15,6 +15,7 @@ public:
 	void BaseMap(wstring file);
 	void LayerMap(wstring file, wstring alpha);
 
+
 	float GetHeight(Vector3& position);
 	float GetHeightPick(Vector3& position);
 	Vector3 GetPickedPosition();
@@ -23,26 +24,49 @@ private:
 	void CreateVertexData();
 	void CreateIndexData();
 	void CreateNormalData();
-	void RaiseHeight(Vector3& position, UINT type, UINT range);
+	void RaiseHeightRect(Vector3& position, UINT type, UINT range);
+	void descHeight(Vector3& position, UINT type, UINT range);
+
+	void MakeNoise(Vector3& position, UINT type, UINT range);
+
+	void MakeSmooth(Vector3& position, UINT type, UINT range);
+
+	void MakeFlat(Vector3& position, UINT type, UINT range);
+
+	void MakeSlope(Vector3& oldposition, Vector3& newposition, UINT type, UINT range);
+
+	void SaveTerrain();
 
 private:
 	struct BrushDesc
 	{
-		Color Color = D3DXCOLOR(0, 1, 0, 1);
-		Vector3 Location;
-		UINT Type = 0;
-		UINT Range = 1;
-		float Padding[3];
+		Color Color = D3DXCOLOR(0, 1, 0, 1);//16
+		Vector3 Location; //12
+		UINT Type = 0; //4
+		UINT Range = 1;//4
+		bool Noise = false;//1
+		bool Smooth = false;//1
+		bool Flat = false;//1
+		bool Slope = false;//1
+		Vector3 LateLocation;//12
+		Vector3 MousePos;//12
+		Vector3 LateMousePos;//12
+		UINT SlopeSwitch = 0;
 	} brushDesc;
 
 	struct LineDesc
 	{
 		Color Color = D3DXCOLOR(1, 1, 1, 1);
-		UINT Visible = 0;
+		UINT Visible = 1;
 		float Thickness = 0.01f;
 		float Size = 5.0f;
 		float Padding;
 	} lineDesc;
+
+	struct HeigthDesc
+	{
+		float positionY = 0;
+	};
 
 private:
 	Texture* heightMap;
