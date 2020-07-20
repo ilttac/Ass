@@ -99,6 +99,7 @@ typedef D3DXPLANE Plane;
 #include "Utilities/Math.h"
 #include "Utilities/String.h"
 #include "Utilities/Path.h"
+#include "Utilities/BinaryFile.h"
 
 #include "Objects/Collider.h"
 #include "Objects/Projector.h"

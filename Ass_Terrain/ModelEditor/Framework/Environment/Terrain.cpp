@@ -10,7 +10,7 @@ Terrain::Terrain(Shader* shader, wstring heightFile)
 
 	//원래 height 맵에 r 에 basemap , g : layer1, b: layer2 ,a:alpha
 	heightMap = new Texture(heightFile);
-
+	heightMapFileName = String::ToString(heightFile);
 	brushBuffer = new ConstantBuffer(&brushDesc, sizeof(BrushDesc));
 	sBrushBuffer = shader->AsConstantBuffer("CB_Brush");
 
@@ -47,19 +47,7 @@ void Terrain::Update()
 {
 	Super::Update();
 
-	//Brush
-	ImGui::InputInt("Type", (int*)& brushDesc.Type);
-	brushDesc.Type %= 3;
 
-	ImGui::InputInt("Range", (int*)& brushDesc.Range);
-	brushDesc.Range %= 20;
-
-	ImGui::Separator();
-	ImGui::Checkbox("Noise", (bool*)& brushDesc.Noise);
-
-	ImGui::Checkbox("Smooth", (bool*)& brushDesc.Smooth);
-	ImGui::Checkbox("Flat", (bool*)& brushDesc.Flat);
-	ImGui::Checkbox("Slope", (bool*)& brushDesc.Slope);
 
 	if (brushDesc.Type > 0)
 	{
@@ -112,22 +100,6 @@ void Terrain::Update()
 
 
 	}
-
-	//Line
-	ImGui::Separator();
-	ImGui::ColorEdit3("Color", lineDesc.Color);
-
-	ImGui::InputInt("Visible", (int*)& lineDesc.Visible);
-	lineDesc.Visible %= 2;
-
-	ImGui::InputFloat("Thickness", &lineDesc.Thickness, 0.001f);
-	lineDesc.Thickness = Math::Clamp(lineDesc.Thickness, 0.01f, 0.9f);
-
-	ImGui::InputFloat("Size", &lineDesc.Size, 1.0f);
-	ImGui::Separator();
-	ImGui::Button("DescHeight : leftShift + leftClick");
-	
-	
 }
 
 void Terrain::Render()
@@ -296,7 +268,7 @@ void Terrain::CreateVertexData()
 			UINT pixel = width * (height - z - 1) + x;
 
 			vertices[index].Position.x = (float)x;
-			vertices[index].Position.y = (heights[pixel].r * 256.0f) / 10.0f ;
+			vertices[index].Position.y = (heights[pixel].r * 256.0f) / 10.0f;
 			vertices[index].Position.z = (float)z;
 
 			vertices[index].Uv.x = (float)x / (float)width;
@@ -1037,13 +1009,46 @@ void Terrain::MakeSlope(Vector3 & oldposition, Vector3 & newposition, UINT type,
 	D3D::GetDC()->Unmap(vertexBuffer->Buffer(), 0);
 }
 
-void Terrain::SaveTerrain()
+void Terrain::SaveTerrain(wstring file)
 {
-	//바이너리 파일.trn파일을 save
-	/*
-	1.높이값 pass 방식 : terrainLod로 못불러옴.
-	2.height맵을 다시 생성해서 pass 
-	-> -25.5 ~ 25.5를 
-	-> 0~1사이로 
-	*/
+	Path::CreateFolders(Path::GetDirectoryName(file));
+	BinaryWriter* w = new BinaryWriter();
+	w->Open(file);
+	w->String(heightMapFileName);
+
+
+	wstring s = Path::GetLastDirectoryName(baseMap->GetFile()) + L"/";
+	wstring s2 = Path::GetFileName(baseMap->GetFile());
+	w->String(String::ToString(s + s2)); //baseMap
+
+	s = Path::GetLastDirectoryName(layerMap->GetFile()) + L"/";
+	s2 = Path::GetFileName(layerMap->GetFile());
+	w->String(String::ToString(s + s2)); //layerMap
+
+	s = Path::GetLastDirectoryName(alphaMap->GetFile()) + L"/";
+	s2 = Path::GetFileName(alphaMap->GetFile());
+	w->String(String::ToString(s + s2)); //alphaMap
+
+	w->UInt(vertexCount);
+	for (UINT i = 0; i < vertexCount; i++)
+	{
+		w->Float(vertices[i].Position.y);
+	}
+	w->Close();
+	SafeDelete(w);
+}
+
+void Terrain::ChangeVertex(vector<float> ChangedVertex)
+{
+	for (UINT i = 0; i < vertexCount; i++)
+	{
+		vertices[i].Position.y = ChangedVertex[i];
+	}
+
+	D3D11_MAPPED_SUBRESOURCE subResource;
+	D3D::GetDC()->Map(vertexBuffer->Buffer(), 0, D3D11_MAP_WRITE_DISCARD, 0, &subResource);
+	{
+		memcpy(subResource.pData, vertices, sizeof(TerrainVertex) * vertexCount);
+	}
+	D3D::GetDC()->Unmap(vertexBuffer->Buffer(), 0);
 }

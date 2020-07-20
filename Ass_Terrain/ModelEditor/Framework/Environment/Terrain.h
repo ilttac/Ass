@@ -20,22 +20,22 @@ public:
 	float GetHeightPick(Vector3& position);
 	Vector3 GetPickedPosition();
 
+	void SaveTerrain(wstring file);
+	void ChangeVertex(vector<float> ChangedVertex);
+
+
+
 private:
 	void CreateVertexData();
 	void CreateIndexData();
 	void CreateNormalData();
+
 	void RaiseHeightRect(Vector3& position, UINT type, UINT range);
 	void descHeight(Vector3& position, UINT type, UINT range);
-
 	void MakeNoise(Vector3& position, UINT type, UINT range);
-
 	void MakeSmooth(Vector3& position, UINT type, UINT range);
-
 	void MakeFlat(Vector3& position, UINT type, UINT range);
-
 	void MakeSlope(Vector3& oldposition, Vector3& newposition, UINT type, UINT range);
-
-	void SaveTerrain();
 
 private:
 	struct BrushDesc
@@ -67,10 +67,13 @@ private:
 	{
 		float positionY = 0;
 	};
+public:
+	BrushDesc& GetbrushDesc() { return brushDesc; }
+	LineDesc& GetLineDesc() { return lineDesc; }
 
 private:
 	Texture* heightMap;
-
+	string heightMapFileName;
 	UINT width;
 	UINT height;
 
