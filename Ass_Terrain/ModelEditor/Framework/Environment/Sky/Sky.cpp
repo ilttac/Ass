@@ -41,7 +41,6 @@ Sky::~Sky()
 
 	SafeDelete(cloud);
 	SafeDelete(cloudBuffer);
-	
 }
 
 void Sky::ScatteringPass(UINT val)
@@ -68,7 +67,7 @@ void Sky::Update()
 		float x = sinf(theta);
 		float y = cosf(theta);
 
-		Context::Get()->Direction() = Vector3(x, y, 0.75f);
+		Context::Get()->Direction() = Vector3(x, y, 0);
 	}
 
 	else
@@ -78,7 +77,7 @@ void Sky::Update()
 		float x = sinf(theta);
 		float y = cosf(theta);
 
-		Context::Get()->Direction() = Vector3(x, y, 0.75f);
+		Context::Get()->Direction() = Vector3(x, y, 0);
 	}
 
 	

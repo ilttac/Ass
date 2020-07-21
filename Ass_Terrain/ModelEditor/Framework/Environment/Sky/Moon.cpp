@@ -50,7 +50,7 @@ void Moon::Render(float theta)
 
 	sAlpha->SetFloat(GetAlpha(theta));
 
-	float scale = 3.5f;
+	float scale = 6.5f;
 
 	//Moon
 	{
@@ -89,13 +89,13 @@ float Moon::GetAlpha(float theta)
 
 Matrix Moon::GetTransform(float theta)
 {
-	/*Vector3 position(0,0,0);
-	Context::Get()->GetCamera()->Position(&position);*/
+	Vector3 position(0,0,0);
+	Context::Get()->GetCamera()->Position(&position);
 
 	Matrix S, R, T, D;
 	D3DXMatrixScaling(&S, 5, 5, 1);
 	D3DXMatrixRotationYawPitchRoll(&R, Math::PI * 0.5f, theta - (Math::PI * 0.5f), 0);
-	D3DXMatrixTranslation(&T, 0, -5, 0);
+	D3DXMatrixTranslation(&T, position.x, position.y, position.z);
 
 	Vector3 direction = Context::Get()->Direction();
 	D3DXMatrixTranslation
@@ -111,13 +111,14 @@ Matrix Moon::GetTransform(float theta)
 
 Matrix Moon::GetGlowTransform(float theta)
 {
-	//Vector3 position(0, 0, 0);
-	//Context::Get()->GetCamera()->Position(&position);
+	Vector3 position(0, 0, 0);
+	Context::Get()->GetCamera()->Position(&position);
 
 	Matrix S, R, T, D;
 	D3DXMatrixScaling(&S, 10, 10, 1);
 	D3DXMatrixRotationYawPitchRoll(&R, Math::PI * 0.5f, theta - (Math::PI * 0.5f), 0);
-	D3DXMatrixTranslation(&T,0, -5, 0);
+	D3DXMatrixTranslation(&T, position.x, position.y, position.z);
+
 
 	Vector3 direction = Context::Get()->Direction();
 	D3DXMatrixTranslation

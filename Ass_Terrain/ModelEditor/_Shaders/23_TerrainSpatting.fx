@@ -18,7 +18,7 @@ float4 PS(VertexTerrain input) : SV_Target0
 technique11 T0
 {
 
-    P_VP(P0, VS, PS)    
+    P_VP(P0, VS, PS)
     P_RS_VP(P1, FillMode_WireFrame, VS, PS)
-    
+
 }

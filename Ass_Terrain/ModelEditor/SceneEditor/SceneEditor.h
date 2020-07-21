@@ -8,9 +8,9 @@ public:
 	virtual void Ready() override {};
 	virtual void Destroy() override;
 	virtual void Update() override;
-	virtual void PreRender() override;
+	virtual void PreRender() override ;
 	virtual void Render() override;
-	virtual void PostRender() override {};
+	virtual void PostRender() override ;
 	virtual void ResizeScreen() override {};
 
 private:
@@ -20,6 +20,8 @@ private:
 
 	void Inspector();
 	void TerrainInspector();
+	void SkyInspector();
+
 private:
 	//Object Lists
 	/*
@@ -34,15 +36,18 @@ private:
 	*/
 
 private:
+	//Sky은 하나의씬에 하나만 존재한다.
+	Sky* sky = NULL;
+	Shader* shader_57;
+private:
 	//Terrain은 한개만 불러 올 수 있게 한다.
 	Terrain* terrain = NULL;
 	wstring heightMapName;
 	wstring openTerrainFile;
 	wstring saveTerrainFile;
+	Shader* terrainShader;
 private:
-	Shader* shader;
-	Shader* skyShader;
+	Shader* shader_53; //gBuffer
 	Shadow* shadow;
-
-	Sky* sky;
+	GBuffer* gBuffer;
 };

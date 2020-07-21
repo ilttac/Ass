@@ -59,4 +59,10 @@ private:
 	class Cloud* cloud;
 	ConstantBuffer* cloudBuffer;
 	ID3DX11EffectConstantBuffer* sCloudBuffer;
+public:
+	//
+	Dome* GetDome() { return dome; }
+	Moon* GetMoon() { return moon; }
+	CloudDesc& GetCloud() { return cloudDesc; }
+	//
 };

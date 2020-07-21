@@ -8,7 +8,9 @@ public:
 
 	void Update() override;
 	void Render() override;
-
+	//
+	Texture* GetStarMap() { return starMap; }
+	//
 private:
 	UINT drawCount;	
 

@@ -9,11 +9,19 @@ public:
 	void Update();
 	void Render(float theta);
 
+	Texture* GetMoonTexture(){ return moon; }
+	Texture* GetMoonGlowTexture() { return moonGlow; }
+
+	float& GetDistance() { return distance; }
+	float& GetGlowDistance () { return glowDistance; }
+
 private:
 	float GetAlpha(float theta);
 	
 	Matrix GetTransform(float theta);
 	Matrix GetGlowTransform(float theta);
+	
+	
 
 private:
 	float distance, glowDistance;

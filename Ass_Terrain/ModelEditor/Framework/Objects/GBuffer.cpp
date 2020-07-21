@@ -221,7 +221,7 @@ void GBuffer::CalcPointLights(UINT count)
 
 void GBuffer::RenderPointLights()
 {
-	ImGui::InputFloat("PointLight Factor", &pointLightDesc.TessFator, 1.0f);
+	//ImGui::InputFloat("PointLight Factor", &pointLightDesc.TessFator, 1.0f);
 	sPointLightBuffer->SetConstantBuffer(pointLightBuffer->Buffer());
 
 	//PointLight - Debug
@@ -297,7 +297,7 @@ void GBuffer::CalcSpotLights(UINT count)
 
 void GBuffer::RenderSpotLights()
 {
-	ImGui::InputFloat("SpotLight Factor", &spotLightDesc.TessFator, 1.0f);
+	//ImGui::InputFloat("SpotLight Factor", &spotLightDesc.TessFator, 1.0f);
 	sSpotLightBuffer->SetConstantBuffer(spotLightBuffer->Buffer());
 
 	if (bDebug == true)

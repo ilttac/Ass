@@ -41,30 +41,30 @@ void ScatteringDemo::Destroy()
 
 void ScatteringDemo::Update()
 {
-	UINT& type = Context::Get()->FogType();
-	ImGui::InputInt("FogType", (int*)&type);
-	type %= 3;
-	
-	ImGui::ColorEdit3("FogColor", Context::Get()->FogColor());
-	ImGui::SliderFloat("FogMin", &Context::Get()->FogDistance().x, 0.0f, 10.0f);
-	ImGui::SliderFloat("FogMax", &Context::Get()->FogDistance().y, 0.0f, 300.0f);
-	ImGui::SliderFloat("FogDensity", &Context::Get()->FogDensity(), 0.0f, 300.0f);
-	
+	//UINT& type = Context::Get()->FogType();
+	//ImGui::InputInt("FogType", (int*)&type);
+	//type %= 3;
+	//
+	//ImGui::ColorEdit3("FogColor", Context::Get()->FogColor());
+	//ImGui::SliderFloat("FogMin", &Context::Get()->FogDistance().x, 0.0f, 10.0f);
+	//ImGui::SliderFloat("FogMax", &Context::Get()->FogDistance().y, 0.0f, 300.0f);
+	//ImGui::SliderFloat("FogDensity", &Context::Get()->FogDensity(), 0.0f, 300.0f);
+	//
 
-	sphere->Update();	
-	cylinder->Update();
-	cube->Update();
-	grid->Update();
+	//sphere->Update();	
+	//cylinder->Update();
+	//cube->Update();
+	//grid->Update();
 
-	airplane->Update();
-	kachujin->Update();
+	//airplane->Update();
+	//kachujin->Update();
 
-	/*for (int i = 0; i < 4; i++)
-	{
-		Matrix attach = kachujin->GetAttachTransform(i);
-		colliders[i].Collider->GetTransform()->World(attach);
-		colliders[i].Collider->Update();
-	}*/
+	///*for (int i = 0; i < 4; i++)
+	//{
+	//	Matrix attach = kachujin->GetAttachTransform(i);
+	//	colliders[i].Collider->GetTransform()->World(attach);
+	//	colliders[i].Collider->Update();
+	//}*/
 
 	
 	
@@ -76,62 +76,63 @@ void ScatteringDemo::Update()
 void ScatteringDemo::PreRender()
 {
 	//Depth
-	{
-		shadow->Set();
+	//{
+	//	shadow->Set();
 
-		Pass(0, 1, 2);
+	//	Pass(0, 1, 2);
 
-		//sky->Pass(0);
-		//sky->Render();
+	//	//sky->Pass(0);
+	//	//sky->Render();
 
-		wall->Render();
-		sphere->Render();
+	//	wall->Render();
+	//	sphere->Render();
 
-		brick->Render();
-		cylinder->Render();
+	//	brick->Render();
+	//	cylinder->Render();
 
-		stone->Render();
-		cube->Render();
+	//	stone->Render();
+	//	cube->Render();
 
-		floor->Render();
-		grid->Render();
+	//	floor->Render();
+	//	grid->Render();
 
-		airplane->Render();
-		kachujin->Render();
-	}
+	//	airplane->Render();
+	//	kachujin->Render();
+	//}
 
-	//GBuffer
-	{
+	////GBuffer
+	//{
 		gBuffer->PackGBuffer();
 
-		Pass(3, 4, 5);
+	//	Pass(3, 4, 5);
 
-		//sky->Pass(0);
-		//sky->Render();
+	//	//sky->Pass(0);
+	//	//sky->Render();
 
-		wall->Render();
-		sphere->Render();
+	//	wall->Render();
+	//	sphere->Render();
 
-		brick->Render();
-		cylinder->Render();
+	//	brick->Render();
+	//	cylinder->Render();
 
-		stone->Render();
-		cube->Render();
+	//	stone->Render();
+	//	cube->Render();
 
-		floor->Render();
-		grid->Render();
+	//	floor->Render();
+	//	grid->Render();
 
-		airplane->Render();
-		kachujin->Render();
-	}
-
+	//	airplane->Render();
+	//	kachujin->Render();
+	//}
 	sky->PreRender();
 
 }
 
 void ScatteringDemo::Render()
 {
-	gBuffer->Render();	
+	gBuffer->Render();
+
+
 	sky->Render();
 
 	snow->Render();
