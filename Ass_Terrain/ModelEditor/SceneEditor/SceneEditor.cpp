@@ -180,8 +180,9 @@ void SceneEditor::Inspector()
 
 void SceneEditor::TerrainInspector()
 {
-	if (ImGui::CollapsingHeader("Brush"), ImGuiTreeNodeFlags_DefaultOpen)
+	if (ImGui::CollapsingHeader("Brush", ImGuiTreeNodeFlags_DefaultOpen))
 	{
+		ImGui::Separator();
 		//Brush
 		ImGui::InputInt("Type", (int*)&terrain->GetbrushDesc().Type);
 		terrain->GetbrushDesc().Type %= 3;
@@ -196,8 +197,9 @@ void SceneEditor::TerrainInspector()
 		ImGui::Checkbox("Flat", (bool*)& terrain->GetbrushDesc().Flat);
 		ImGui::Checkbox("Slope", (bool*)& terrain->GetbrushDesc().Slope);
 	}
-	if (ImGui::CollapsingHeader("Line"), ImGuiTreeNodeFlags_DefaultOpen)
+	if (ImGui::CollapsingHeader("Line", ImGuiTreeNodeFlags_DefaultOpen))
 	{
+		ImGui::Separator();
 		//Line
 		ImGui::Separator();
 		ImGui::ColorEdit3("Color", terrain->GetLineDesc().Color);

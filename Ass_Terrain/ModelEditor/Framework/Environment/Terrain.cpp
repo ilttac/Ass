@@ -47,8 +47,6 @@ void Terrain::Update()
 {
 	Super::Update();
 
-
-
 	if (brushDesc.Type > 0)
 	{
 		brushDesc.Location = GetPickedPosition();
@@ -97,8 +95,6 @@ void Terrain::Update()
 			}
 
 		}
-
-
 	}
 }
 
