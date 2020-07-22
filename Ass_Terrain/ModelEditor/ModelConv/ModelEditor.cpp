@@ -26,7 +26,7 @@ void ModelEditor::Initialize()
 	pauseButton = new Texture(L"PauseButton.png");
 	stopButton = new Texture(L"StopButton.png");
 	Mesh();
-	Weapon();
+	//Weapon();
 }
 
 void ModelEditor::Destroy()
@@ -99,7 +99,7 @@ void ModelEditor::Update()
 	if (modelLists.size() != 0 && currentModelID != -1)
 	{
 		modelLists[currentModelID]->Update();
-		weapon->Update();
+		//weapon->Update();
 		BoneView();
 		BoneSphereUpdate();
 	}
@@ -131,7 +131,7 @@ void ModelEditor::Render()
 	if (modelLists.size() != 0 && currentModelID != -1)
 	{
 		modelLists[currentModelID]->Render();
-		weapon->Render();
+		//weapon->Render();
 	}
 
 	//32_model.fx
@@ -656,6 +656,12 @@ void ModelEditor::OpenFbxFile(wstring file)
 	//해당 fileDirectory 폴더 있는 확장자가 .clip 파일을 다 불러와서 클립을 읽는다.
 	std::string path("../../_Models/" + String::ToString(fileFullDirectory));
 	std::string ext(".clip");
+
+	if (!clipNames.empty())
+	{
+		clipNames.clear();
+	}
+
 	for (auto& p : std::experimental::filesystem::recursive_directory_iterator(path))
 	{
 		if (p.path().extension() == ext)
@@ -663,6 +669,9 @@ void ModelEditor::OpenFbxFile(wstring file)
 			clipNames.push_back(String::ToString(p.path().filename().c_str()));
 		}
 	}
+
+	clipLists.push_back(clipNames);
+
 	for (auto name : clipNames)
 	{
 		modelRender->ReadClip(fileDirectory + L"/" + Path::GetFileNameWithoutExtension(String::ToWString(name)));
@@ -685,6 +694,7 @@ void ModelEditor::OpenMeshFile(wstring file)
 
 	openFile = Path::GetFileNameWithoutExtension(file);
 	projectMeshNames.push_back(String::ToString(openFile));
+	
 	ModelAnimMultiBone* modelRender = new ModelAnimMultiBone(modelShader);
 	modelRender->ReadMaterial(fileDirectory + L"/" + fileName);
 	modelRender->ReadMesh(fileDirectory + L"/" + fileName);
@@ -761,8 +771,8 @@ void ModelEditor::BoneSphereUpdate()
 			sphere->GetTransform(i)->World()._22 = 0.4f;
 			sphere->GetTransform(i)->World()._33 = 0.4f;
 		}
-		weapon->GetTransform(0)->World() = sphere->GetTransform(35)->World();
-		weapon->UpdateTransforms();
+		//weapon->GetTransform(0)->World() = sphere->GetTransform(35)->World();
+		//weapon->UpdateTransforms();
 		sphere->UpdateTransforms();
 		modelLists[currentModelID]->UpdateTransforms();
 	}
@@ -776,8 +786,8 @@ void ModelEditor::BoneSphereUpdate()
 			sphere->GetTransform(i)->World()._33 = 0.4f;
 			
 		}
-		weapon->GetTransform(0)->World() = sphere->GetTransform(35)->World();
-		weapon->UpdateTransforms();
+		//weapon->GetTransform(0)->World() = sphere->GetTransform(35)->World();
+		//weapon->UpdateTransforms();
 
 		sphere->UpdateTransforms();
 		modelLists[currentModelID]->UpdateTransforms();
