@@ -113,7 +113,6 @@ void GBuffer::Render()
 		RenderPointLights();
 	if(bDrawSpotLights == true)
 		RenderSpotLights();
-	
 }
 
 void GBuffer::DebugRender()

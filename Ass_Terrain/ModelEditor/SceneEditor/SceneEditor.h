@@ -14,14 +14,17 @@ public:
 	virtual void ResizeScreen() override {};
 
 private:
-	void MainMenu();
+	
 	void OpenHeightMap(wstring file);
 	void OpenTrnFile(wstring file);
-
+	void BillboardSet();
+	
+	void MainMenu();
 	void Inspector();
 	void TerrainInspector();
 	void SkyInspector();
-
+	void BillboardInspector();
+	
 private:
 	//Object Lists
 	/*
@@ -47,7 +50,26 @@ private:
 	wstring saveTerrainFile;
 	Shader* terrainShader;
 private:
+	//Billboard
+	Billboard* billBoard = NULL;
+	vector<wstring> billBoardNames;
+	vector<Texture*> textureList;
+	Shader* shader_56; //billboard.fxo
+	int billoardCurID = -1;
+private:
 	Shader* shader_53; //gBuffer
 	Shadow* shadow;
 	GBuffer* gBuffer;
+
+private:
+	enum EInsPectorState
+	{
+		eNone = 0,
+		eTerrainEdit ,
+		eSkyEdit ,
+		eModelEdit,
+		eFogEdit,
+		eBillboardEdit
+	};
+	EInsPectorState InspectorState = eNone;
 };

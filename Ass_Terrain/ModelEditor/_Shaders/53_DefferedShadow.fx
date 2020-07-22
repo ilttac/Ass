@@ -3,6 +3,7 @@
 #include "00_Model.fx"
 #include "00_Sky.fx"
 
+
 technique11 T0
 {
     //Deffered-Depth
@@ -20,11 +21,11 @@ technique11 T0
 
     //Deffered-PointLights
     P_RS_VTP(P7, Deffered_Rasterizer_State, VS_PointLights, HS_PointLights, DS_PointLights, PS_PointLights_Debug)
-    P_RS_DSS_BS_VTP(P8, Deffered_Rasterizer_State, Deffered_DepthStencil_State, Blend_Addtive, VS_PointLights, HS_PointLights, DS_PointLights, PS_PointLights)
+    P_RS_DSS_BS_VTP(P8, Deffered_Rasterizer_State, Deffered_DepthStencil_State, Addtive, VS_PointLights, HS_PointLights, DS_PointLights, PS_PointLights)
 
     //Deffered-SpotLights    
     P_RS_VTP(P9, Deffered_Rasterizer_State, VS_SpotLights, HS_SpotLights, DS_SpotLights, PS_SpotLights_Debug)
-    P_RS_DSS_BS_VTP(P10, Deffered_Rasterizer_State, Deffered_DepthStencil_State, Blend_Addtive, VS_SpotLights, HS_SpotLights, DS_SpotLights, PS_SpotLights)
+    P_RS_DSS_BS_VTP(P10, Deffered_Rasterizer_State, Deffered_DepthStencil_State, Addtive, VS_SpotLights, HS_SpotLights, DS_SpotLights, PS_SpotLights)
 
     //Sky
     //P_RS_DSS_VP(P11, FrontCounterCloskwise_True, SkyDepthStencil, VS_Mesh, PS_Sky)

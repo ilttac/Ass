@@ -6,6 +6,8 @@
 #include "../Framework/Environment/Sky/Moon.h"
 #include "../Framework/Environment/Sky/Cloud.h"
 
+#include <filesystem>
+
 void SceneEditor::Initialize()
 {
 	Context::Get()->GetCamera()->RotationDegree(11, 0, 0);
@@ -13,16 +15,13 @@ void SceneEditor::Initialize()
 	((Freedom*)Context::Get()->GetCamera())->Speed(100, 2);
 
 	terrainShader = new Shader(L"23_TerrainSpatting.fxo");
+
 	shader_57 = new Shader(L"57_ParticleViewer.fxo");
 	shader_53 = new Shader(L"53_DefferedShadow.fxo");
+	shader_56 = new Shader(L"56_Billboard.fxo");
+	BillboardSet();
 	gBuffer = new GBuffer(shader_53);
 	//shadow = new Shadow(skyShader, Vector3(0, 0, 0), 65);
-
-	//Terrain
-	//terrain = new Terrain(terrainShader, L"Terrain/TestMap.png");
-	//terrain->BaseMap(L"Terrain/Dirt3.png");
-	//terrain->LayerMap(L"Terrain/Cliff (Layered Rock).jpg", L"Terrain/Splatting.png");
-	//
 	sky = new Sky(shader_57);
 	sky->ScatteringPass(3);
 	//sky->RealTime(true, Math::PI - 1e-6f, 0.5f);
@@ -65,14 +64,13 @@ void SceneEditor::PreRender()
 
 void SceneEditor::Render()
 {
-	gBuffer->Render();
-
-	sky->Pass(4, 5, 6);
-	sky->Render();
 	if (terrain != NULL)
 	{
 		terrain->Render();
 	}
+	gBuffer->Render();
+	sky->Pass(4, 5, 6);
+	sky->Render();
 }
 
 void SceneEditor::PostRender()
@@ -181,17 +179,55 @@ void SceneEditor::OpenTrnFile(wstring file)
 	SafeDelete(r);
 }
 
+void SceneEditor::BillboardSet()
+{
+	std::string path("../../_Textures/Billboard");
+	std::string ext(".png");
+	billBoard = new Billboard(shader_56);
+	for (auto& p : std::experimental::filesystem::recursive_directory_iterator(path))
+	{
+		if (p.path().extension() == ext)
+		{
+			billBoardNames.push_back(p.path().filename().c_str());
+		}
+	}
+	for (wstring name : billBoardNames)
+	{
+		billBoard->AddTexture(L"Billboard/" + name);
+		textureList.push_back(new Texture(L"Billboard/" + name));
+	}
+	
+}
+
 void SceneEditor::Inspector()
 {
 	ImGui::Begin("Inspector");
-	if (NULL != terrain)
+	if (ImGui::Button("Terrain"))
+	{
+		InspectorState = eTerrainEdit;
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("sky"))
+	{
+		InspectorState = eSkyEdit;
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Billboard"))
+	{
+		InspectorState = eBillboardEdit;
+	}
+
+	if (NULL != terrain && (eTerrainEdit== InspectorState))
 	{
 		TerrainInspector();
-
 	}
-	if (NULL != sky)
+	if (NULL != sky && (eSkyEdit == InspectorState))
 	{
 		SkyInspector();
+	}
+	if (NULL != terrain && (eBillboardEdit == InspectorState))
+	{
+		BillboardInspector();
 	}
 	ImGui::End();
 }
@@ -300,4 +336,23 @@ void SceneEditor::SkyInspector()
 		sky->GetCloud().Speed = speed;
 	}
 
+}
+
+void SceneEditor::BillboardInspector()
+{
+	if (ImGui::CollapsingHeader("Billboard", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		ImGui::Separator();
+		ImGui::Separator();
+		
+		for (UINT i = 0; i < textureList.size(); i++)
+		{
+			if(ImGui::ImageButton(*textureList[i], ImVec2(64, 64), ImVec2(0, 0), ImVec2(1, 1), -1, ImVec4(0.0f, 0.0f, 0.0f, 0.0f)))
+			{
+
+			}
+		}
+		//Vector3 position = terrain->GetPickedPosition();
+		
+	}
 }

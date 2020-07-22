@@ -1,7 +1,7 @@
 #include "00_Global.fx"
 #include "00_Deffered.fx"
 #include "00_Model.fx"
-
+#include "00_Sky.fx"
 technique11 T0
 {
     //Deffered-PreRender

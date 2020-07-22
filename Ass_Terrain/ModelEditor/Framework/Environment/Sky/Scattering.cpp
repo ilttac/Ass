@@ -42,7 +42,7 @@ void Scattering::PreRender()
 	RenderTarget::Sets(rtvs, 2, depthStencil);
 
 	viewport->RSSetViewport();
-
+	
 	UINT stride = sizeof(VertexTexture);
 	UINT offset = 0;
 

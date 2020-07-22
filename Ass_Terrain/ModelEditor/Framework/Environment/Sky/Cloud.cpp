@@ -148,7 +148,6 @@ void Cloud::CreateTexture()
 	Check(D3D::GetDevice()->CreateTexture2D(&desc, &subResource, &texture));
 
 	//D3DX11SaveTextureToFile(D3D::GetDC(), texture, D3DX11_IFF_PNG, L"Noise.png");
-
 	//Create SRV
 	{
 		D3D11_TEXTURE2D_DESC desc;

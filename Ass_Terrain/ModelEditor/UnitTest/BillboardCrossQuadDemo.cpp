@@ -405,8 +405,9 @@ void BillboardCrossQuadDemo::AddBillboard()
 		Vector2 scale = Math::RandomVec2(5, 10);
 		Vector2 position = Math::RandomVec2(-80, 80);
 
-		billboard->Add(Vector3(position.x, scale.y * 0.5f, position.y), scale,4);
+		billboard->Add(Vector3(position.x, scale.y * 0.5f, position.y), scale, 5);
 	}
+
 	//for (UINT i = 0; i < 300; i++)
 	//{
 	//	Vector2 scale = Math::RandomVec2(1, 3);

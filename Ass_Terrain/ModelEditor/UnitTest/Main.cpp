@@ -53,7 +53,7 @@
 
 void Main::Initialize()
 {
-	Push(new ScatteringDemo());
+	Push(new BillboardCrossQuadDemo());
 }
 
 void Main::Ready()
