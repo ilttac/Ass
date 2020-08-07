@@ -14,7 +14,8 @@ public:
 
 	void BaseMap(wstring file);
 	void LayerMap(wstring file, wstring alpha);
-
+	void LayerMap(wstring file);
+	void AlphaMap(wstring file);
 
 	float GetHeight(Vector3& position);
 	float GetHeightPick(Vector3& position);
@@ -23,7 +24,9 @@ public:
 	void SaveTerrain(wstring file);
 	void ChangeVertex(vector<float> ChangedVertex);
 
-
+	Texture* GetBaseMap() { return baseMap; }
+	Texture* GetLayerMap() { return layerMap; }
+	Texture* GetAlphaMap() { return alphaMap; }
 
 private:
 	void CreateVertexData();

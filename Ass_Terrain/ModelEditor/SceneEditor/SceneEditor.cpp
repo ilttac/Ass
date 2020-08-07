@@ -39,19 +39,24 @@ void SceneEditor::Destroy()
 
 void SceneEditor::Update()
 {
-
-	sky->Update();
+	
 	if (terrain != NULL)
 	{
 		terrain->Update();
 	}
+	sky->Update();
+	if (billBoard != NULL && billBoardCurID != -1)
+	{
+		billBoard->Update();
+	}
 	MainMenu();
+	Hiarachy();
+	ViewModel();
 	Inspector();
 }
 
 void SceneEditor::PreRender()
 {
-
 	gBuffer->PackGBuffer();
 	sky->PreRender();
 
@@ -64,13 +69,21 @@ void SceneEditor::PreRender()
 
 void SceneEditor::Render()
 {
+	gBuffer->Render();
 	if (terrain != NULL)
 	{
+		terrain->Pass(0);
 		terrain->Render();
 	}
-	gBuffer->Render();
 	sky->Pass(4, 5, 6);
 	sky->Render();
+
+	if (billBoard != NULL && billBoardCurID != -1)
+	{
+		billBoard->Pass(0);
+		billBoard->Render();
+	}
+
 }
 
 void SceneEditor::PostRender()
@@ -133,6 +146,78 @@ void SceneEditor::MainMenu()
 	ImGui::EndMainMenuBar();
 }
 
+void SceneEditor::Hiarachy()
+{
+	bool bOpen = true;
+	bOpen = ImGui::Begin("Hiarachy", &bOpen);
+
+	static ImGuiTextFilter filter;
+	filter.Draw("Objects", 150.f);
+	if (ImGui::BeginDragDropTarget())
+	{
+		if (const ImGuiPayload * payload = ImGui::AcceptDragDropPayload("DND_DEMO_CELL"))
+		{
+			IM_ASSERT(payload->DataSize == sizeof(int));
+			int payload_n = *(const int*)payload->Data;
+			hiarachyName.push_back(modelNames[payload_n]);
+		}
+		ImGui::EndDragDropTarget();
+	}
+	ImGui::Separator();
+
+	if (openFile != L"")
+	{
+		if (hiarachyName.size() != 0)
+		{
+			static int selection_mask = (1 << 2); // Dumb representation of what may be user-side selection state. You may carry selection state inside or outside your objects in whatever format you see fit.
+			int node_clicked = -1;                // Temporary storage of what node we have clicked to process selection at the end of the loop. May be a pointer to your own node type, etc.
+			for (int i = 0; i < hiarachyName.size(); i++)
+			{
+				// Disable the default open on single-click behavior and pass in Selected flag according to our selection state.
+				ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+				const bool is_selected = (selection_mask & (1 << i)) != 0;
+				if (is_selected)
+					node_flags |= ImGuiTreeNodeFlags_Selected;
+				bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, (hiarachyName[i]).c_str());
+				if (ImGui::IsItemClicked())
+				{
+					node_clicked = i;
+					int index = -1;
+
+					for (int j = 0; j < modelNames.size(); j++)
+					{
+						if (hiarachyName[i] == modelNames[j])
+						{
+							index = j;
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	ImGui::End();
+}
+
+void SceneEditor::ViewModel()
+{
+	bool bOpen = true;
+	bOpen = ImGui::Begin("Project", &bOpen);
+	//ImGui::SetWindowPos(ImVec2(width - windowWidth, 0));
+	//ImGui::SetWindowSize(ImVec2(windowWidth, height));
+	ImGui::Separator();
+
+	if (ImGui::CollapsingHeader("Meshes", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		if (openFile != L"")
+		{
+			DragAndDropTreeNode("Meshes");
+		}
+	}
+	ImGui::End();
+}
+
 void SceneEditor::OpenHeightMap(wstring file)
 {
 	if (terrain != NULL)
@@ -179,11 +264,33 @@ void SceneEditor::OpenTrnFile(wstring file)
 	SafeDelete(r);
 }
 
+void SceneEditor::OpenTerrainMapFile(wstring file)
+{
+	wstring s = Path::GetLastDirectoryName(file) + L"/";
+	wstring s2 = Path::GetFileName(file);
+
+	switch (terrainMapState)
+	{
+	case ETerrainMapState::eBaseMap:
+		terrain->BaseMap(s + s2);
+		break;
+	case ETerrainMapState::eLayerMap:
+		terrain->LayerMap(s + s2);
+		break;
+	case ETerrainMapState::eAlphaMap:
+		terrain->AlphaMap(s + s2);
+		break;
+	default:
+		break;
+	}
+}
+
 void SceneEditor::BillboardSet()
 {
 	std::string path("../../_Textures/Billboard");
 	std::string ext(".png");
 	billBoard = new Billboard(shader_56);
+
 	for (auto& p : std::experimental::filesystem::recursive_directory_iterator(path))
 	{
 		if (p.path().extension() == ext)
@@ -196,7 +303,6 @@ void SceneEditor::BillboardSet()
 		billBoard->AddTexture(L"Billboard/" + name);
 		textureList.push_back(new Texture(L"Billboard/" + name));
 	}
-	
 }
 
 void SceneEditor::Inspector()
@@ -204,31 +310,34 @@ void SceneEditor::Inspector()
 	ImGui::Begin("Inspector");
 	if (ImGui::Button("Terrain"))
 	{
-		InspectorState = eTerrainEdit;
+		InspectorState = EInsPectorState::eTerrainEdit;
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("sky"))
 	{
-		InspectorState = eSkyEdit;
+		InspectorState = EInsPectorState::eSkyEdit;
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("Billboard"))
 	{
-		InspectorState = eBillboardEdit;
+		InspectorState = EInsPectorState::eBillboardEdit;
 	}
 
-	if (NULL != terrain && (eTerrainEdit== InspectorState))
+	if (NULL != terrain && (EInsPectorState::eTerrainEdit == InspectorState))
 	{
 		TerrainInspector();
 	}
-	if (NULL != sky && (eSkyEdit == InspectorState))
+
+	if (NULL != sky && (EInsPectorState::eSkyEdit == InspectorState))
 	{
 		SkyInspector();
 	}
-	if (NULL != terrain && (eBillboardEdit == InspectorState))
+
+	if (NULL != terrain && (EInsPectorState::eBillboardEdit == InspectorState))
 	{
 		BillboardInspector();
 	}
+
 	ImGui::End();
 }
 
@@ -270,6 +379,63 @@ void SceneEditor::TerrainInspector()
 		ImGui::InputFloat("Size", &terrain->GetLineDesc().Size, 1.0f);
 		ImGui::Separator();
 		ImGui::Button("DescHeight : leftShift + leftClick");
+	}
+
+	if (ImGui::CollapsingHeader("Texture", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		D3DDesc desc = D3D::GetDesc();
+		ImGui::Separator();
+		ImGui::Separator();
+		ImGui::Columns(3, "grid", true);
+		ImVec4 color = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+
+		for (UINT colIndex = 0; colIndex < 3; colIndex++)
+		{
+			ImGui::SetColumnWidth(colIndex, 88);
+		}
+
+		//baseMap
+		if (ImGui::ImageButton(*terrain->GetBaseMap(), ImVec2(64, 64), ImVec2(0, 0), ImVec2(1, 1), -1, color))
+		{
+			terrainMapState = ETerrainMapState::eBaseMap;
+			Path::OpenFileDialog
+			(
+				openTerrainMapFile,
+				Path::ImageFilter,
+				L"../../_Textures",
+				bind(&SceneEditor::OpenTerrainMapFile, this, placeholders::_1),
+				desc.Handle
+			);
+		}
+		ImGui::NextColumn();
+		//layerMap
+		if (ImGui::ImageButton(*terrain->GetLayerMap(), ImVec2(64, 64), ImVec2(0, 0), ImVec2(1, 1), -1, color))
+		{
+			terrainMapState = ETerrainMapState::eLayerMap;
+			Path::OpenFileDialog
+			(
+				openTerrainMapFile,
+				Path::ImageFilter,
+				L"../../_Textures",
+				bind(&SceneEditor::OpenTerrainMapFile, this, placeholders::_1),
+				desc.Handle
+			);
+		}
+		ImGui::NextColumn();
+		//alphaMap
+		if (ImGui::ImageButton(*terrain->GetAlphaMap(), ImVec2(64, 64), ImVec2(0, 0), ImVec2(1, 1), -1, color))
+		{
+			terrainMapState = ETerrainMapState::eAlphaMap;
+			Path::OpenFileDialog
+			(
+				openTerrainMapFile,
+				Path::ImageFilter,
+				L"../../_Textures",
+				bind(&SceneEditor::OpenTerrainMapFile, this, placeholders::_1),
+				desc.Handle
+			);
+		}
+
 	}
 }
 
@@ -324,7 +490,7 @@ void SceneEditor::SkyInspector()
 	{
 		ImGui::Separator();
 		ImGui::Separator();
-		
+
 		ImGui::SliderFloat("Tile", &tile, 0.0f, 3.0f);
 		ImGui::SliderFloat("Cover", &cover, 0.0f, 1.0f);
 		ImGui::SliderFloat("Sharpness", &sharpness, 0.0f, 1.0f);
@@ -335,24 +501,75 @@ void SceneEditor::SkyInspector()
 		sky->GetCloud().Sharpness = sharpness;
 		sky->GetCloud().Speed = speed;
 	}
-
 }
 
 void SceneEditor::BillboardInspector()
 {
-	if (ImGui::CollapsingHeader("Billboard", ImGuiTreeNodeFlags_DefaultOpen))
+	if (ImGui::CollapsingHeader("BillboardTree", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		ImGui::Separator();
 		ImGui::Separator();
-		
+
+		ImGui::Columns(3, "grid", true);
+
+		for (UINT colIndex = 0; colIndex < 3; colIndex++)
+		{
+			ImGui::SetColumnWidth(colIndex, 88);
+		}
+
+
 		for (UINT i = 0; i < textureList.size(); i++)
 		{
-			if(ImGui::ImageButton(*textureList[i], ImVec2(64, 64), ImVec2(0, 0), ImVec2(1, 1), -1, ImVec4(0.0f, 0.0f, 0.0f, 0.0f)))
+			ImVec4 color = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+			if (i == billBoardCurID)
 			{
-
+				color.w = 0.3f;
 			}
+			if (ImGui::ImageButton(*textureList[i], ImVec2(64, 64), ImVec2(0, 0), ImVec2(1, 1), -1, color))
+			{
+				billBoardCurID = i;
+			}
+			ImGui::NextColumn();
 		}
-		//Vector3 position = terrain->GetPickedPosition();
-		
+		if (Mouse::Get()->Down(0) && billBoardCurID != -1)
+		{
+			Vector2 scale = Math::RandomVec2(5, 10);
+			Vector3 position = terrain->GetPickedPosition();
+
+			billBoard->Add(Vector3(position.x, position.y + 5, position.z), scale, billBoardCurID);
+		}
 	}
+}
+
+void SceneEditor::DragAndDropTreeNode(const char* label)
+{
+	if ("Meshes" == label)
+	{
+		for (int n = 0; n < modelNames.size(); n++)
+		{
+			ImGui::PushID(n);
+			if (ImGui::TreeNode(modelNames[n].c_str()))
+			{
+				ImGui::TreePop();
+			}
+			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+			{
+				ImGui::SetDragDropPayload("DND_DEMO_CELL", &n, sizeof(int));    // Set payload to carry the index of our item (could be anything)
+
+				ImGui::Text("%s", modelNames[n].c_str());
+				ImGui::EndDragDropSource();
+			}
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload * payload = ImGui::AcceptDragDropPayload("DND_DEMO_CELL"))
+				{
+					IM_ASSERT(payload->DataSize == sizeof(int));
+					int payload_n = *(const int*)payload->Data;
+				}
+				ImGui::EndDragDropTarget();
+			}
+			ImGui::PopID();
+		}
+	}
+
 }

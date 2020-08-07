@@ -17,14 +17,20 @@ private:
 	
 	void OpenHeightMap(wstring file);
 	void OpenTrnFile(wstring file);
+	void OpenTerrainMapFile(wstring file);
+
 	void BillboardSet();
 	
 	void MainMenu();
+	void Hiarachy();
+	void ViewModel();
 	void Inspector();
 	void TerrainInspector();
 	void SkyInspector();
 	void BillboardInspector();
-	
+
+	void DragAndDropTreeNode(const char* label);
+
 private:
 	//Object Lists
 	/*
@@ -37,6 +43,13 @@ private:
 	클릭시 -> unordered_map 에서 key로 value 를 찾고 value 의 유형 에 따라 
 	다르게 inspector 를 만든다.
 	*/
+private:
+	//Hiarachy
+	wstring openFile = L"";
+	vector<string> hiarachyName;
+private:
+	//ModelLists
+	vector<string> modelNames;
 
 private:
 	//Sky은 하나의씬에 하나만 존재한다.
@@ -49,20 +62,32 @@ private:
 	wstring openTerrainFile;
 	wstring saveTerrainFile;
 	Shader* terrainShader;
+	wstring openTerrainMapFile;
+	
+	enum class ETerrainMapState
+	{
+		eNone,
+		eBaseMap,
+		eLayerMap,
+		eAlphaMap
+	};
+
+	ETerrainMapState terrainMapState = ETerrainMapState::eNone;
+
 private:
 	//Billboard
 	Billboard* billBoard = NULL;
 	vector<wstring> billBoardNames;
 	vector<Texture*> textureList;
 	Shader* shader_56; //billboard.fxo
-	int billoardCurID = -1;
+	int billBoardCurID = -1;
 private:
 	Shader* shader_53; //gBuffer
 	Shadow* shadow;
 	GBuffer* gBuffer;
 
 private:
-	enum EInsPectorState
+	enum class EInsPectorState
 	{
 		eNone = 0,
 		eTerrainEdit ,
@@ -71,5 +96,5 @@ private:
 		eFogEdit,
 		eBillboardEdit
 	};
-	EInsPectorState InspectorState = eNone;
+	EInsPectorState InspectorState = EInsPectorState::eNone;
 };

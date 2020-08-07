@@ -82,11 +82,13 @@ void GS(point VertexOutput input[1], inout TriangleStream<GeometryOutput> stream
 Texture2DArray Maps;
 float4 PS(GeometryOutput input) : SV_Target0
 {
-    float4 diffuse = Maps.Sample(LinearSampler, float3(input.Uv, input.VertexID % 6));
-    return diffuse;
+    float4 diffuse = Maps.Sample(LinearSampler, float3(input.Uv, input.VertexID));
+	float3 color = diffuse.rgb * dot(float3(0, 1, 0), -GlobalLight.Direction) * 1.5f;
+	return float4(color, diffuse.a);
 }
 
 technique11 T0
 {
     P_VGP(P0, VS, GS, PS)
+	P_RS_BS_VGP(P1, CullMode_None, AlphaBlend_AlphaToCoverage, VS, GS, PS)
 }

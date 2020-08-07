@@ -134,7 +134,17 @@ void Terrain::LayerMap(wstring file, wstring alpha)
 	layerMap = new Texture(file);
 
 }
+void Terrain::LayerMap(wstring file)
+{
+	SafeDelete(layerMap);
+	layerMap = new Texture(file);
+}
 
+void Terrain::AlphaMap(wstring file)
+{
+	SafeDelete(alphaMap);
+	alphaMap = new Texture(file);
+}
 float Terrain::GetHeight(Vector3& position)
 {
 	UINT x = (UINT)position.x;

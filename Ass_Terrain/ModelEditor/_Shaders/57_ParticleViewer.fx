@@ -125,6 +125,5 @@ technique11 T0
     P_VP(P7, VS_Mesh, PS)
     P_VP(P8, VS_Model, PS)
     P_VP(P9, VS_Animation, PS)
-
 }
 

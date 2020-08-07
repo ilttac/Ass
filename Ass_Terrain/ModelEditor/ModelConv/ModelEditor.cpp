@@ -640,8 +640,8 @@ void ModelEditor::OpenFbxFile(wstring file)
 {
 	Converter* conv = new Converter();
 	conv->ReadFile(file + L".fbx");
-	conv->ExportMaterial(file, false);
-	conv->ExportMesh(file, false);
+	conv->ExportMaterial(file, true);
+	conv->ExportMesh(file, true);
 	SafeDelete(conv);
 
 	wstring fileDirectory = Path::GetLastDirectoryName(file);
