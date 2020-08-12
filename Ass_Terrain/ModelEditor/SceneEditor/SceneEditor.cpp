@@ -19,6 +19,7 @@ void SceneEditor::Initialize()
 	shader_57 = new Shader(L"57_ParticleViewer.fxo");
 	shader_53 = new Shader(L"53_DefferedShadow.fxo");
 	shader_56 = new Shader(L"56_Billboard.fxo");
+	modelShader = new Shader(L"33_Animation.fxo");
 	BillboardSet();
 	gBuffer = new GBuffer(shader_53);
 	//shadow = new Shadow(skyShader, Vector3(0, 0, 0), 65);
@@ -49,6 +50,13 @@ void SceneEditor::Update()
 	{
 		billBoard->Update();
 	}
+	if (!modelLists.empty())
+	{
+		for (auto* staticMesh : modelLists)
+		{
+			staticMesh->Update();
+		}
+	}
 	MainMenu();
 	Hiarachy();
 	ViewModel();
@@ -59,6 +67,7 @@ void SceneEditor::PreRender()
 {
 	gBuffer->PackGBuffer();
 	sky->PreRender();
+
 
 	////Depth
 	//{
@@ -82,6 +91,14 @@ void SceneEditor::Render()
 	{
 		billBoard->Pass(0);
 		billBoard->Render();
+	}
+
+	if (!modelLists.empty())
+	{
+		for (auto* staticMesh : modelLists)
+		{
+			staticMesh->Render();
+		}
 	}
 
 }
@@ -153,6 +170,7 @@ void SceneEditor::Hiarachy()
 
 	static ImGuiTextFilter filter;
 	filter.Draw("Objects", 150.f);
+
 	if (ImGui::BeginDragDropTarget())
 	{
 		if (const ImGuiPayload * payload = ImGui::AcceptDragDropPayload("DND_DEMO_CELL"))
@@ -165,7 +183,7 @@ void SceneEditor::Hiarachy()
 	}
 	ImGui::Separator();
 
-	if (openFile != L"")
+	if (openModelFile != L"")
 	{
 		if (hiarachyName.size() != 0)
 		{
@@ -203,14 +221,27 @@ void SceneEditor::Hiarachy()
 void SceneEditor::ViewModel()
 {
 	bool bOpen = true;
+	D3DDesc desc = D3D::GetDesc();
 	bOpen = ImGui::Begin("Project", &bOpen);
 	//ImGui::SetWindowPos(ImVec2(width - windowWidth, 0));
 	//ImGui::SetWindowSize(ImVec2(windowWidth, height));
+	
+	if (ImGui::Button("StaticMesh Load"))
+	{
+		Path::SaveFileDialog
+		(
+			openModelFile,
+			L"Model_File\0*.mesh",
+			L"../../_Models",
+			bind(&SceneEditor::StaticMeshLoad, this, placeholders::_1),
+			desc.Handle
+		);
+	}
 	ImGui::Separator();
 
 	if (ImGui::CollapsingHeader("Meshes", ImGuiTreeNodeFlags_DefaultOpen))
 	{
-		if (openFile != L"")
+		if (openModelFile != L"")
 		{
 			DragAndDropTreeNode("Meshes");
 		}
@@ -283,6 +314,28 @@ void SceneEditor::OpenTerrainMapFile(wstring file)
 	default:
 		break;
 	}
+}
+
+void SceneEditor::StaticMeshLoad(wstring file)
+{
+	wstring fileDirectory = Path::GetLastDirectoryName(file);
+	wstring fileName = Path::GetFileNameWithoutExtension(file);
+	wstring fileFullDirectory = Path::GetDirectoryName(file);
+
+	openModelFile = Path::GetFileNameWithoutExtension(file);
+	modelNames.push_back(String::ToString(openModelFile));
+	ModelRender* modelRender = new ModelRender(modelShader);
+	modelRender->ReadMaterial(fileDirectory + L"/" + fileName);
+	modelRender->ReadMesh(fileDirectory + L"/" + fileName);
+
+	Transform* attachTransform = modelRender->AddTransform();
+	attachTransform->Position(50, 0, 50);
+	attachTransform->Scale(0.1f, 0.1f, 0.1f);
+
+	modelRender->UpdateTransforms();
+	modelRender->Pass(1);
+
+	modelLists.push_back(modelRender);
 }
 
 void SceneEditor::BillboardSet()

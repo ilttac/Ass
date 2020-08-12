@@ -18,6 +18,7 @@ private:
 	void OpenHeightMap(wstring file);
 	void OpenTrnFile(wstring file);
 	void OpenTerrainMapFile(wstring file);
+	void StaticMeshLoad(wstring file);
 
 	void BillboardSet();
 	
@@ -45,12 +46,13 @@ private:
 	*/
 private:
 	//Hiarachy
-	wstring openFile = L"";
+	wstring openModelFile = L"";
 	vector<string> hiarachyName;
 private:
 	//ModelLists
+	Shader* modelShader = NULL;
 	vector<string> modelNames;
-
+	vector<ModelRender*> modelLists;
 private:
 	//Sky은 하나의씬에 하나만 존재한다.
 	Sky* sky = NULL;
