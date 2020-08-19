@@ -29,7 +29,7 @@ private:
 	void TerrainInspector();
 	void SkyInspector();
 	void BillboardInspector();
-
+	void GizmoUpdate();
 	void DragAndDropTreeNode(const char* label);
 
 private:
@@ -53,6 +53,17 @@ private:
 	Shader* modelShader = NULL;
 	vector<string> modelNames;
 	vector<ModelRender*> modelLists;
+
+private:
+	//Gizmo
+	bool isPerspective = true;
+	float fov = 27.f;
+	float viewWidth = 10.f; // for orthographic
+	float camYAngle = 165.f / 180.f * 3.14159f;
+	float camXAngle = 32.f / 180.f * 3.14159f;
+	float camDistance = 8.f;
+	int gizmoCount = 1;
+	int lastUsing = 0;
 private:
 	//Sky은 하나의씬에 하나만 존재한다.
 	Sky* sky = NULL;

@@ -594,6 +594,64 @@ void SceneEditor::BillboardInspector()
 	}
 }
 
+void SceneEditor::GizmoUpdate()
+{
+	ImGuizmo::SetOrthographic(!isPerspective);
+	ImGuizmo::BeginFrame();
+
+	ImGui::Begin("Editor");
+	ImGui::Text("Camera");
+	bool viewDirty = false;
+	if (ImGui::RadioButton("Perspective", isPerspective)) isPerspective = true;
+	ImGui::SameLine();
+	if (ImGui::RadioButton("Orthographic", !isPerspective)) isPerspective = false;
+	if (isPerspective)
+	{
+		ImGui::SliderFloat("Fov", &fov, 20.f, 110.f);
+	}
+	else
+	{
+		ImGui::SliderFloat("Ortho width", &viewWidth, 1, 20);
+	}
+	viewDirty |= ImGui::SliderFloat("Distance", &camDistance, 1.f, 10.f);
+	ImGui::SliderInt("Gizmo count", &gizmoCount, 1, 4);
+
+	ImGui::Separator();
+	for (int matId = 0; matId < gizmoCount; matId++)
+	{
+		ImGuizmo::SetID(matId);
+		if (modelLists.size() != 0 && currentModelID != -1)
+		{
+			EditTransform(Context::Get()->View(), Context::Get()->Projection(), &modelLists[currentModelID]->GetTransform(0)->World()[matId], lastUsing == matId);
+			modelLists[currentModelID]->UpdateTransforms();
+		}
+		//else if (modelLists.size() != 0 && currentModelID != -1 && editorState == BONE_EDITOR_STATE && transformNum != UINT32_MAX)
+		//{
+		//	Matrix m;
+		//	D3DXMatrixIdentity(&m);
+		//	Transform* transform = new Transform();
+		//	transform->World() = m;
+		//	EditTransform(Context::Get()->View(), Context::Get()->Projection(), &sphere->GetTransform(71)->World()[matId], lastUsing == matId);
+		//	sphere->UpdateTransforms();
+		//	//modelLists[currentModelID]->GetTransform(0)->World() = sphere->GetTransform(transformNum)->World();
+		//	modelLists[currentModelID]->GetModel()->Bones()[71]->Transform() = sphere->MeshTransformWorld(71);
+		//	modelLists[currentModelID]->GetModel()->Bones()[71]->Transform()._11 = 5.0f;
+		//	modelLists[currentModelID]->GetModel()->Bones()[71]->Transform()._22 = 5.0f;
+		//	modelLists[currentModelID]->GetModel()->Bones()[71]->Transform()._33 = 5.0f;
+		//	modelLists[currentModelID]->UpdateTransform(currentModelID, 71, *transform);
+		//	modelLists[currentModelID]->UpdateTransforms();
+
+		//	//modelLists[currentModelID]->GetModel()->BindBone();
+		//	//modelLists[currentModelID]->GetModel()->BindMesh();
+		//}
+		if (ImGuizmo::IsUsing())
+		{
+			lastUsing = matId;
+		}
+	}
+	ImGui::End();
+}
+
 void SceneEditor::DragAndDropTreeNode(const char* label)
 {
 	if ("Meshes" == label)
