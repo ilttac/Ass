@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "SceneEditor.h"
 #include "Utilities/Xml.h"
+#include "GizmoFunc.h"
+
 #include "../Framework/Utilities/BinaryFile.h"
 #include "../Framework/Environment/Sky/Dome.h"
 #include "../Framework/Environment/Sky/Moon.h"
@@ -55,20 +57,24 @@ void SceneEditor::Update()
 		for (auto* staticMesh : modelLists)
 		{
 			staticMesh->Update();
+			staticMesh->UpdateTransforms();
 		}
 	}
+	//play누르면 안보이게 해야함.
 	MainMenu();
 	Hiarachy();
 	ViewModel();
 	Inspector();
+	if (node_clicked != -1)
+	{
+		GuizmoUpdate(node_clicked);
+	}
 }
 
 void SceneEditor::PreRender()
 {
 	gBuffer->PackGBuffer();
 	sky->PreRender();
-
-
 	////Depth
 	//{
 	//	shadow->Set();
@@ -169,15 +175,37 @@ void SceneEditor::Hiarachy()
 	bOpen = ImGui::Begin("Hiarachy", &bOpen);
 
 	static ImGuiTextFilter filter;
+
+
 	filter.Draw("Objects", 150.f);
 
 	if (ImGui::BeginDragDropTarget())
 	{
 		if (const ImGuiPayload * payload = ImGui::AcceptDragDropPayload("DND_DEMO_CELL"))
 		{
+			Transform* attachTransform = NULL;
 			IM_ASSERT(payload->DataSize == sizeof(int));
 			int payload_n = *(const int*)payload->Data;
-			hiarachyName.push_back(modelNames[payload_n]);
+			bool bCheck = false;
+			for (int i = 0; i < hiarachyName.size(); i++)
+			{
+				if (hiarachyName[i] == modelNames[payload_n])
+				{//Todo					
+					attachTransform = modelLists[payload_n]->AddTransform();
+					attachTransform->Position(50, 0, 50);
+					attachTransform->Scale(0.1f, 0.1f, 0.1f);
+					hiarachyName.push_back(modelNames[payload_n]);
+					hiarachyMatrix.push_back(&attachTransform->World());
+					bCheck = true;
+					break;
+				}
+			}
+			//처음받을떄 ?
+			if (false == bCheck)
+			{
+				hiarachyName.push_back(modelNames[payload_n]);
+				hiarachyMatrix.push_back(&modelLists[payload_n]->GetTransform(0)->World());
+			}
 		}
 		ImGui::EndDragDropTarget();
 	}
@@ -188,7 +216,7 @@ void SceneEditor::Hiarachy()
 		if (hiarachyName.size() != 0)
 		{
 			static int selection_mask = (1 << 2); // Dumb representation of what may be user-side selection state. You may carry selection state inside or outside your objects in whatever format you see fit.
-			int node_clicked = -1;                // Temporary storage of what node we have clicked to process selection at the end of the loop. May be a pointer to your own node type, etc.
+			                // Temporary storage of what node we have clicked to process selection at the end of the loop. May be a pointer to your own node type, etc.
 			for (int i = 0; i < hiarachyName.size(); i++)
 			{
 				// Disable the default open on single-click behavior and pass in Selected flag according to our selection state.
@@ -200,16 +228,6 @@ void SceneEditor::Hiarachy()
 				if (ImGui::IsItemClicked())
 				{
 					node_clicked = i;
-					int index = -1;
-
-					for (int j = 0; j < modelNames.size(); j++)
-					{
-						if (hiarachyName[i] == modelNames[j])
-						{
-							index = j;
-							break;
-						}
-					}
 				}
 			}
 		}
@@ -318,11 +336,25 @@ void SceneEditor::OpenTerrainMapFile(wstring file)
 
 void SceneEditor::StaticMeshLoad(wstring file)
 {
+
 	wstring fileDirectory = Path::GetLastDirectoryName(file);
 	wstring fileName = Path::GetFileNameWithoutExtension(file);
 	wstring fileFullDirectory = Path::GetDirectoryName(file);
 
 	openModelFile = Path::GetFileNameWithoutExtension(file);
+	
+	if (!modelNames.empty())
+	{
+		for (int i = 0; i < modelNames.size(); ++i)
+		{
+			if (modelNames[i] == String::ToString(openModelFile))
+			{
+				assert(false, "Same ModelNames");
+				return;
+			}
+		}
+	}
+
 	modelNames.push_back(String::ToString(openModelFile));
 	ModelRender* modelRender = new ModelRender(modelShader);
 	modelRender->ReadMaterial(fileDirectory + L"/" + fileName);
@@ -390,7 +422,7 @@ void SceneEditor::Inspector()
 	{
 		BillboardInspector();
 	}
-
+	
 	ImGui::End();
 }
 
@@ -594,61 +626,21 @@ void SceneEditor::BillboardInspector()
 	}
 }
 
-void SceneEditor::GizmoUpdate()
+void SceneEditor::GuizmoUpdate(int clickedNodeNum)
 {
-	ImGuizmo::SetOrthographic(!isPerspective);
 	ImGuizmo::BeginFrame();
 
 	ImGui::Begin("Editor");
 	ImGui::Text("Camera");
-	bool viewDirty = false;
-	if (ImGui::RadioButton("Perspective", isPerspective)) isPerspective = true;
-	ImGui::SameLine();
-	if (ImGui::RadioButton("Orthographic", !isPerspective)) isPerspective = false;
-	if (isPerspective)
-	{
-		ImGui::SliderFloat("Fov", &fov, 20.f, 110.f);
-	}
-	else
-	{
-		ImGui::SliderFloat("Ortho width", &viewWidth, 1, 20);
-	}
-	viewDirty |= ImGui::SliderFloat("Distance", &camDistance, 1.f, 10.f);
-	ImGui::SliderInt("Gizmo count", &gizmoCount, 1, 4);
 
 	ImGui::Separator();
-	for (int matId = 0; matId < gizmoCount; matId++)
-	{
-		ImGuizmo::SetID(matId);
-		if (modelLists.size() != 0 && currentModelID != -1)
-		{
-			EditTransform(Context::Get()->View(), Context::Get()->Projection(), &modelLists[currentModelID]->GetTransform(0)->World()[matId], lastUsing == matId);
-			modelLists[currentModelID]->UpdateTransforms();
-		}
-		//else if (modelLists.size() != 0 && currentModelID != -1 && editorState == BONE_EDITOR_STATE && transformNum != UINT32_MAX)
-		//{
-		//	Matrix m;
-		//	D3DXMatrixIdentity(&m);
-		//	Transform* transform = new Transform();
-		//	transform->World() = m;
-		//	EditTransform(Context::Get()->View(), Context::Get()->Projection(), &sphere->GetTransform(71)->World()[matId], lastUsing == matId);
-		//	sphere->UpdateTransforms();
-		//	//modelLists[currentModelID]->GetTransform(0)->World() = sphere->GetTransform(transformNum)->World();
-		//	modelLists[currentModelID]->GetModel()->Bones()[71]->Transform() = sphere->MeshTransformWorld(71);
-		//	modelLists[currentModelID]->GetModel()->Bones()[71]->Transform()._11 = 5.0f;
-		//	modelLists[currentModelID]->GetModel()->Bones()[71]->Transform()._22 = 5.0f;
-		//	modelLists[currentModelID]->GetModel()->Bones()[71]->Transform()._33 = 5.0f;
-		//	modelLists[currentModelID]->UpdateTransform(currentModelID, 71, *transform);
-		//	modelLists[currentModelID]->UpdateTransforms();
+	ImGuizmo::SetID(0);
 
-		//	//modelLists[currentModelID]->GetModel()->BindBone();
-		//	//modelLists[currentModelID]->GetModel()->BindMesh();
-		//}
-		if (ImGuizmo::IsUsing())
-		{
-			lastUsing = matId;
-		}
+	if (modelLists.size() != 0)
+	{
+		EditTransform(Context::Get()->View(), Context::Get()->Projection(), &hiarachyMatrix[clickedNodeNum][0][0], lastUsing == 0);
 	}
+
 	ImGui::End();
 }
 

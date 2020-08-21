@@ -29,7 +29,7 @@ private:
 	void TerrainInspector();
 	void SkyInspector();
 	void BillboardInspector();
-	void GizmoUpdate();
+	void GuizmoUpdate(int clickedNodeNum);
 	void DragAndDropTreeNode(const char* label);
 
 private:
@@ -48,11 +48,17 @@ private:
 	//Hiarachy
 	wstring openModelFile = L"";
 	vector<string> hiarachyName;
+	vector<Matrix*> hiarachyMatrix;
+
+	int node_clicked = -1;
 private:
 	//ModelLists
 	Shader* modelShader = NULL;
 	vector<string> modelNames;
 	vector<ModelRender*> modelLists;
+private:
+	//ModelAnimLists
+	vector<string> modelAnimNames;
 
 private:
 	//Gizmo
@@ -64,6 +70,7 @@ private:
 	float camDistance = 8.f;
 	int gizmoCount = 1;
 	int lastUsing = 0;
+	
 private:
 	//Sky은 하나의씬에 하나만 존재한다.
 	Sky* sky = NULL;
