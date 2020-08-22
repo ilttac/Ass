@@ -27,6 +27,7 @@ private:
 	void Inspector();
 	void Gizmo();
 	void Animation();
+
 private:
 	void WriteMeshFile(wstring file);
 	void WriteMaterialFile(wstring file);
@@ -74,7 +75,7 @@ private:
 
 	MeshRender* sphere;
 	MeshRender* grid;
-
+	
 
 	vector<MeshRender*> meshes;
 	//-

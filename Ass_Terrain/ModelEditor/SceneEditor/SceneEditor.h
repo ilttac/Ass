@@ -51,6 +51,7 @@ private:
 	vector<Matrix*> hiarachyMatrix;
 
 	int node_clicked = -1;
+	
 private:
 	//ModelLists
 	Shader* modelShader = NULL;

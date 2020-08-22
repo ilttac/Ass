@@ -351,6 +351,7 @@ void ModelEditor::Hiarachy()
 				bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, (hiarachyName[i]).c_str());
 				if (ImGui::IsItemClicked())
 				{
+					editorState = MESH_EDITOR_STATE;
 					node_clicked = i;
 					int index = -1;
 
@@ -486,7 +487,6 @@ void ModelEditor::Gizmo()
 	ImGui::Begin("Editor");
 	ImGui::Text("Camera");
 
-
 	ImGui::Separator();
 	ImGuizmo::SetID(0);
 
@@ -499,7 +499,14 @@ void ModelEditor::Gizmo()
 	{
 		EditTransform(Context::Get()->View(), Context::Get()->Projection(), &sphere->GetTransform(currentBoneIndex)->World()[0], lastUsing == 0);
 		sphere->UpdateTransforms();
+		ImGui::Dummy(ImVec2(50, 30));
+		ImGui::SameLine();
+		if(ImGui::Button("Add Collider Component",ImVec2(200,30)))
+		{
+
+		}
 	}
+	//if()
 	ImGui::End();
 }
 void ModelEditor::Animation()
