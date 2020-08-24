@@ -88,6 +88,7 @@ private:
 	//
 private:
 	ModelRender* weapon;
+	vector<pair<int,Collider*>> collider;
 	//
 
 //Project,Hiarachy
