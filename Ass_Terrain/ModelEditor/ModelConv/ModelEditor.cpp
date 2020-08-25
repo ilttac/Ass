@@ -108,6 +108,14 @@ void ModelEditor::Update()
 		BoneView();
 		BoneSphereUpdate();
 	}
+
+	if (false == collider.empty())
+	{
+		for (int i = 0; i < collider.size(); ++i)
+		{
+			collider[i].second->Update();
+		}
+	}
 }
 
 void ModelEditor::PreRender()
@@ -147,6 +155,14 @@ void ModelEditor::Render()
 		sphere->Pass(3);
 		sphere->Render();
 		
+	}
+
+	if (false == collider.empty())
+	{
+		for (int i = 0; i < collider.size(); ++i)
+		{
+			collider[i].second->Render(Color(0,1,0,1));
+		}
 	}
 }
 ////////////////////////////////////
@@ -510,8 +526,12 @@ void ModelEditor::Gizmo()
 		{
 			Transform* t = new Transform();
 			t->Position(0, 0, 0);
-			t->Scale(0,0,0);
+			t->Scale(10,10,10);
 			collider.push_back({currentBoneIndex, new Collider(t)});
+		}
+		if (collider.empty() == false)
+		{
+			EditTransform(Context::Get()->View(), Context::Get()->Projection(), &collider[0].second->GetTransform()->World()[0], lastUsing == 0);
 		}
 	}
 	//if()
