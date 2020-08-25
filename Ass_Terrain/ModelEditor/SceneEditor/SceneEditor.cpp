@@ -69,7 +69,6 @@ void SceneEditor::Update()
 	{
 		GuizmoUpdate(node_clicked);
 	}
-
 }
 
 void SceneEditor::PreRender()
