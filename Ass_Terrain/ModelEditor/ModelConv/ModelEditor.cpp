@@ -57,11 +57,6 @@ void ModelEditor::Destroy()
 	{
 		SafeDelete(texture)
 	}
-	for (auto& col : collider)
-	{
-		SafeDelete(col.second)
-	}
-	
 }
 
 void ModelEditor::Update()
@@ -502,16 +497,13 @@ void ModelEditor::Gizmo()
 	}
 	if (modelLists.size() != 0 && currentModelID != -1 && editorState == BONE_EDITOR_STATE)
 	{
-		//EditTransform(Context::Get()->View(), Context::Get()->Projection(), &sphere->GetTransform(currentBoneIndex)->World()[0], lastUsing == 0);
-		//sphere->UpdateTransforms();
-		ImGui::Dummy(ImVec2(70, 30));
+		EditTransform(Context::Get()->View(), Context::Get()->Projection(), &sphere->GetTransform(currentBoneIndex)->World()[0], lastUsing == 0);
+		sphere->UpdateTransforms();
+		ImGui::Dummy(ImVec2(50, 30));
 		ImGui::SameLine();
 		if(ImGui::Button("Add Collider Component",ImVec2(200,30)))
 		{
-			Transform* t = new Transform();
-			t->Position(0, 0, 0);
-			t->Scale(0,0,0);
-			collider.push_back({currentBoneIndex, new Collider(t)});
+
 		}
 	}
 	//if()
