@@ -53,7 +53,7 @@
 
 void Main::Initialize()
 {
-	Push(new ScatteringDemo());
+	Push(new TerrainSplattingDemo());
 }
 
 void Main::Ready()

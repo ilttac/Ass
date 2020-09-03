@@ -84,14 +84,14 @@ void SceneEditor::PreRender()
 
 void SceneEditor::Render()
 {
-	gBuffer->Render();
+	
+	sky->Pass(4, 5, 6);
+	sky->Render();
 	if (terrain != NULL)
 	{
 		terrain->Pass(0);
 		terrain->Render();
 	}
-	sky->Pass(4, 5, 6);
-	sky->Render();
 
 	if (billBoard != NULL && billBoardCurID != -1)
 	{
@@ -106,7 +106,7 @@ void SceneEditor::Render()
 			staticMesh->Render();
 		}
 	}
-
+	gBuffer->Render();
 }
 
 void SceneEditor::PostRender()

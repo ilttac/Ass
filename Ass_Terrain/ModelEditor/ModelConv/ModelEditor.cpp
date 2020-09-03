@@ -102,6 +102,31 @@ void ModelEditor::Update()
 		//weapon->Update();
 		BoneView();
 		BoneSphereUpdate();
+
+		if (!colliders.empty())
+		{
+			if (tempDebugvalue == true)
+			{
+				for (auto& collider : colliders)
+				{
+					Matrix W = modelLists[currentModelID]->GetTransform(0)->World();
+					Matrix m = modelLists[currentModelID]->GetBoneMatrix(collider.first);
+					collider.second->GetTransform()->World() =
+						colliderTransforms[collider.first]->World()*modelLists[currentModelID]->GetModel()->Bones()[currentBoneIndex]->Transform()*m*W;
+					collider.second->Update();
+				}
+			}
+			else
+			{
+				for (auto& collider : colliders)
+				{
+					Matrix W = modelLists[currentModelID]->GetTransform(0)->World();
+					collider.second->GetTransform()->World() =
+						colliderTransforms[collider.first]->World()*modelLists[currentModelID]->GetModel()->Bones()[currentBoneIndex]->Transform() *W;
+					collider.second->Update();
+				}
+			}
+		}
 	}
 }
 
@@ -142,6 +167,13 @@ void ModelEditor::Render()
 		sphere->Pass(3);
 		sphere->Render();
 		
+	}
+	if (!colliders.empty())
+	{
+		for (auto collider : colliders)
+		{
+			collider.second->Render(Color(0,1,0,1));
+		}
 	}
 }
 ////////////////////////////////////
@@ -497,13 +529,26 @@ void ModelEditor::Gizmo()
 	}
 	if (modelLists.size() != 0 && currentModelID != -1 && editorState == BONE_EDITOR_STATE)
 	{
-		EditTransform(Context::Get()->View(), Context::Get()->Projection(), &sphere->GetTransform(currentBoneIndex)->World()[0], lastUsing == 0);
-		sphere->UpdateTransforms();
+		//EditTransform(Context::Get()->View(), Context::Get()->Projection(), &sphere->GetTransform(currentBoneIndex)->World()[0], lastUsing == 0);
+		//sphere->UpdateTransforms();
 		ImGui::Dummy(ImVec2(50, 30));
 		ImGui::SameLine();
-		if(ImGui::Button("Add Collider Component",ImVec2(200,30)))
+		if (ImGui::Button("Add Collider Component",ImVec2(200,30)))
 		{
-
+			Transform* t = new Transform();
+			Transform* t1 = new Transform();
+			colliderTransforms[currentBoneIndex] = t;
+			Collider* collider = new Collider(t1);
+			colliders[currentBoneIndex] = collider;
+		}
+		if (!colliders.empty())
+		{
+			float matrixTranslation[3], matrixRotation[3], matrixScale[3];
+			ImGuizmo::DecomposeMatrixToComponents(colliderTransforms[currentBoneIndex]->World(), matrixTranslation, matrixRotation, matrixScale);
+			ImGui::SliderFloat3("Tr", matrixTranslation, -1000,1000, "%.3f", 3.0f);
+			ImGui::SliderFloat3("Rt", matrixRotation, -360,360, "%.3f", 3.0f);
+			ImGui::SliderFloat3("Sc", matrixScale, 0,1000, "%.3f", 3.0f);
+			ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, colliderTransforms[currentBoneIndex]->World());
 		}
 	}
 	//if()

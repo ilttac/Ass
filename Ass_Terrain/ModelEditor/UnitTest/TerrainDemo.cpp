@@ -27,7 +27,7 @@ void TerrainDemo::Update()
 
 void TerrainDemo::Render()
 {
-	//terrain->Pass(1);
+	terrain->Pass(0);
 	terrain->Render();
 
 }

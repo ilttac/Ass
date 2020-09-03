@@ -60,6 +60,10 @@ private:
 	vector<wstring> meshLists;
 	vector<vector<string>> clipLists;
 
+	map<int, Collider*> colliders;
+	map<int, Transform*> colliderTransforms;
+
+
 	wstring openFile = L"";
 	wstring openPngFile = L"";
 	wstring saveFile = L"";
