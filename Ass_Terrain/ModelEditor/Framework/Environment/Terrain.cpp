@@ -1022,7 +1022,6 @@ void Terrain::SaveTerrain(wstring file)
 	w->Open(file);
 	w->String(heightMapFileName);
 
-
 	wstring s = Path::GetLastDirectoryName(baseMap->GetFile()) + L"/";
 	wstring s2 = Path::GetFileName(baseMap->GetFile());
 	w->String(String::ToString(s + s2)); //baseMap

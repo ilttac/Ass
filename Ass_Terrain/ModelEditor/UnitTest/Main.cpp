@@ -53,7 +53,7 @@
 
 void Main::Initialize()
 {
-	Push(new TerrainSplattingDemo());
+	Push(new WaterDemo());
 }
 
 void Main::Ready()

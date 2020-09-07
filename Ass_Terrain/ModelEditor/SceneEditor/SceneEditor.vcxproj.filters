@@ -5,6 +5,7 @@
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="Viewer.cpp" />
     <ClCompile Include="SceneEditor.cpp" />
+    <ClCompile Include="LevelSaveLoad.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Main.h" />
@@ -13,5 +14,6 @@
     <ClInclude Include="GizmoFunc.h" />
     <ClInclude Include="Viewer.h" />
     <ClInclude Include="SceneEditor.h" />
+    <ClInclude Include="LevelSaveLoad.h" />
   </ItemGroup>
 </Project>

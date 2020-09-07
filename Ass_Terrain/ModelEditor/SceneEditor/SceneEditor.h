@@ -3,6 +3,8 @@
 
 class SceneEditor : public IExecute
 {
+	friend class LevelSaveLoad;
+
 public:
 	virtual void Initialize() override;
 	virtual void Ready() override {};
@@ -12,14 +14,11 @@ public:
 	virtual void Render() override;
 	virtual void PostRender() override ;
 	virtual void ResizeScreen() override {};
-
 private:
-	
 	void OpenHeightMap(wstring file);
 	void OpenTrnFile(wstring file);
 	void OpenTerrainMapFile(wstring file);
 	void StaticMeshLoad(wstring file);
-
 	void BillboardSet();
 	
 	void MainMenu();

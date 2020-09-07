@@ -662,6 +662,14 @@ void ModelEditor::WriteMaterialFile(wstring file)
 	}
 }
 
+void ModelEditor::SaveLevelFile(wstring file)
+{
+}
+
+void ModelEditor::OpenLevelFile(wstring file)
+{
+}
+
 void ModelEditor::OpenFile(wstring file)
 {
 	//파일 확장자가 fbx냐 .mesh 에따라 따르게 만듬.

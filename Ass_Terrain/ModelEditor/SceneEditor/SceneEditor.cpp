@@ -2,6 +2,7 @@
 #include "SceneEditor.h"
 #include "Utilities/Xml.h"
 #include "GizmoFunc.h"
+#include "LevelSaveLoad.h"
 
 #include "../Framework/Utilities/BinaryFile.h"
 #include "../Framework/Environment/Sky/Dome.h"
