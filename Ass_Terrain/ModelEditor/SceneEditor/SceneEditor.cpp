@@ -147,6 +147,17 @@ void SceneEditor::MainMenu()
 						desc.Handle
 					);
 				}
+				if (ImGui::MenuItem(".level"))
+				{
+					Path::OpenFileDialog
+					(
+						openTerrainFile,
+						L"\0*.level",
+						L"../../_Textures",
+						bind(&SceneEditor::OpenLevelFile, this, placeholders::_1),
+						desc.Handle
+					);
+				}
 				ImGui::EndMenu();
 			}
 			if (ImGui::BeginMenu("Save"))
@@ -162,6 +173,18 @@ void SceneEditor::MainMenu()
 						desc.Handle
 					);
 				}
+				if (ImGui::MenuItem(".level"))
+				{
+					Path::SaveFileDialog
+					(
+						saveTerrainFile,
+						L"\0*.level",
+						L"../../_Textures",
+						bind(&SceneEditor::SaveLevelFile, this, placeholders::_1),
+						desc.Handle
+					);
+				}
+
 				ImGui::EndMenu();
 			}
 			ImGui::EndMenu();
@@ -389,6 +412,50 @@ void SceneEditor::BillboardSet()
 		billBoard->AddTexture(L"Billboard/" + name);
 		textureList.push_back(new Texture(L"Billboard/" + name));
 	}
+}
+
+void SceneEditor::SaveLevelFile(wstring file)
+{
+//.level 에저장해야할것
+//water  
+//ModelRender 
+//terrain 
+//Billboard 
+//Sky
+//ModelMulti
+//ModelAnim
+	//terrain 정보
+	Path::CreateFolders(Path::GetDirectoryName(file));
+	BinaryWriter* w = new BinaryWriter();
+	w->Open(file);
+	w->String(terrain->heightMapFileName);
+
+	wstring s = Path::GetLastDirectoryName((terrain->baseMap)->GetFile()) + L"/";
+	wstring s2 = Path::GetFileName((terrain->baseMap)->GetFile());
+	w->String(String::ToString(s + s2)); //baseMap
+
+	s = Path::GetLastDirectoryName((terrain->layerMap)->GetFile()) + L"/";
+	s2 = Path::GetFileName((terrain->layerMap)->GetFile());
+	w->String(String::ToString(s + s2)); //layerMap
+
+	s = Path::GetLastDirectoryName((terrain->alphaMap)->GetFile()) + L"/";
+	s2 = Path::GetFileName((terrain->alphaMap)->GetFile());
+	w->String(String::ToString(s + s2)); //alphaMap
+
+	w->UInt(terrain->vertexCount);
+	for (UINT i = 0; i < terrain->vertexCount; i++)
+	{
+		w->Float(terrain->vertices[i].Position.y);
+	}
+	///////
+
+	w->Close();
+	SafeDelete(w);
+
+}
+
+void SceneEditor::OpenLevelFile(wstring file)
+{
 }
 
 void SceneEditor::Inspector()

@@ -4,7 +4,7 @@
 class SceneEditor : public IExecute
 {
 	friend class LevelSaveLoad;
-
+	friend class Terrain;
 public:
 	virtual void Initialize() override;
 	virtual void Ready() override {};
@@ -20,7 +20,11 @@ private:
 	void OpenTerrainMapFile(wstring file);
 	void StaticMeshLoad(wstring file);
 	void BillboardSet();
-	
+
+	//level
+	void SaveLevelFile(wstring file);
+	void OpenLevelFile(wstring file);
+
 	void MainMenu();
 	void Hiarachy();
 	void ViewModel();

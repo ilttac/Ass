@@ -35,13 +35,7 @@ private:
 
 	void WriteMaterialFile(wstring file);
 
-	//level
-	void SaveLevelFile(wstring file);
-	void OpenLevelFile(wstring file);
-
 	void OpenFile(wstring file);
-	
-	//terrain
 	void OpenPngFile(wstring file);
 private:
 	void BoneView();

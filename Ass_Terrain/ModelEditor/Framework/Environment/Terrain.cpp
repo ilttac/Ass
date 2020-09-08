@@ -1,5 +1,6 @@
 #include "Framework.h"
 #include "Terrain.h"
+#include "../SceneEditor/SceneEditor.h"
 
 Terrain::Terrain(Shader* shader, wstring heightFile)
 	: Renderer(shader)

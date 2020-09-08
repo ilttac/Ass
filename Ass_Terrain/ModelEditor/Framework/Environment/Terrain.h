@@ -4,7 +4,7 @@ class Terrain : public Renderer
 {
 public:
 	typedef VertexTextureNormal TerrainVertex;
-
+	friend class SceneEditor;
 public:
 	Terrain(Shader* shader, wstring heightFile);
 	~Terrain();

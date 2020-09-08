@@ -300,6 +300,7 @@ void ModelEditor::MainMenu()
 						bind(&ModelEditor::WriteMaterialFile, this, placeholders::_1),
 						desc.Handle
 					);
+
 				}
 				ImGui::EndMenu();
 			}
@@ -660,14 +661,6 @@ void ModelEditor::WriteMaterialFile(wstring file)
 	{
 		modelLists[currentModelID]->GetModel()->WriteMaterial(file, false);
 	}
-}
-
-void ModelEditor::SaveLevelFile(wstring file)
-{
-}
-
-void ModelEditor::OpenLevelFile(wstring file)
-{
 }
 
 void ModelEditor::OpenFile(wstring file)
