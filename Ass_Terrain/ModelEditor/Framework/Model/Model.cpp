@@ -225,7 +225,9 @@ void Model::Attach(Shader * shader, Model * model, int parentBoneIndex, Transfor
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void Model::ReadMaterial(wstring file)
 {
-
+	//temp
+	matFileName = file;
+	//
 	file = L"../../_Textures/" + file + L".material";
 	if (!Path::ExistFile(file))
 	{
@@ -308,6 +310,9 @@ void Model::ReadMaterial(wstring file)
 
 void Model::ReadMesh(wstring file)
 {
+	//temp
+	meshFileName = file;
+	//
 	file = L"../../_Models/" + file + L".mesh";
 
 	BinaryReader* r = new BinaryReader();

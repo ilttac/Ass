@@ -17,7 +17,8 @@ public:
 	void ReadMesh(wstring file);
 
 	void Pass(UINT pass);
-
+	
+	UINT GetTransformCount() { return transforms.size(); }
 	Transform* AddTransform();
 	Transform* GetTransform(UINT index) { return transforms[index]; }
 	void UpdateTransforms();
@@ -26,6 +27,7 @@ public:
 	void UpdateboneTransform(UINT instanceId, UINT boneIndex);
 public:
 	void CreateTexture();
+
 private:
 	struct ChangedBoneDesc
 	{

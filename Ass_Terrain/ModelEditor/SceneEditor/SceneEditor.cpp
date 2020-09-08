@@ -151,8 +151,8 @@ void SceneEditor::MainMenu()
 				{
 					Path::OpenFileDialog
 					(
-						openTerrainFile,
-						L"\0*.level",
+						loadLevelFile,
+						L".level\0*.level",
 						L"../../_Textures",
 						bind(&SceneEditor::OpenLevelFile, this, placeholders::_1),
 						desc.Handle
@@ -177,8 +177,8 @@ void SceneEditor::MainMenu()
 				{
 					Path::SaveFileDialog
 					(
-						saveTerrainFile,
-						L"\0*.level",
+						saveLevelFile,
+						L".level\0*.level",
 						L"../../_Textures",
 						bind(&SceneEditor::SaveLevelFile, this, placeholders::_1),
 						desc.Handle
@@ -417,41 +417,58 @@ void SceneEditor::BillboardSet()
 void SceneEditor::SaveLevelFile(wstring file)
 {
 //.level 에저장해야할것
-//water  
-//ModelRender 
 //terrain 
+//ModelRender 
+//water  
 //Billboard 
 //Sky
 //ModelMulti
 //ModelAnim
-	//terrain 정보
+	
 	Path::CreateFolders(Path::GetDirectoryName(file));
 	BinaryWriter* w = new BinaryWriter();
 	w->Open(file);
-	w->String(terrain->heightMapFileName);
-
-	wstring s = Path::GetLastDirectoryName((terrain->baseMap)->GetFile()) + L"/";
-	wstring s2 = Path::GetFileName((terrain->baseMap)->GetFile());
-	w->String(String::ToString(s + s2)); //baseMap
-
-	s = Path::GetLastDirectoryName((terrain->layerMap)->GetFile()) + L"/";
-	s2 = Path::GetFileName((terrain->layerMap)->GetFile());
-	w->String(String::ToString(s + s2)); //layerMap
-
-	s = Path::GetLastDirectoryName((terrain->alphaMap)->GetFile()) + L"/";
-	s2 = Path::GetFileName((terrain->alphaMap)->GetFile());
-	w->String(String::ToString(s + s2)); //alphaMap
-
-	w->UInt(terrain->vertexCount);
-	for (UINT i = 0; i < terrain->vertexCount; i++)
+	//terrain 정보
+	if (nullptr != terrain)
 	{
-		w->Float(terrain->vertices[i].Position.y);
+		w->String(terrain->heightMapFileName);
+
+		wstring s = Path::GetLastDirectoryName((terrain->baseMap)->GetFile()) + L"/";
+		wstring s2 = Path::GetFileName((terrain->baseMap)->GetFile());
+		w->String(String::ToString(s + s2)); //baseMap
+
+		s = Path::GetLastDirectoryName((terrain->layerMap)->GetFile()) + L"/";
+		s2 = Path::GetFileName((terrain->layerMap)->GetFile());
+		w->String(String::ToString(s + s2)); //layerMap
+
+		s = Path::GetLastDirectoryName((terrain->alphaMap)->GetFile()) + L"/";
+		s2 = Path::GetFileName((terrain->alphaMap)->GetFile());
+		w->String(String::ToString(s + s2)); //alphaMap
+
+		w->UInt(terrain->vertexCount);
+		for (UINT i = 0; i < terrain->vertexCount; i++)
+		{
+			w->Float(terrain->vertices[i].Position.y);
+		}
 	}
+	for (const auto modelRender : modelLists)
+	{
+		//행렬
+		//머터리얼
+		//매쉬
+		for (UINT i = 0; i < modelRender->GetTransformCount(); ++i)
+		{
+			w->Matrix(modelRender->GetTransform(i)->World());
+		}
+		w->String(String::ToString(modelRender->GetModel()->GetMatFileName()));
+		w->String(String::ToString(modelRender->GetModel()->GetMeshFileName()));
+	}
+
+
 	///////
 
 	w->Close();
 	SafeDelete(w);
-
 }
 
 void SceneEditor::OpenLevelFile(wstring file)
@@ -561,6 +578,7 @@ void SceneEditor::TerrainInspector()
 			);
 		}
 		ImGui::NextColumn();
+
 		//layerMap
 		if (ImGui::ImageButton(*terrain->GetLayerMap(), ImVec2(64, 64), ImVec2(0, 0), ImVec2(1, 1), -1, color))
 		{

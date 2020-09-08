@@ -35,6 +35,9 @@ public:
 	ModelClip* ClipByIndex(UINT index) { return clips[index]; }
 	ModelClip* ClipByName(wstring name);
 
+	wstring GetMatFileName() { return matFileName; }
+	wstring GetMeshFileName() { return meshFileName;  }
+
 	void Ambient(Color& color);
 	void Ambient(float r, float g, float b, float a = 1.0);
 
@@ -62,7 +65,9 @@ public:
 public:
 	void BindBone();
 	void BindMesh();
-
+private:
+	wstring matFileName;
+	wstring meshFileName;
 private:
 	vector<Material*> materials;
 

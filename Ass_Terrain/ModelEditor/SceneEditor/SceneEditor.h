@@ -50,9 +50,12 @@ private:
 private:
 	//Hiarachy
 	wstring openModelFile = L"";
+	
+	//ModelRenerHiarachy
 	vector<string> hiarachyName;
 	vector<Matrix*> hiarachyMatrix;
-
+	//
+	
 	int node_clicked = -1;
 	
 private:
@@ -87,7 +90,11 @@ private:
 	wstring saveTerrainFile;
 	Shader* terrainShader;
 	wstring openTerrainMapFile;
-	
+
+	//level
+	wstring saveLevelFile;
+	wstring loadLevelFile;
+
 	enum class ETerrainMapState
 	{
 		eNone,
